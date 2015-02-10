@@ -142,15 +142,7 @@ class Mod349(orm.Model):
         refund_obj = self.pool['l10n.es.aeat.mod349.partner_record']
         obj = self.pool['l10n.es.aeat.mod349.partner_refund']
         obj_detail = self.pool['l10n.es.aeat.mod349.partner_refund_detail']
-        partner_country = [address.country_id for address in
-                           partner_obj.address if address.type ==
-                           'invoice' and address.country_id]
-        if not partner_country:
-            partner_country = [address.country_id for
-                               address in partner_obj.address
-                               if address.type == 'default' and
-                               address.country_id]
-        partner_country = partner_country and partner_country[0] or False
+        partner_country = partner_obj.country_id
         record = {}
         for invoice in refunds:
             # goes around all refunded invoices
@@ -224,10 +216,11 @@ class Mod349(orm.Model):
             partner_refund_obj.unlink(cr, uid, [refund.id for refund in
                                                 mod349.partner_refund_ids],
                                       context=context)
-            # Returns all partners
-            # TODO: Problema: Si se ha desactivado el partner, pero tiene
-            # facturas, no saldrán en el informe
-            partner_ids = partner_obj.search(cr, uid, [], context=context)
+            # Returns all commercial partners (including disabled ones)
+            ctx = context.copy()
+            ctx['active_test'] = False
+            partner_ids = partner_obj.search(
+                cr, uid, [('parent_id', '=', False)], context=ctx)
             for partner_id in partner_ids:
                 for op_key in [x[0] for x in OPERATION_KEYS]:
                     # Invoices
@@ -237,7 +230,7 @@ class Mod349(orm.Model):
                         fiscalyear_id=mod349.fiscalyear_id.id,
                         period_id=[x.id for x in mod349.period_ids],
                         month=mod349.month_selection, context=context)
-                    # Separates normal invoices from restitution
+                    # Separates normal invoices from refunds
                     invoice_ids, refunds_ids = invoice_obj.\
                         clean_refund_invoices(
                             cr, uid, invoice_ids, partner_id,

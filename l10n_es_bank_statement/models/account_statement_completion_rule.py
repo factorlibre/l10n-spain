@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Copyright (c) All rights reserved:
+#    Copyright (c)
 #        2013-2014 Servicios Tecnológicos Avanzados (http://serviciosbaeza.com)
 #                  Pedro Manuel Baeza <pedro.baeza@serviciosbaeza.com>
 #
@@ -30,6 +30,7 @@ class AccountStatementCompletionRule(orm.Model):
         res = super(AccountStatementCompletionRule, self)._get_functions(
             cr, uid, context=context)
         res.append(('get_from_caixabank_rules', _('From CaixaBank C43 rules')))
+        res.append(('get_from_santander_rules', _('From Santander C43 rules')))
         res.append(('get_from_generic_c43_rules', _('From generic C43 rules')))
         res.append(('get_from_santander_rules', _('From Santander C43 rules')))
         return res
