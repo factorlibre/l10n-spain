@@ -97,7 +97,7 @@ class CreateFacturae(orm.TransientModel):
 
         def _persona(vat):
             texto = ''
-            if vat[2:3].isdigit() == True:
+            if vat[2:3].isdigit():
                 texto = 'F'
             else:
                 texto = 'J'
@@ -503,21 +503,27 @@ class CreateFacturae(orm.TransientModel):
             texto += '</InvoiceTotals>'
             return texto
 
-        def _invoice_items():
+        def _invoice_items(self, cr, uid, context=None):
+
+            account_tax_pool = self.pool['account.tax']
 
             rate = 0.0
             texto = ''
             texto += '<Items>'
 
             for line in invoice.invoice_line:
+                taxes = account_tax_pool.compute_all(
+                    cr, uid, line.invoice_line_tax_id, line.price_unit,
+                    line.quantity, product=line.product_id,
+                    partner=line.invoice_id.partner_id)
                 texto += '<InvoiceLine>'
                 texto += '<ItemDescription>' + line.name + '</ItemDescription>'
                 texto += '<Quantity>' + str(line.quantity) + '</Quantity>'
                 texto += '<UnitPriceWithoutTax>'
-                texto += str('%.6f' % line.price_unit)
+                texto += str('%.6f' % (taxes['total'] / line.quantity))
                 texto += '</UnitPriceWithoutTax>'
                 texto += '<TotalCost>' +\
-                         str('%.6f' % (line.quantity * line.price_unit)) +\
+                         str('%.6f' % taxes['total']) +\
                          '</TotalCost>'
                 texto += '<DiscountsAndRebates>'
                 texto += '<Discount>'
@@ -526,7 +532,7 @@ class CreateFacturae(orm.TransientModel):
                          str('%.4f' % line.discount) + '</DiscountRate>'
                 texto += '<DiscountAmount>'
                 texto += str('%.6f' % (
-                    (line.price_unit*line.quantity) - line.price_subtotal))
+                    taxes['total'] - line.price_subtotal))
                 texto += '</DiscountAmount>'
                 texto += '</Discount>'
                 texto += '</DiscountsAndRebates>'
@@ -560,7 +566,7 @@ class CreateFacturae(orm.TransientModel):
             texto += '</Items>'
             return texto
 
-        def _invoices_facturae():
+        def _invoices_facturae(self, cr, uid, context=None):
 
             texto = ''
             texto += '<Invoices>'
@@ -582,7 +588,7 @@ class CreateFacturae(orm.TransientModel):
             texto += '</InvoiceIssueData>'
             texto += _taxes_output()
             texto += _invoice_totals()
-            texto += _invoice_items()
+            texto += _invoice_items(self, cr, uid, context=context)
             texto += '<AdditionalData>'
             texto += '<InvoiceAdditionalInformation>'
             texto += (invoice.comment or "")
@@ -610,7 +616,7 @@ class CreateFacturae(orm.TransientModel):
             file_name_unsigned = path + 'unsigned_' + file_name
             file_name_signed = path + file_name
             file_unsigned = open(file_name_unsigned, "w+")
-            file_unsigned.write(xml_facturae)
+            file_unsigned.write(xml_facturae.encode('ascii', 'replace'))
             file_unsigned.close()
             file_signed = open(file_name_signed, "w+")
 
@@ -654,7 +660,7 @@ class CreateFacturae(orm.TransientModel):
         xml_facturae += _format_xml()
         xml_facturae += _header_facturae(cr, context)
         xml_facturae += _parties_facturae(cr, context)
-        xml_facturae += _invoices_facturae()
+        xml_facturae += _invoices_facturae(self, cr, uid, context=context)
         xml_facturae += _end_document()
         xml_facturae = conv_ascii(xml_facturae)
         if invoice.company_id.facturae_cert:
