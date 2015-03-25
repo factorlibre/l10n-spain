@@ -137,14 +137,18 @@ class CreateFacturae(orm.TransientModel):
             if not invoice.number:
                 log.add(_('User error:\n\nCan not create Factura-E '
                           'file if invoice has no number.'))
-                raise log
+                raise orm.except_orm(
+                    _('Error!'), log
+                )
 
             if company_partner_obj.vat:
                 BatchIdentifier = invoice.number + company_partner_obj.vat
             else:
                 log.add(_('User error:\n\nCompany %s has no VAT number.') %
                         company_partner_obj.name, True)
-                raise log
+                raise orm.except_orm(
+                    _('Error!'), log
+                )
 
             texto = ''
             texto += '<FileHeader>'
@@ -177,7 +181,9 @@ class CreateFacturae(orm.TransientModel):
                     _('User error:\n\nCompany %s does not have '
                       'an invoicing address.') % company_partner_obj.name
                 )
-                raise log
+                raise orm.except_orm(
+                    _('Error!'), log
+                )
 
             company_address_obj = self.pool.get('res.partner').browse(
                 cr, uid, company_address_id['invoice'])
@@ -192,7 +198,9 @@ class CreateFacturae(orm.TransientModel):
             else:
                 log.add(_('User error:\n\nPartner %s does not have '
                           'a VAT number.') % invoice_partner_obj.name, True)
-                raise log
+                raise orm.except_orm(
+                    _('Error!'), log
+                )
 
             texto = ''
             texto += '<Parties>'
@@ -239,26 +247,34 @@ class CreateFacturae(orm.TransientModel):
             else:
                 log.add(_('User error:\n\nCompany %s has no street.') %
                         company_partner_obj.name, True)
-                raise log
+                raise orm.except_orm(
+                    _('Error!'), log
+                )
             if company_address_obj.zip:
                 texto += '<PostCode>' + company_address_obj.zip + '</PostCode>'
             else:
                 log.add(_('User error:\n\nCompany %s has no zip code.') %
                         company_partner_obj.name, True)
-                raise log
+                raise orm.except_orm(
+                    _('Error!'), log
+                )
             if company_address_obj.city:
                 texto += '<Town>' + company_address_obj.city + '</Town>'
             else:
                 log.add(_('User error:\n\nCompany %s has no city.') %
                         company_partner_obj.name, True)
-                raise log
+                raise orm.except_orm(
+                    _('Error!'), log
+                )
             if company_address_obj.state_id.name:
                 texto += '<Province>' + company_address_obj.state_id.name +\
                          '</Province>'
             else:
                 log.add(_('User error:\n\nCompany %s has no province.') %
                         company_partner_obj.name, True)
-                raise log
+                raise orm.except_orm(
+                    _('Error!'), log
+                )
             if company_address_obj.country_id.code_3166:
                 texto += '<CountryCode>' + \
                          company_address_obj.country_id.code_3166 +\
@@ -266,7 +282,9 @@ class CreateFacturae(orm.TransientModel):
             else:
                 log.add(_('User error:\n\nCompany %s has no country.') %
                         company_partner_obj.name, True)
-                raise log
+                raise orm.except_orm(
+                    _('Error!'), log
+                )
             texto += '</AddressInSpain>'
 
             texto += '<ContactDetails>'
@@ -338,34 +356,44 @@ class CreateFacturae(orm.TransientModel):
                 else:
                     log.add(_('User error:\n\nPartner %s has no street.') %
                             address.name, True)
-                    raise log
+                    raise orm.except_orm(
+                        _('Error!'), log
+                    )
                 if address.zip:
                     texto += '<PostCode>' + address.zip + '</PostCode>'
                 else:
                     log.add(_('User error:\n\nPartner %s has no zip code.') %
                             address.name, True)
-                    raise log
+                    raise orm.except_orm(
+                        _('Error!'), log
+                    )
 
                 if address.city:
                     texto += '<Town>' + address.city + '</Town>'
                 else:
                     log.add(_('User error:\n\nPartner %s has no city.') %
                             address.name, True)
-                    raise log
+                    raise orm.except_orm(
+                        _('Error!'), log
+                    )
                 if address.state_id.name:
                     texto += '<Province>' + address.state_id.name +\
                              '</Province>'
                 else:
                     log.add(_('User error:\n\nPartner %s has no province.') %
                             address.name, True)
-                    raise log
+                    raise orm.except_orm(
+                        _('Error!'), log
+                    )
                 if address.country_id.code_3166:
                     texto += '<CountryCode>' + address.country_id.code_3166 +\
                              '</CountryCode>'
                 else:
                     log.add(_('User error:\n\nPartner %s has no country.') %
                             address.name, True)
-                    raise log
+                    raise orm.except_orm(
+                        _('Error!'), log
+                    )
                 texto += '</AddressInSpain>'
 
                 texto += '<ContactDetails>'
