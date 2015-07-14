@@ -691,7 +691,7 @@ class CreateFacturae(orm.TransientModel):
         xml_facturae += _invoices_facturae(self, cr, uid, context=context)
         xml_facturae += _end_document()
         xml_facturae = conv_ascii(xml_facturae)
-        if invoice.company_id.facturae_cert:
+        if invoice.company_id.facturae_cert and obj.firmar_facturae:
             file_name = (_(
                 'facturae') + '_' + invoice.number + '.xsig').replace('/', '-')
             invoice_file = _sign_document(xml_facturae, file_name, invoice)
