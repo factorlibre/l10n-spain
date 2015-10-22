@@ -162,7 +162,7 @@ class csb_34_01(osv.osv):
         text += self._start_34(cr, uid, context)
         text += 12*' '
         text += 3*' '
-        text += converter.convert(cr, uid, self.order.total, 12, context)
+        text += converter.convert(cr, uid, abs(self.order.total), 12, context)
         text += converter.convert(cr, uid, self.payment_line_count, 8, context)
         text += converter.convert(cr, uid, self.record_count, 10, context)
         text += 6*' '

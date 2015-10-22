@@ -95,7 +95,7 @@ class wizard_payment_file_spain(osv.osv_memory):
                         'partner_id': partner,
                         'bank_id': bank,
                         'name': partner.ref or str(partner.id),
-                        'amount': reduce(lambda x, y: x+y, [l.amount for l in lineas], 0),
+                        'amount': reduce(lambda x, y: abs(x)+abs(y), [l.amount for l in lineas], 0),
                         'communication': reduce(lambda x, y: x+' '+(y or ''), [l.name+' '+l.communication for l in lineas], ''),
                         'communication2': reduce(lambda x, y: x+' '+(y or ''), [l.communication2 for l in lineas], ''),
                         'date': max([l.date for l in lineas]),
@@ -111,7 +111,7 @@ class wizard_payment_file_spain(osv.osv_memory):
                         'partner_id': l.partner_id,
                         'bank_id': l.bank_id,
                         'name': l.partner_id.ref or str(l.partner_id.id),
-                        'amount': l.amount,
+                        'amount': abs(l.amount),
                         'communication': l.name+' '+l.communication,
                         'communication2': l.communication2,
                         'date': l.date,
@@ -167,7 +167,7 @@ class wizard_payment_file_spain(osv.osv_memory):
                 'res_model': 'payment.order',
                 'res_id': orden.id,
                 }, context=context)
-            log = _("Successfully Exported\n\nSummary:\n Total amount paid: %.2f\n Total Number of Payments: %d\n") % (orden.total, len(recibos))
+            log = _("Successfully Exported\n\nSummary:\n Total amount paid: %.2f\n Total Number of Payments: %d\n") % (abs(orden.total), len(recibos))
 
             form_obj.write({'note': log,'pay': file_remesa,'pay_fname': fname})
 
