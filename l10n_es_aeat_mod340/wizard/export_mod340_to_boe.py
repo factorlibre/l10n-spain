@@ -22,7 +22,8 @@
 ##############################################################################
 
 from openerp import models, api, _
-
+import logging
+_logger = logging.getLogger(__name__)
 
 class L10nEsAeatMod340ExportToBoe(models.TransientModel):
     _inherit = "l10n.es.aeat.report.export_to_boe"
@@ -161,7 +162,26 @@ class L10nEsAeatMod340ExportToBoe(models.TransientModel):
             # Código país
             text += self._formatString(invoice_issued.partner_country_code, 2)
             # Clave de identificación en el país de residencia
-            text += self._formatNumber(invoice_issued.partner_id.vat_type, 1)
+            key_identification = invoice_issued.partner_id.vat_type
+            if not invoice_issued.partner_id.vat:
+                key_identification = '6'
+            else:
+                if invoice_issued.partner_country_code:
+                    if invoice_issued.partner_country_code == 'ES':
+                        key_identification = '1'
+                    else:
+                        group_country_europe = self.env['res.country.group'].search(
+                            [('name','=', 'Europe')])
+                        if group_country_europe:
+                            country_ids = self.env['res.country'].search([
+                                ('code','=', invoice_issued.partner_country_code),
+                                ('country_group_ids','=', group_country_europe[0].id)])
+                            if country_ids:
+                                key_identification = '2'
+                            else:
+                                key_identification = '6'
+
+            text += self._formatNumber(key_identification, 1)
             # Número de identificación fiscal en el país de residencia.
             if invoice_issued.partner_country_code != 'ES':
                 text += self._formatString(
@@ -175,14 +195,21 @@ class L10nEsAeatMod340ExportToBoe(models.TransientModel):
             text += 'E'
             # Clave de operación
             #if invoice_issued.invoice_id.origin_invoices_ids:
+            type_invoice = ' '
             if invoice_issued.invoice_id.type == 'out_refund':
-                text += 'D'
-            elif len(invoice_issued.tax_line_ids) > 1:
-                text += 'C'
+                type_invoice = 'D'
             elif invoice_issued.invoice_id.is_ticket_summary == 1:
-                text += 'B'
-            else:
-                text += ' '
+                type_invoice = 'B'
+            elif invoice_issued.invoice_id.vat_on_payment:
+                type_invoice = 'Z'
+            elif invoice_issued.invoice_id.is_leasing_invoice()[0]:
+                type_invoice = 'R'
+            elif len(invoice_issued.tax_line_ids) > 1:
+                #Buscar total de 
+                type_invoice = 'C'                
+
+            text += type_invoice
+
             text += self._formatNumber(
                 invoice_issued.invoice_id.date_invoice.split('-')[0], 4)
             text += self._formatNumber(
@@ -219,8 +246,12 @@ class L10nEsAeatMod340ExportToBoe(models.TransientModel):
                     invoice_issued.invoice_id.number_tickets, 8)
             else:
                 text += self._formatNumber(1, 8)
+
             # Número de registros (Desglose)
-            text += self._formatNumber(len(invoice_issued.tax_line_ids), 2)
+            if type_invoice == 'C':
+                text += self._formatNumber(len(invoice_issued.tax_line_ids), 2)
+            else:
+                text += self._formatNumber(1, 2)
             # Intervalo de identificación de la acumulación
             if invoice_issued.invoice_id.is_ticket_summary == 1:
                 text += self._formatString(
@@ -334,7 +365,26 @@ class L10nEsAeatMod340ExportToBoe(models.TransientModel):
             text += self._formatString(invoice_received.partner_country_code,
                                        2)
             # Clave de identificación en el país de residencia
-            text += self._formatNumber(invoice_received.partner_id.vat_type, 1)
+            key_identification = invoice_received.partner_id.vat_type
+            if not invoice_received.partner_id.vat:
+                key_identification = '6'
+            else:
+                if invoice_received.partner_country_code:
+                    if invoice_received.partner_country_code == 'ES':
+                        key_identification = '1'
+                    else:
+                        group_country_europe = self.env['res.country.group'].search(
+                            [('name','=', 'Europe')])
+                        if group_country_europe:
+                            country_ids = self.env['res.country'].search([
+                                ('code','=', invoice_received.partner_country_code),
+                                ('country_group_ids','=', group_country_europe[0].id)])
+                            if country_ids:
+                                key_identification = '2'
+                            else:
+                                key_identification = '6'
+
+            text += self._formatNumber(key_identification, 1)
             # Número de identificación fiscal en el país de residencia.
             if invoice_received.partner_country_code != 'ES':
                 text += self._formatString(
@@ -347,15 +397,23 @@ class L10nEsAeatMod340ExportToBoe(models.TransientModel):
             # Clave tipo de libro. Constante 'R'.
             text += 'R'
             # Clave de operación
+            type_invoice = ' '
             if invoice_received.invoice_id.fiscal_position\
                     .intracommunity_operations:
-                text += 'P'
-            elif len(invoice_received.tax_line_ids) > 1:
-                text += 'C'
+                type_invoice = 'P'
+            elif invoice_received.invoice_id.is_reverse_charge_invoice()[0]:
+                type_invoice = 'I'
+            elif invoice_received.invoice_id.vat_on_payment:
+                type_invoice = 'Z'
             elif invoice_received.invoice_id.type == 'in_refund':
-                text += 'D'
-            else:
-                text += ' '
+                type_invoice = 'D'
+            elif invoice_received.invoice_id.is_leasing_invoice()[0]:
+                type_invoice = 'R'                                               
+            elif len(invoice_received.tax_line_ids) > 1:
+                type_invoice = 'C'
+
+            text += type_invoice
+
             # Fecha de expedición
             text += self._formatNumber(
                 invoice_received.invoice_id.date_invoice.split('-')[0], 4)
@@ -390,19 +448,35 @@ class L10nEsAeatMod340ExportToBoe(models.TransientModel):
             # Número de facturas
             text += self._formatNumber(1, 18)
             # Número de registros (Desglose)
-            text += self._formatNumber(len(invoice_received.tax_line_ids), 2)
+            if type_invoice == 'C':
+                text += self._formatNumber(len(invoice_received.tax_line_ids), 2)
+            else:
+                text += self._formatNumber(1, 2)
             # Intervalo de identificación de la acumulación
             text += 80 * ' '
             # Cuota deducible
             text += ' ' + self._formatNumber(0, 11, 2)
             # Fecha de Pago #TODO
-            text += 8 * '0'
             # Importes pagados #TODO
-            text += 13 * '0'
             # Medio de pago utilizado
-            text += ' '
             # Cuenta Bancaria o medio de cobro utilizado #TODO
-            text += 34 * ' '
+            if type_invoice == 'Z' and invoice_received.date_payment:
+                text += self._formatNumber(
+                    invoice_received.date_payment.split('-')[0], 4)
+                text += self._formatNumber(
+                    invoice_received.date_payment.split('-')[1], 2)
+                text += self._formatNumber(
+                    invoice_received.date_payment.split('-')[2], 2)
+                text += self._formatNumber(invoice_received.payment_amount, 11, 2)
+                text += 'C'
+                text += self._formatString(invoice_received.name_payment_method,
+                           34)
+            else:
+                text += 8 *  '0'
+                text += 13 * '0'
+                text += ' '
+                text += 34 * ' '
+            
             # Blancos
             text += 95 * ' '
             text += '\r\n'

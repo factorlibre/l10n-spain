@@ -77,6 +77,7 @@ class L10nEsAeatMod340Report(orm.Model):
     _columns = {
         # 'name': fields.function(_name_get, method=True, type="char",
         #                         size=64, string="Name"),
+
         'issued': fields.one2many('l10n.es.aeat.mod340.issued', 'mod340_id',
                                   'Invoices Issued',
                                   states={'done': [('readonly', True)]}),
@@ -145,8 +146,12 @@ class L10nEsAeatMod340Report(orm.Model):
         if not vals.get('name'):
             fy = self.env['account.fiscalyear'].browse(vals[
                                                            'fiscalyear_id'])[0]
+            period = vals['period_type']
+            if vals['period_type'] == '0A':
+                period = '00'
+
             vals['name'] =  '340' + fy.name +\
-                                 vals['period_type'] +\
+                                 period +\
                             self._report_identifier_get(vals)
         return super(L10nEsAeatMod340Report, self).create(vals)
 
@@ -179,7 +184,10 @@ class L10nEsAeatMod340Issued(orm.Model):
                                         'invoice_record_id', 'Tax lines'),
         'date_invoice': fields.date('Date Invoice', readonly=True),
         'txt_exception': fields.char('Exception', size=256),
-        'exception': fields.boolean('Exception')
+        'exception': fields.boolean('Exception'),
+        'date_payment': fields.date('Date Payment', readonly=True),
+        'payment_amount': fields.float('Payment amount', digits=(13, 2)),
+        'name_payment_method': fields.char('Method Payment', size=34),
     }
 
     _order = 'date_invoice asc, invoice_id asc'

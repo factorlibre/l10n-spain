@@ -120,8 +120,11 @@
                     <field name="base_tax" sum="Total Base"/>
                     <field name="amount_tax" sum="Total Tax"/>
                     <field name="total" sum="Total"/>
-                     <field name="txt_exception" />
-                     <field name="exception" />
+                    <field name="date_payment"/>
+                    <field name="payment_amount" sum="Total payment"/>
+                    <field name="name_payment_method"/>
+                    <field name="txt_exception" />
+                    <field name="exception" />
                 </tree>
             </field>
         </record>
@@ -140,6 +143,10 @@
                     <newline/>
                     <field name="base_tax"/>
                     <field name="amount_tax"/>
+                    <newline/>
+                    <field name="date_payment"/>
+                    <field name="payment_amount"/>
+                    <field name="name_payment_method"/>
                     <newline/>
                     <field name="total"/>
                     <field name="exception" />
