@@ -80,16 +80,17 @@ class AcquirerRedsys(models.Model):
                                          default='T')
     redsys_signature_version = fields.Selection(
         [('HMAC_SHA256_V1', 'HMAC SHA256 V1')], default='HMAC_SHA256_V1')
-    redsys_url_ok = fields.Char('URL OK')
-    redsys_url_ko = fields.Char('URL KO')
     send_quotation = fields.Boolean('Send quotation', default=True)
 
     def _prepare_merchant_parameters(self, acquirer, tx_values):
+        base_url = self.env['ir.config_parameter'].get_param('web.base.url')
+        sale_order = self.env['sale.order'].search(
+            [('name', '=', tx_values['reference'])])
         values = {
             'Ds_Sermepa_Url': (
                 self._get_redsys_urls(acquirer.environment)[
                     'redsys_form_url']),
-            'Ds_Merchant_Amount': str(int(tx_values['amount'] * 100)),
+            'Ds_Merchant_Amount': str(int(round(tx_values['amount'] * 100))),
             'Ds_Merchant_Currency': acquirer.redsys_currency or '978',
             'Ds_Merchant_Order': (
                 tx_values['reference'] and tx_values['reference'][-12:] or
@@ -116,8 +117,12 @@ class AcquirerRedsys(models.Model):
                 acquirer.redsys_merchant_description[:125]),
             'Ds_Merchant_ConsumerLanguage': (
                 acquirer.redsys_merchant_lang or '001'),
-            'Ds_Merchant_UrlOk': acquirer.redsys_url_ok or '',
-            'Ds_Merchant_UrlKo': acquirer.redsys_url_ko or '',
+            'Ds_Merchant_UrlOk':
+            '%s/payment/redsys/result/redsys_result_ok?order_id=%s' % (
+                base_url, sale_order.id),
+            'Ds_Merchant_UrlKo':
+            '%s/payment/redsys/result/redsys_result_ko?order_id=%s' % (
+                base_url, sale_order.id),
             'Ds_Merchant_Paymethods': acquirer.redsys_pay_method or 'T',
         }
         return self._url_encode64(json.dumps(values))
@@ -256,18 +261,17 @@ class TxRedsys(models.Model):
                     'Ds_Response'),
             })
             if tx.acquirer_id.send_quotation:
-                email_act = tx.sale_order_id.action_quotation_send()
-                # send the email
-                if email_act and email_act.get('context'):
-                    self.send_mail(email_act['context'])
+                tx.sale_order_id.force_quotation_send()
             return True
         if (status_code >= 101) and (status_code <= 202):
             # 'Payment error: code: %s.'
             tx.write({
                 'state': 'pending',
                 'redsys_txnid': parameters_dic.get('Ds_AuthorisationCode'),
-                'state_message': _('Error: %s') % parameters_dic.get(
-                    'Ds_Response'),
+                'state_message': _('Error: %s (%s)') % (
+                    parameters_dic.get('Ds_Response'),
+                    parameters_dic.get('Ds_ErrorCode')
+                ),
             })
             return True
         if (status_code == 912) and (status_code == 9912):
@@ -275,12 +279,17 @@ class TxRedsys(models.Model):
             tx.write({
                 'state': 'cancel',
                 'redsys_txnid': parameters_dic.get('Ds_AuthorisationCode'),
-                'state_message': (_('Bank Error: %s')
-                                  % parameters_dic.get('Ds_Response')),
+                'state_message': _('Bank Error: %s (%s)') % (
+                    parameters_dic.get('Ds_Response'),
+                    parameters_dic.get('Ds_ErrorCode')
+                ),
             })
             return True
         else:
-            error = 'Redsys: feedback error'
+            error = _('Redsys: feedback error %s (%s)') % (
+                parameters_dic.get('Ds_Response'),
+                parameters_dic.get('Ds_ErrorCode')
+            )
             _logger.info(error)
             tx.write({
                 'state': 'error',
@@ -288,13 +297,3 @@ class TxRedsys(models.Model):
                 'state_message': error,
             })
             return False
-
-    def send_mail(self, email_ctx):
-        composer_values = {}
-        template = self.env.ref('sale.email_template_edi_sale', False)
-        if not template:
-            return True
-        email_ctx['default_template_id'] = template.id
-        composer_id = self.env['mail.compose.message'].with_context(
-            email_ctx).create(composer_values)
-        composer_id.with_context(email_ctx).send_mail()

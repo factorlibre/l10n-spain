@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 ##############################################################################
 #
 #  OpenERP, Open Source Management Solution.
@@ -24,7 +24,7 @@ from openerp import fields, models, api, exceptions, _
 class L10nEsAeatMod111Report(models.Model):
 
     _description = 'AEAT 111 report'
-    _inherit = 'l10n.es.aeat.report'
+    _inherit = 'l10n.es.aeat.report.tax.mapping'
     _name = 'l10n.es.aeat.mod111.report'
 
     number = fields.Char(default='111')
@@ -204,7 +204,7 @@ class L10nEsAeatMod111Report(models.Model):
         'telemáticamente). A cumplimentar sólo en el caso de declaración '
         'complementaria.')
     currency_id = fields.Many2one(
-        comodel_name='res.currency', string='Moneda',
+        comodel_name='res.currency', string='Moneda', readonly=True,
         related='company_id.currency_id', store=True)
     tipo_declaracion = fields.Selection(
         [('I', 'Ingreso'), ('U', 'Domiciliación'),

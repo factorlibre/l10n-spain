@@ -24,7 +24,7 @@ from openerp import fields, models, api, _
 class L10nEsAeatMod115Report(models.Model):
 
     _description = 'AEAT 115 report'
-    _inherit = 'l10n.es.aeat.report'
+    _inherit = 'l10n.es.aeat.report.tax.mapping'
     _name = 'l10n.es.aeat.mod115.report'
 
     number = fields.Char(default='115')
@@ -65,7 +65,7 @@ class L10nEsAeatMod115Report(models.Model):
         relation='mod115_account_move_line03_rel',
         column1='mod115', column2='account_move_line')
     currency_id = fields.Many2one(
-        comodel_name='res.currency', string='Moneda',
+        comodel_name='res.currency', string='Moneda', readonly=True,
         related='company_id.currency_id', store=True)
     tipo_declaracion = fields.Selection(
         selection=[('I', 'Ingreso'),

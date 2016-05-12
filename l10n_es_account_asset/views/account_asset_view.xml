@@ -10,7 +10,7 @@
                 <attribute name="attrs">{'invisible': True}</attribute>
             </field>
             <field name="method_time" position="after">
-                <field name="ext_method_time" on_change="onchange_ext_method_time(ext_method_time)"/>
+                <field name="ext_method_time"/>
                 <field name="method_percentage" attrs="{'invisible':[('ext_method_time','!=','percentage')], 'required':[('ext_method_time','=','percentage')]}"/>
             </field>
             <field name="method_number" position="attributes">
@@ -34,10 +34,15 @@
                 <attribute name="attrs">{'invisible': True}</attribute>
             </field>
             <field name="method_time" position="after">
-                <field name="ext_method_time" on_change="onchange_ext_method_time(ext_method_time)"/>
+                <field name="ext_method_time" />
             </field>
             <field name="method_number" position="after">
-                <field name="method_percentage" attrs="{'invisible':[('ext_method_time','!=','percentage')], 'required':[('ext_method_time','=','percentage')]}"/>
+                <field name="method_percentage"
+                       attrs="{'invisible':[('ext_method_time','!=','percentage')], 'required':[('ext_method_time','=','percentage')]}"
+                />
+                <field name="annual_percentage"
+                       attrs="{'invisible':[('ext_method_time','!=','percentage')], 'required':[('ext_method_time','=','percentage')]}"
+                />
             </field>
             <field name="method_number" position="attributes">
                 <attribute name="attrs">{'invisible':[('ext_method_time','!=','number')], 'required':[('ext_method_time','=','number')]}</attribute>
