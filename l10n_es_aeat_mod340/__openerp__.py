@@ -30,7 +30,8 @@
               "OpenMind Systems, "
               "Serv. Tecnol. Avanzados - Pedro M. Baeza, "
               "Odoo Community Association (OCA), "
-              "Factor Libre",
+              "Factor Libre, "
+              "GAFIC SLP - Albert Cabedo",
     'website': 'https://github.com/OCA/l10n-spain',
     'category': 'Localisation/Accounting',
     'license': 'AGPL-3',
