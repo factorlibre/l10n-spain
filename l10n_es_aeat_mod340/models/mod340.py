@@ -180,6 +180,8 @@ class L10nEsAeatMod340Issued(orm.Model):
         'amount_tax': fields.float('Total tax', digits=(13, 2)),
         'rec_amount_tax': fields.float('Tax surcharge amount', digits=(13, 2)),
         'total': fields.float('Total', digits=(13, 2)),
+        'key_operation': fields.char('Key operation', size=12),
+        'vat_type': fields.char('Vat type', size=12),
         'tax_line_ids': fields.one2many('l10n.es.aeat.mod340.tax_line_issued',
                                         'invoice_record_id', 'Tax lines'),
         'date_invoice': fields.date('Date Invoice', readonly=True),
