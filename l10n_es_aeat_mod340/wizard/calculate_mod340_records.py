@@ -29,7 +29,8 @@ from openerp.tools.float_utils import float_is_zero
 import logging
 _logger = logging.getLogger(__name__)
 
-VALID_TYPES = [0, 0.04, 0.07, 0.08, 0.10, 0.16, 0.18, 0.21]
+VALID_TYPES = [0, 0.005, 0.014, 0.04, 0.052, 0.07, 0.08, 0.10, 0.12, 0.16, 0.18, 0.21]
+
 
 class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
     _name = "l10n.es.aeat.mod340.calculate_records"
@@ -233,7 +234,7 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                                 surcharge_taxes_lines.append(tax_line)
                             else:
                                 tax_percentage = self.proximo(round (
-                                        abs(tax_line.amount/tax_line.base), 3),\
+                                        abs(tax_line.amount/tax_line.base), 4),\
                                     VALID_TYPES)
 
                                 values = {
