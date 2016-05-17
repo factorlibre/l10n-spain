@@ -215,7 +215,7 @@ class L10nEsAeatMod340ExportToBoe(models.TransientModel):
                 text += self._formatNumber(1, 8)
 
             # Número de registros (Desglose)
-            if invoice_issued.type_invoice == 'C':
+            if invoice_issued.key_operation == 'C':
                 text += self._formatNumber(len(invoice_issued.tax_line_ids), 2)
             else:
                 text += self._formatNumber(1, 2)
@@ -381,7 +381,7 @@ class L10nEsAeatMod340ExportToBoe(models.TransientModel):
             # Número de facturas
             text += self._formatNumber(1, 18)
             # Número de registros (Desglose)
-            if invoice_received.type_invoice == 'C':
+            if invoice_received.key_operation == 'C':
                 text += self._formatNumber(len(invoice_received.tax_line_ids), 2)
             else:
                 text += self._formatNumber(1, 2)
@@ -393,7 +393,7 @@ class L10nEsAeatMod340ExportToBoe(models.TransientModel):
             # Importes pagados #TODO
             # Medio de pago utilizado
             # Cuenta Bancaria o medio de cobro utilizado #TODO
-            if invoice_received.type_invoice == 'Z' and invoice_received.date_payment:
+            if invoice_received.key_operation == 'Z' and invoice_received.date_payment:
                 text += self._formatNumber(
                     invoice_received.date_payment.split('-')[0], 4)
                 text += self._formatNumber(
