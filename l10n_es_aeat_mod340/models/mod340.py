@@ -200,6 +200,7 @@ class L10nEsAeatMod340Received(orm.Model):
     _description = 'Invoices Received'
     _inherit = 'l10n.es.aeat.mod340.issued'
     _columns = {
+        'supplier_invoice_number': fields.char('Supplier invoice number', size=128),
         'tax_line_ids': fields.one2many(
             'l10n.es.aeat.mod340.tax_line_received', 'invoice_record_id',
             'Tax lines'),

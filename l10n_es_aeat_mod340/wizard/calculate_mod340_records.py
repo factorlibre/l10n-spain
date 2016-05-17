@@ -176,7 +176,6 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
 
                 key_operation = ''
 
-
                 # Clave de operación
                 key_operation = ' '
                 if invoice.type in ['out_invoice', 'out_refund']:
@@ -199,9 +198,7 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                     elif invoice.type == 'in_refund':
                         key_operation = 'D'
                     elif invoice.is_leasing_invoice()[0]:
-                        key_operation = 'R' 
-
-
+                        key_operation = 'R'
 
                 values.update({
                     'vat_type' : key_identification,
@@ -211,6 +208,7 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                 if invoice.type in ['out_invoice', 'out_refund']:
                     invoice_created = invoices340.create(cr, uid, values)
                 if invoice.type in ['in_invoice', 'in_refund']:
+                    values.update({'supplier_invoice_number': invoice.supplier_invoice_number or invoice.reference or ''})
                     invoice_created = invoices340_rec.create(cr, uid, values)
                 tot_tax_invoice = 0
                 tot_invoice = invoice.cc_amount_untaxed * sign

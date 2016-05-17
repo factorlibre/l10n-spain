@@ -123,6 +123,7 @@
                     <field name="partner_vat"/>
                     <field name="vat_type"/>                    
                     <field name="invoice_id"/>
+                    <field name="supplier_invoice_number"/>
                     <field name="key_operation"/>                    
                     <field name="base_tax" sum="Total Base"/>
                     <field name="amount_tax" sum="Total Tax"/>
