@@ -943,3 +943,8 @@ msgstr "Incluir en mod340 como operación de sujeto pasivo"
 #: field:account.account,is_340_leasing_account:0
 msgid "Include in mod340 as leasing account"
 msgstr "Incluir en mod340 como operación de arrendamiento"
+
+#. module: l10n_es_aeat_mod340
+#: field:l10n.es.aeat.mod340.received,supplier_invoice_number:0
+msgid "Supplier invoice number"
+msgstr "Numero de factura"
