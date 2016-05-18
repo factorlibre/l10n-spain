@@ -169,12 +169,8 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                                 country_ids = self.pool['res.country'].search(cr, uid,[
                                     ('code','=', country_code),
                                     ('country_group_ids','=', group_country_europe[0])], context=context)
-                                if country_ids:
+                                if country_ids and invoice.fiscal_position.intracommunity_operations:
                                     key_identification = '2'
-                                else:
-                                    key_identification = '6'
-
-                key_operation = ''
 
                 # Clave de operación
                 key_operation = ' '
