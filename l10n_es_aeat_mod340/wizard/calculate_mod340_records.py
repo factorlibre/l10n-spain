@@ -186,11 +186,10 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                     elif invoice.is_leasing_invoice()[0]:
                         key_operation = 'R'
                 else:
-                    if invoice.fiscal_position\
-                            .intracommunity_operations:
-                        key_operation = 'P'
-                    elif invoice.is_reverse_charge_invoice()[0]:
+                    if invoice.is_reverse_charge_invoice()[0]:
                         key_operation = 'I'
+                    elif invoice.fiscal_position.intracommunity_operations:
+                        key_operation = 'P'
                     elif invoice.vat_on_payment:
                         key_operation = 'Z'
                     elif invoice.type == 'in_refund':
