@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © 2016 Hugo Santos <hugo.santos@factorlibre.com>
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
+<openerp>
+  <data>
+
+    <record id="fiscal_position_rule_pt" model="account.fiscal.position.rule">
+        <field name="name">Régimen intracomunitario Portugal</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="from_country" ref="base.es"/>
+        <field name="to_invoice_country" ref="base.pt"/>
+        <field name="fiscal_position_id" search="[('name','=','Régimen intracomunitario Portugal')]" model="account.fiscal.position"/>
+    </record>
+
+  </data>
+</openerp>
