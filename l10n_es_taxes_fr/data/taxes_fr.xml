@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © 2016 Hugo Santos <hugo.santos@factorlibre.com>
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
+<openerp>
+  <data>
+
+    <record id="account_tax_template_fr_tva20" model="account.tax.template">
+        <field name="description">S_FR_TVA20</field>
+        <field name="name">TVA 20%</field>
+        <field name="type_tax_use">sale</field>
+        <field name="amount" eval="0.20"/>
+        <field name="ref_base_sign" eval="-1.0"/>
+        <field name="base_sign" eval="1.0"/>
+        <field name="tax_sign" eval="1.0"/>
+        <field name="ref_tax_sign" eval="-1.0"/>
+        <field name="type">percent</field>
+        <field name="account_paid_id" ref="l10n_es.pgc_477_child"/>
+        <field name="account_collected_id" ref="l10n_es.pgc_477_child"/>
+        <field name="chart_template_id" ref="l10n_es.account_chart_template_common"/>
+    </record>
+
+    <record id="account_tax_template_fr_p_tva20" model="account.tax.template">
+        <field name="description">P_FR_TVA20</field>
+        <field name="name">20% TVA</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount" eval="0.20"/>
+        <field name="ref_base_sign" eval="-1.0"/>
+        <field name="base_sign" eval="1.0"/>
+        <field name="tax_sign" eval="1.0"/>
+        <field name="ref_tax_sign" eval="-1.0"/>
+        <field name="type">percent</field>
+        <field name="account_paid_id" ref="l10n_es.pgc_472_child"/>
+        <field name="account_collected_id" ref="l10n_es.pgc_472_child"/>
+        <field name="chart_template_id" ref="l10n_es.account_chart_template_common"/>
+    </record>
+
+    <record id="account_tax_template_fr_tva10" model="account.tax.template">
+        <field name="description">S_FR_TVA10</field>
+        <field name="name">TVA 10%</field>
+        <field name="type_tax_use">sale</field>
+        <field name="amount" eval="0.10"/>
+        <field name="ref_base_sign" eval="-1.0"/>
+        <field name="base_sign" eval="1.0"/>
+        <field name="tax_sign" eval="1.0"/>
+        <field name="ref_tax_sign" eval="-1.0"/>
+        <field name="type">percent</field>
+        <field name="account_paid_id" ref="l10n_es.pgc_477_child"/>
+        <field name="account_collected_id" ref="l10n_es.pgc_477_child"/>
+        <field name="chart_template_id" ref="l10n_es.account_chart_template_common"/>
+    </record>
+
+    <record id="account_tax_template_fr_p_tva10" model="account.tax.template">
+        <field name="description">P_FR_TVA10</field>
+        <field name="name">10% TVA</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount" eval="0.10"/>
+        <field name="ref_base_sign" eval="-1.0"/>
+        <field name="base_sign" eval="1.0"/>
+        <field name="tax_sign" eval="1.0"/>
+        <field name="ref_tax_sign" eval="-1.0"/>
+        <field name="type">percent</field>
+        <field name="account_paid_id" ref="l10n_es.pgc_472_child"/>
+        <field name="account_collected_id" ref="l10n_es.pgc_472_child"/>
+        <field name="chart_template_id" ref="l10n_es.account_chart_template_common"/>
+    </record>
+
+    <record id="account_tax_template_fr_tva5_5" model="account.tax.template">
+        <field name="description">S_FR_TVA5_5</field>
+        <field name="name">TVA 5.5%</field>
+        <field name="type_tax_use">sale</field>
+        <field name="amount" eval="0.055"/>
+        <field name="ref_base_sign" eval="-1.0"/>
+        <field name="base_sign" eval="1.0"/>
+        <field name="tax_sign" eval="1.0"/>
+        <field name="ref_tax_sign" eval="-1.0"/>
+        <field name="type">percent</field>
+        <field name="account_paid_id" ref="l10n_es.pgc_477_child"/>
+        <field name="account_collected_id" ref="l10n_es.pgc_477_child"/>
+        <field name="chart_template_id" ref="l10n_es.account_chart_template_common"/>
+    </record>
+
+    <record id="account_tax_template_fr_p_tva5_5" model="account.tax.template">
+        <field name="description">P_FR_TVA5_5</field>
+        <field name="name">5.5% TVA</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount" eval="0.055"/>
+        <field name="ref_base_sign" eval="-1.0"/>
+        <field name="base_sign" eval="1.0"/>
+        <field name="tax_sign" eval="1.0"/>
+        <field name="ref_tax_sign" eval="-1.0"/>
+        <field name="type">percent</field>
+        <field name="account_paid_id" ref="l10n_es.pgc_472_child"/>
+        <field name="account_collected_id" ref="l10n_es.pgc_472_child"/>
+        <field name="chart_template_id" ref="l10n_es.account_chart_template_common"/>
+    </record>
+
+    <record id="account_tax_template_fr_tva2_1" model="account.tax.template">
+        <field name="description">S_FR_TVA2_1</field>
+        <field name="name">TVA 2.1%</field>
+        <field name="type_tax_use">sale</field>
+        <field name="amount" eval="0.021"/>
+        <field name="ref_base_sign" eval="-1.0"/>
+        <field name="base_sign" eval="1.0"/>
+        <field name="tax_sign" eval="1.0"/>
+        <field name="ref_tax_sign" eval="-1.0"/>
+        <field name="type">percent</field>
+        <field name="account_paid_id" ref="l10n_es.pgc_477_child"/>
+        <field name="account_collected_id" ref="l10n_es.pgc_477_child"/>
+        <field name="chart_template_id" ref="l10n_es.account_chart_template_common"/>
+    </record>
+
+    <record id="account_tax_template_fr_p_tva2_51" model="account.tax.template">
+        <field name="description">P_FR_TVA2_1</field>
+        <field name="name">2.1% TVA</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount" eval="0.021"/>
+        <field name="ref_base_sign" eval="-1.0"/>
+        <field name="base_sign" eval="1.0"/>
+        <field name="tax_sign" eval="1.0"/>
+        <field name="ref_tax_sign" eval="-1.0"/>
+        <field name="type">percent</field>
+        <field name="account_paid_id" ref="l10n_es.pgc_472_child"/>
+        <field name="account_collected_id" ref="l10n_es.pgc_472_child"/>
+        <field name="chart_template_id" ref="l10n_es.account_chart_template_common"/>
+    </record>
+
+  </data>
+</openerp>
