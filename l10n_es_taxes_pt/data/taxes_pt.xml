@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © 2016 Hugo Santos <hugo.santos@factorlibre.com>
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
+<openerp>
+  <data>
+
+    <record id="account_tax_template_pt_iva23" model="account.tax.template">
+        <field name="description">S_PT_IVA23</field>
+        <field name="name">IVA 23%</field>
+        <field name="type_tax_use">sale</field>
+        <field name="amount" eval="0.23"/>
+        <field name="ref_base_sign" eval="-1.0"/>
+        <field name="base_sign" eval="1.0"/>
+        <field name="tax_sign" eval="1.0"/>
+        <field name="ref_tax_sign" eval="-1.0"/>
+        <field name="type">percent</field>
+        <field name="account_paid_id" ref="l10n_es.pgc_477_child"/>
+        <field name="account_collected_id" ref="l10n_es.pgc_477_child"/>
+        <field name="chart_template_id" ref="l10n_es.account_chart_template_common"/>
+    </record>
+
+    <record id="account_tax_template_pt_p_iva23" model="account.tax.template">
+        <field name="description">P_PT_IVA23</field>
+        <field name="name">23% IVA Soportado</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount" eval="0.23"/>
+        <field name="ref_base_sign" eval="-1.0"/>
+        <field name="base_sign" eval="1.0"/>
+        <field name="tax_sign" eval="1.0"/>
+        <field name="ref_tax_sign" eval="-1.0"/>
+        <field name="type">percent</field>
+        <field name="account_paid_id" ref="l10n_es.pgc_472_child"/>
+        <field name="account_collected_id" ref="l10n_es.pgc_472_child"/>
+        <field name="chart_template_id" ref="l10n_es.account_chart_template_common"/>
+    </record>
+
+    <record id="account_tax_template_pt_iva13" model="account.tax.template">
+        <field name="description">S_PT_IVA13</field>
+        <field name="name">IVA 13%</field>
+        <field name="type_tax_use">sale</field>
+        <field name="amount" eval="0.13"/>
+        <field name="ref_base_sign" eval="-1.0"/>
+        <field name="base_sign" eval="1.0"/>
+        <field name="tax_sign" eval="1.0"/>
+        <field name="ref_tax_sign" eval="-1.0"/>
+        <field name="type">percent</field>
+        <field name="account_paid_id" ref="l10n_es.pgc_477_child"/>
+        <field name="account_collected_id" ref="l10n_es.pgc_477_child"/>
+        <field name="chart_template_id" ref="l10n_es.account_chart_template_common"/>
+    </record>
+
+    <record id="account_tax_template_pt_p_iva13" model="account.tax.template">
+        <field name="description">P_PT_IVA13</field>
+        <field name="name">13% IVA Soportado</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount" eval="0.13"/>
+        <field name="ref_base_sign" eval="-1.0"/>
+        <field name="base_sign" eval="1.0"/>
+        <field name="tax_sign" eval="1.0"/>
+        <field name="ref_tax_sign" eval="-1.0"/>
+        <field name="type">percent</field>
+        <field name="account_paid_id" ref="l10n_es.pgc_472_child"/>
+        <field name="account_collected_id" ref="l10n_es.pgc_472_child"/>
+        <field name="chart_template_id" ref="l10n_es.account_chart_template_common"/>
+    </record>
+
+    <record id="account_tax_template_pt_iva6" model="account.tax.template">
+        <field name="description">S_PT_IVA6</field>
+        <field name="name">IVA 6%</field>
+        <field name="type_tax_use">sale</field>
+        <field name="amount" eval="0.06"/>
+        <field name="ref_base_sign" eval="-1.0"/>
+        <field name="base_sign" eval="1.0"/>
+        <field name="tax_sign" eval="1.0"/>
+        <field name="ref_tax_sign" eval="-1.0"/>
+        <field name="type">percent</field>
+        <field name="account_paid_id" ref="l10n_es.pgc_477_child"/>
+        <field name="account_collected_id" ref="l10n_es.pgc_477_child"/>
+        <field name="chart_template_id" ref="l10n_es.account_chart_template_common"/>
+    </record>
+
+    <record id="account_tax_template_pt_p_iva6" model="account.tax.template">
+        <field name="description">P_PT_IVA6</field>
+        <field name="name">6% IVA Soportado</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount" eval="0.06"/>
+        <field name="ref_base_sign" eval="-1.0"/>
+        <field name="base_sign" eval="1.0"/>
+        <field name="tax_sign" eval="1.0"/>
+        <field name="ref_tax_sign" eval="-1.0"/>
+        <field name="type">percent</field>
+        <field name="account_paid_id" ref="l10n_es.pgc_472_child"/>
+        <field name="account_collected_id" ref="l10n_es.pgc_472_child"/>
+        <field name="chart_template_id" ref="l10n_es.account_chart_template_common"/>
+    </record>
+
+  </data>
+</openerp>

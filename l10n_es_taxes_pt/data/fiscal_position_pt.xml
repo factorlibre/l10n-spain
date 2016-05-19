@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- © 2016 Hugo Santos <hugo.santos@factorlibre.com>
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
+<openerp>
+  <data>
+    <record id="fp_portugal" model="account.fiscal.position.template">
+        <field name="name">Régimen intracomunitario Portugal</field>
+        <field name="chart_template_id" ref="l10n_es.account_chart_template_common"/>
+    </record>
+
+    <!-- Tax templates -->
+    <!-- Sale -->
+    <record id="fptt_pt_iva23_b" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="fp_portugal"/>
+        <field name="tax_src_id" ref="l10n_es.account_tax_template_s_iva21b"/>
+        <field name="tax_dest_id" ref="account_tax_template_pt_iva23"/>
+    </record>
+
+    <record id="fptt_pt_iva23_s" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="fp_portugal"/>
+        <field name="tax_src_id" ref="l10n_es.account_tax_template_s_iva21s"/>
+        <field name="tax_dest_id" ref="account_tax_template_pt_iva23"/>
+    </record>
+
+    <record id="fptt_pt_iva13_b" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="fp_portugal"/>
+        <field name="tax_src_id" ref="l10n_es.account_tax_template_s_iva10b"/>
+        <field name="tax_dest_id" ref="account_tax_template_pt_iva13"/>
+    </record>
+
+    <record id="fptt_pt_iva13_s" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="fp_portugal"/>
+        <field name="tax_src_id" ref="l10n_es.account_tax_template_s_iva10s"/>
+        <field name="tax_dest_id" ref="account_tax_template_pt_iva13"/>
+    </record>
+
+    <record id="fptt_pt_iva6_b" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="fp_portugal"/>
+        <field name="tax_src_id" ref="l10n_es.account_tax_template_s_iva4b"/>
+        <field name="tax_dest_id" ref="account_tax_template_pt_iva6"/>
+    </record>
+
+    <record id="fptt_pt_iva6_s" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="fp_portugal"/>
+        <field name="tax_src_id" ref="l10n_es.account_tax_template_s_iva4s"/>
+        <field name="tax_dest_id" ref="account_tax_template_pt_iva6"/>
+    </record>
+
+    <!-- purchase -->
+    <record id="fptt_pt_p_iva23_bc" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="fp_portugal"/>
+        <field name="tax_src_id" ref="l10n_es.account_tax_template_p_iva21_bc"/>
+        <field name="tax_dest_id" ref="account_tax_template_pt_p_iva23"/>
+    </record>
+
+    <record id="fptt_pt_p_iva23_sc" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="fp_portugal"/>
+        <field name="tax_src_id" ref="l10n_es.account_tax_template_p_iva21_sc"/>
+        <field name="tax_dest_id" ref="account_tax_template_pt_p_iva23"/>
+    </record>
+
+    <record id="fptt_pt_iva13_bc" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="fp_portugal"/>
+        <field name="tax_src_id" ref="l10n_es.account_tax_template_p_iva10_bc"/>
+        <field name="tax_dest_id" ref="account_tax_template_pt_p_iva13"/>
+    </record>
+
+    <record id="fptt_pt_p_iva13_sc" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="fp_portugal"/>
+        <field name="tax_src_id" ref="l10n_es.account_tax_template_p_iva10_sc"/>
+        <field name="tax_dest_id" ref="account_tax_template_pt_p_iva13"/>
+    </record>
+
+    <record id="fptt_pt_p_iva6_bc" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="fp_portugal"/>
+        <field name="tax_src_id" ref="l10n_es.account_tax_template_p_iva4_bc"/>
+        <field name="tax_dest_id" ref="account_tax_template_pt_p_iva6"/>
+    </record>
+
+    <record id="fptt_pt_p_iva6_sc" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="fp_portugal"/>
+        <field name="tax_src_id" ref="l10n_es.account_tax_template_p_iva4_sc"/>
+        <field name="tax_dest_id" ref="account_tax_template_pt_p_iva6"/>
+    </record>
+
+  </data>
+</openerp>
