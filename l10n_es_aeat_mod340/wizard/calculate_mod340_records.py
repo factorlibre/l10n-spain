@@ -166,6 +166,8 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                             group_country_europe = self.pool['res.country.group'].search(cr, uid,
                                 [('name','=', 'Europe')], context=context)
                             if group_country_europe:
+                                if country_code == 'EL':
+                                    country_code = 'GR'
                                 country_ids = self.pool['res.country'].search(cr, uid,[
                                     ('code','=', country_code),
                                     ('country_group_ids','=', group_country_europe[0])], context=context)
