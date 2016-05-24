@@ -29,6 +29,81 @@ class L10nEsAeatMod340ExportToBoe(models.TransientModel):
     _inherit = "l10n.es.aeat.report.export_to_boe"
     _name = "l10n.es.aeat.mod340.export_to_boe"
 
+    def _formatString(self, text, length, fill=' ', align='<'):
+        """Formats the string into a fixed length compatible AEAT record.
+
+        Note:
+            'Todos los campos alfanuméricos y alfabéticos se presentarán
+            alineados a la izquierda y rellenos de blancos por la derecha,
+            en mayúsculas sin caracteres especiales, y sin vocales acentuadas.
+            Para los caracteres específicos del idioma se utilizará la
+            codificación ISO-8859-1. De esta forma la letra “Ñ” tendrá el
+            valor ASCII 209 (Hex. D1) y la “Ç”(cedilla mayúscula) el valor
+            ASCII 199 (Hex. C7).'
+        """
+
+        xlate={0xc0:'A', 0xc1:'A', 0xc2:'A', 0xc3:'A', 0xc4:'A', 0xc5:'A',
+            0xc6:'Ae',
+            0xc8:'E', 0xc9:'E', 0xca:'E', 0xcb:'E',
+            0xcc:'I', 0xcd:'I', 0xce:'I', 0xcf:'I',
+            0xd0:'Th',
+            0xd2:'O', 0xd3:'O', 0xd4:'O', 0xd5:'O', 0xd6:'O', 0xd8:'O',
+            0xd9:'U', 0xda:'U', 0xdb:'U', 0xdc:'U',
+            0xdd:'Y', 0xde:'th', 0xdf:'ss',
+            0xe0:'a', 0xe1:'a', 0xe2:'a', 0xe3:'a', 0xe4:'a', 0xe5:'a',
+            0xe6:'ae',
+            0xe8:'e', 0xe9:'e', 0xea:'e', 0xeb:'e',
+            0xec:'i', 0xed:'i', 0xee:'i', 0xef:'i',
+            0xf0:'th',
+            0xf2:'o', 0xf3:'o', 0xf4:'o', 0xf5:'o', 0xf6:'o', 0xf8:'o',
+            0xf9:'u', 0xfa:'u', 0xfb:'u', 0xfc:'u',
+            0xfd:'y', 0xfe:'th', 0xff:'y',
+            0xa1:'!', 0xa2:'{cent}', 0xa3:'{pound}', 0xa4:'{currency}',
+            0xa5:'{yen}', 0xa6:'|', 0xa7:'{section}', 0xa8:'{umlaut}',
+            0xa9:'{C}', 0xab:'<<', 0xac:'{not}',
+            0xad:'-', 0xae:'{R}', 0xaf:'_', 0xb0:'{degrees}',
+            0xb1:'{+/-}', 0xb2:'{^2}', 0xb3:'{^3}', 0xb4:"'",
+            0xb5:'{micro}', 0xb6:'{paragraph}', 0xb7:'*', 0xb8:'{cedilla}',
+            0xb9:'{^1}', 0xbb:'>>',
+            0xbc:'{1/4}', 0xbd:'{1/2}', 0xbe:'{3/4}', 0xbf:'?',
+            0xd7:'*', 0xf7:'/'
+        }
+
+        ascii_string = ''
+
+        if not text:
+            return fill * length
+        # Convert to upper and replace accents
+
+        if isinstance(text, (unicode)):
+            text = text.upper().encode('iso-8859-1', 'ignore')
+        else:
+            text = str(text or '').upper()
+        
+        for i in text:
+            if xlate.has_key(ord(i)):
+                ascii_string += xlate[ord(i)]
+            elif ord(i) >= 0x80 and ord(i) not in [0xd1,0xf1,0xc7,0xe7,0xaa,0xba]:
+                pass
+            else:
+                ascii_string += i
+
+        # Cut the string if it is too long
+        if len(ascii_string) > length:
+            ascii_string = ascii_string[:length]
+        # Format the string
+        if align == '<':
+            ascii_string = ascii_string.ljust(length, fill)
+        elif align == '>':
+            ascii_string = ascii_string.rjust(length, fill)
+        else:
+            assert False, _('Wrong aling option. It should be < or >')
+        # Sanity-check
+        assert len(ascii_string) == length, \
+            _("The formated string must match the given length")
+        # Return string
+        return ascii_string
+
     @api.multi
     def _get_formatted_declaration_record(self, report):
         """
@@ -175,7 +250,7 @@ class L10nEsAeatMod340ExportToBoe(models.TransientModel):
             # Clave tipo de libro. Constante 'E'.
             text += 'E'
             # Clave de operación              
-            text += invoice_issued.key_operation
+            text +=  self._formatString(invoice_issued.key_operation, 1)
 
             text += self._formatNumber(
                 invoice_issued.invoice_id.date_invoice.split('-')[0], 4)
@@ -345,7 +420,7 @@ class L10nEsAeatMod340ExportToBoe(models.TransientModel):
             # Clave tipo de libro. Constante 'R'.
             text += 'R'
             # Clave de operación
-            text += invoice_received.key_operation
+            text += self._formatString(invoice_received.key_operation,1)
 
             # Fecha de expedición
             text += self._formatNumber(

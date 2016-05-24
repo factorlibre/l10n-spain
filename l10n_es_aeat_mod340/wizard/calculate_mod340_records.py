@@ -31,7 +31,6 @@ _logger = logging.getLogger(__name__)
 
 VALID_TYPES = [0, 0.005, 0.014, 0.04, 0.052, 0.07, 0.08, 0.10, 0.12, 0.16, 0.18, 0.21]
 
-
 class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
     _name = "l10n.es.aeat.mod340.calculate_records"
     _description = u"AEAT Model 340 Wizard - Calculate Records"
@@ -114,6 +113,8 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                     country_code, nif = (
                         re.match(r"([A-Z]{0,2})(.*)",
                                  partner.vat).groups())
+                    if country_code and countr_code == 'EL':
+                        country_code = 'GR'
                 else:
                     if partner.country_id:
                         country_code = partner.country_id.code
@@ -148,6 +149,8 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                             if name_payment_method_id:
                                 name_payment_method = self.pool['res.partner.bank'].browse(
                                     cr, uid, name_payment_method_id, context=context).acc_number
+                                if name_payment_method:
+                                    name_payment_method = name_payment_method.replace(' ', '')
                         payment_amount = payment_amount + payment_id.debit
                     values.update({
                         'date_payment':date_payment,
@@ -207,10 +210,12 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                 if invoice.type in ['in_invoice', 'in_refund']:
                     values.update({'supplier_invoice_number': invoice.supplier_invoice_number or invoice.reference or ''})
                     invoice_created = invoices340_rec.create(cr, uid, values)
-                tot_tax_invoice = 0
                 tot_invoice = invoice.cc_amount_untaxed * sign
-                check_tax = 0
                 check_base = 0
+
+                invoice_base_tax = 0
+                invoice_amount_tax = 0
+
                 # Add the invoices detail to the partner record
                 surcharge_taxes_lines = []
 
@@ -241,6 +246,9 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                                     'invoice_record_id': invoice_created,
                                     'tax_code_id': tax_line.base_code_id.id
                                 }
+
+                                invoice_base_tax = invoice_base_tax + values['base_amount']
+                                invoice_amount_tax = invoice_amount_tax + values['tax_amount']
 
                                 domain = [
                                     ('invoice_record_id', '=', invoice_created),
@@ -285,7 +293,6 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
 
                                 if invoice.type in ("in_invoice",
                                                     "in_refund"):
-
                                     line_id = received_obj.search(cr, uid, domain,
                                                                   context=context)
                                     if line_id:
@@ -312,10 +319,7 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                                         tax_code_rec_totals[
                                             tax_line.base_code_id.id][
                                             1] += tax_line.amount * sign * cur_rate
-                                if not adqu_intra:
-                                    tot_tax_invoice += tax_line.amount * sign * \
-                                                   cur_rate
-                                    check_tax += tax_line.amount * cur_rate
+
                                 if tax_line.amount >= 0:
                                     check_base += tax_line.base_amount
                                 # Control problem with extracomunitary
@@ -324,7 +328,9 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                                         tot_invoice += tax_line.amount * sign * \
                                                cur_rate
 
-                values = {}
+                values = {'base_tax': invoice_base_tax,
+                        'amount_tax': invoice_amount_tax}
+
                 if lines_created > 1 and key_operation == ' ':
                     values.update({'key_operation': 'C' })
 
@@ -341,8 +347,7 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                     rec_tax_percentage = round(surcharge.amount /
                                                surcharge.base, 3)
                     rec_tax_invoice += surcharge.amount * sign * cur_rate
-                    tot_tax_invoice += surcharge.amount * sign * cur_rate
-                    check_tax += surcharge.amount * cur_rate
+                    invoice_amount_tax += surcharge.amount * sign * cur_rate
                     values = {
                         'rec_tax_percentage': rec_tax_percentage,
                         'rec_tax_amount': surcharge.amount * sign * cur_rate
@@ -359,11 +364,11 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
 
                 if invoice.type in ['out_invoice', 'out_refund']:
                     invoices340.write(cr, uid, invoice_created,
-                                      {'amount_tax': tot_tax_invoice,
+                                      {'amount_tax': invoice_amount_tax,
                                        'rec_amount_tax': rec_tax_invoice})
                 if invoice.type in ['in_invoice', 'in_refund']:
                     invoices340_rec.write(cr, uid, invoice_created,
-                                          {'amount_tax': tot_tax_invoice})
+                                          {'amount_tax': invoice_amount_tax})
                 sign = 1
                 if invoice.type in ('out_refund', 'in_refund'):
                     sign = -1
