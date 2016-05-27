@@ -113,7 +113,7 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                     country_code, nif = (
                         re.match(r"([A-Z]{0,2})(.*)",
                                  partner.vat).groups())
-                    if country_code and countr_code == 'EL':
+                    if country_code and country_code == 'EL':
                         country_code = 'GR'
                 else:
                     if partner.country_id:
