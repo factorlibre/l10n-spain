@@ -126,7 +126,7 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                 values = {
                     'mod340_id': mod340.id,
                     'partner_id': partner.id,
-                    'partner_vat': nif,
+                    'partner_vat': partner.vat,
                     'representative_vat': '',
                     'partner_country_code': country_code,
                     'invoice_id': invoice.id,

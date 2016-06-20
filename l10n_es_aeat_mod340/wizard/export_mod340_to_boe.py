@@ -240,9 +240,7 @@ class L10nEsAeatMod340ExportToBoe(models.TransientModel):
             text += self._formatNumber(invoice_issued.vat_type, 1)
             # Número de identificación fiscal en el país de residencia.
             if invoice_issued.partner_country_code != 'ES':
-                text += self._formatString(
-                    invoice_issued.partner_country_code, 2)
-                text += self._formatString(invoice_issued.partner_vat, 15)
+                text += self._formatString(invoice_issued.partner_vat, 17)
             else:
                 text += 17 * ' '
             # Blancos
@@ -251,7 +249,6 @@ class L10nEsAeatMod340ExportToBoe(models.TransientModel):
             text += 'E'
             # Clave de operación              
             text +=  self._formatString(invoice_issued.key_operation, 1)
-
             text += self._formatNumber(
                 invoice_issued.invoice_id.date_invoice.split('-')[0], 4)
             text += self._formatNumber(
@@ -410,9 +407,7 @@ class L10nEsAeatMod340ExportToBoe(models.TransientModel):
             text += self._formatNumber(invoice_received.vat_type, 1)
             # Número de identificación fiscal en el país de residencia.
             if invoice_received.partner_country_code != 'ES':
-                text += self._formatString(
-                    invoice_received.partner_country_code, 2)
-                text += self._formatString(invoice_received.partner_vat, 15)
+                text += self._formatString(invoice_received.partner_vat, 17)
             else:
                 text += 17 * ' '
             # Blancos
