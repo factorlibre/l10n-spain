@@ -91,9 +91,18 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                 sign = -1
             include = False
             if invoice.currency_id.id != invoice.company_id.currency_id.id:
-                cur_rate = invoice.cc_amount_untaxed / invoice.amount_untaxed
+                if invoice.amount_untaxed:
+                    cur_rate = \
+                        invoice.cc_amount_untaxed / invoice.amount_untaxed
+                elif invoice.amount_total:
+                    cur_rate = invoice.cc_amount_total / invoice.amount_total
+                elif invoice.amount_tax:
+                    cur_rate = invoice.cc_amount_tax / invoice.amount_tax
+                else:
+                    cur_rate = 1
             else:
                 cur_rate = 1
+
             for tax_line in invoice.tax_line:
                 if tax_line.base_code_id and tax_line.base:
                     if tax_line.base_code_id.mod340:
