@@ -25,7 +25,7 @@ import time
 
 from openerp.osv import orm
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
-from openerp.tools.float_utils import float_is_zero
+from openerp.tools.float_utils import float_is_zero, float_round as round
 from openerp.tools.translate import _
 _logger = logging.getLogger(__name__)
 
@@ -85,6 +85,8 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
         invoice_ids = invoice_obj.search(cr, uid, domain, context=context)
         tax_code_rec_totals = {}
         tax_code_isu_totals = {}
+        obj_precision = self.pool.get('decimal.precision')
+        prec = obj_precision.precision_get(cr, uid, 'Account')
         for invoice in invoice_obj.browse(cr, uid, invoice_ids, context):
             sign = 1
             if invoice.type in ('out_refund', 'in_refund'):
@@ -278,13 +280,16 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                                         lines_created = lines_created + 1
                                         issued_obj.create(cr, uid, values)
 
+                                    tax_line_amount_calc = round(
+                                        tax_line.amount * sign * cur_rate,
+                                        prec)
                                     if not tax_code_isu_totals.get(
                                             tax_line.base_code_id.id):
                                         tax_code_isu_totals.update({
                                             tax_line.base_code_id.id: [
                                                 tax_line.base_amount,
-                                                tax_line.amount * sign *
-                                                cur_rate, tax_percentage], })
+                                                tax_line_amount_calc,
+                                                tax_percentage], })
                                     else:
                                         tax_code_isu_totals[
                                             tax_line.base_code_id.id][
@@ -293,7 +298,7 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                                         tax_code_isu_totals[
                                             tax_line.base_code_id.id][
                                             1] +=\
-                                            tax_line.amount * sign * cur_rate
+                                            tax_line_amount_calc
 
                                 if invoice.type in ("in_invoice",
                                                     "in_refund"):
@@ -317,13 +322,16 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                                         lines_created = lines_created + 1
                                         received_obj.create(cr, uid, values)
 
+                                    tax_line_amount_calc = round(
+                                        tax_line.amount * sign * cur_rate,
+                                        prec)
                                     if not tax_code_rec_totals.get(
                                             tax_line.base_code_id.id):
                                         tax_code_rec_totals.update({
                                             tax_line.base_code_id.id: [
                                                 tax_line.base_amount,
-                                                tax_line.amount * sign *
-                                                cur_rate, tax_percentage]})
+                                                tax_line_amount_calc,
+                                                tax_percentage]})
                                     else:
                                         tax_code_rec_totals[
                                             tax_line.base_code_id.id][
@@ -331,7 +339,7 @@ class L10nEsAeatMod340CalculateRecords(orm.TransientModel):
                                         tax_code_rec_totals[
                                             tax_line.base_code_id.id][
                                             1] +=\
-                                            tax_line.amount * sign * cur_rate
+                                            tax_line_amount_calc
 
                                 if tax_line.amount >= 0:
                                     check_base += tax_line.base_amount
