@@ -3,10 +3,10 @@
    :alt: License: AGPL-3
 
 ==============
-Suministro Inmediato de Información en el IVA
+Suministro Inmediato de Información en el IVA - Libro de bienes de inversión
 ==============
 
-Módulo para la presentación inmediata del IVA
+Módulo para la presentación inmediata del IVA Libro de Bienes de inversión
 http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_05/SII_Descripcion_ServicioWeb_v0.5_es_es.pdf
 
 Installation
@@ -14,34 +14,22 @@ Installation
 
 Para instalar esté módulo necesita:
 
-#. Libreria Python Zeep, se puede instalar con el comando 'pip install zeep'
-#. Libreria pyOpenSSL, versión 0.15 o posterior
-#. Libreria Python Requests, se puede instalar con el comando 'pip install requests'
+#. l10n_es_aeat_sii
+#. l10n_es_account_asset
 
 Configuration
 =============
 
 Para configurar este módulo necesitas:
 
-#. En la compañia se almacenan las URLs del servicio SOAP de hacienda.
-Estas URLs pueden cambiar según comunidades
-#. Los certificados deben alojarse en una carpeta accesible por la instalación
-de Odoo. Las rutas de los certificados se pueden indicar en Configuración->
-Parámetros->Parametros del sistemas con las claves l10n_es_aeat_sii.publicCrt y
-l10n_es_aeat_sii.privateKey
-#. Preparar el certificado. El certificado enviado por la FMNT es en formato
-p12, este certificado no se puede usar directamente con Zeep. Se tiene que
-extraer la clave pública y la clave privada.
-El linux se pueden usar los siguientes comandos:
-- Clave pública: "openssl pkcs12 -in Certificado.p12 -nokeys -out publicCert.crt -nodes"
-- Clave privada: "openssl pkcs12 -in Certifcado.p12 -nocerts -out privateKey.pem -nodes"
+#. 
 
 
 Usage
 =====
 
-Cuando se válida una factura actumáticamente envia la comunicación al servidor
-de AEAT.
+Se generará la comunicación una vez por año siendo la fecha de comunicación la
+que se indique en la configuración de la compañia
 
 
 .. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas
@@ -54,14 +42,7 @@ de AEAT.
 Known issues / Roadmap
 ======================
 
-* Comunicación de cobros y pagos
-* Determinadas facturas intracomunitarias (Articulo 66 RIVA)
-* Factura simplificada
-* Facturas No sujetas según el art 7.14 y no sujetas en el TAI
-* Asistente para consultar los documentos comunicados
-* Libro de bienes de inversión (Libro anual se crea un módulo aparte)
-* Regimenes especial de seguros y agencias de viaje
-* Usar modulo connector
+* Libro de bienes de inversión
 
 Bug Tracker
 ===========
@@ -83,8 +64,6 @@ Contributors
 ------------
 
 * Ignacio Ibeas - Acysos S.L. <ignacio@acysos.com>
-* Diagram Software S.L.
-* Ramon Guiu - Minorisa S.L. <ramon.guiu@minorisa.net> 
 
 Funders
 -------
