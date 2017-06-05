@@ -457,7 +457,8 @@ class AccountInvoice(models.Model):
                     "Contraparte": {
                         "NombreRazon": self.partner_id.name[0:120],
                     },
-                    "TipoDesglose": tipo_desglose
+                    "TipoDesglose": tipo_desglose,
+                    "ImporteTotal": self.amount_total
                 }
             }
             # Uso condicional de IDOtro/NIF
