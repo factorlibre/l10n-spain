@@ -9,6 +9,7 @@ from datetime import datetime, date
 from requests import Session
 
 from openerp import _, api, exceptions, fields, models
+from openerp.modules.registry import RegistryManager
 
 _logger = logging.getLogger(__name__)
 
@@ -399,8 +400,7 @@ class AccountInvoice(models.Model):
         self.ensure_one()
         if not self.partner_id.vat:
             raise exceptions.Warning(_(
-                "The partner '{}' has not a VAT configured.").format(
-                    self.partner_id.name))
+                "The partner has not a VAT configured."))
         invoice_date = self._change_date_format(self.date_invoice)
         company = self.company_id
         ejercicio = fields.Date.from_string(
@@ -562,7 +562,15 @@ class AccountInvoice(models.Model):
             else:
                 tipo_comunicacion = 'A1'
             header = invoice._get_header(tipo_comunicacion)
-            invoices = invoice._get_invoices()
+            try:
+                invoices = invoice._get_invoices()
+            except Exception as fault:
+                new_cr = RegistryManager.get(self.env.cr.dbname).cursor()
+                env = api.Environment(new_cr, self.env.uid, self.env.context)
+                self.with_env(env).sii_send_error = fault
+                new_cr.commit()
+                new_cr.close()
+                raise
             try:
                 if invoice.type in ['out_invoice', 'out_refund']:
                     res = serv.SuministroLRFacturasEmitidas(
