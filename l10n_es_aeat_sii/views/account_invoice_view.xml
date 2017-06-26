@@ -22,7 +22,7 @@
                         <group string="SII Information">
                             <field name="sii_description"/>
                             <field name="sii_refund_type"
-                                   attrs="{'required': [('type', 'in', ('out_refund',' in_refund'))], 'invisible': [('type', 'not in', ('out_refund', 'in_refund'))]}"/>
+                                   attrs="{'required': [('type', 'in', ('out_refund', 'in_refund'))], 'invisible': [('type', 'not in', ('out_refund', 'in_refund'))]}"/>
                             <field name="sii_registration_key" domain="[('type', '=', 'purchase')]" required="1"/>
                             <field name="sii_enabled" invisible="1"/>
                         </group>
@@ -30,6 +30,9 @@
                             <field name="sii_sent" />
                             <field name="sii_csv"/>
                             <field name="sii_return" />
+                            <field name="sii_recc_sent" />
+                            <field name="sii_recc_csv"/>
+                            <field name="sii_recc_return" />
                         </group>
 
                         <group string="Connector Jobs">
@@ -77,6 +80,9 @@
                             <field name="sii_sent" />
                             <field name="sii_csv"/>
                             <field name="sii_return" />
+                            <field name="sii_recc_sent"/>
+                            <field name="sii_recc_csv"/>
+                            <field name="sii_recc_return" />
                         </group>
 
                         <group string="Connector Jobs">

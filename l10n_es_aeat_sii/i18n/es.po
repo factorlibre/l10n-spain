@@ -499,6 +499,26 @@ msgid "SII not sent"
 msgstr "No enviadas SII"
 
 #. module: l10n_es_aeat_sii
+#: field:account.invoice,sii_recc_csv:0
+msgid "SII Payment RECC CSV"
+msgstr "Pago SII RECC CSV"
+
+#. module: l10n_es_aeat_sii
+#: field:account.invoice,sii_recc_return:0
+msgid "SII Payment RECC Return"
+msgstr "Resultado Pago SII RECC"
+
+#. module: l10n_es_aeat_sii
+#: field:account.invoice,sii_recc_send_error:0
+msgid "SII Payment RECC Send Error"
+msgstr "Error en el envío Pago SII RECC"
+
+#. module: l10n_es_aeat_sii
+#: field:account.invoice,sii_recc_sent:0
+msgid "SII Payment RECC Sent"
+msgstr "Pago SII RECC enviado"
+
+#. module: l10n_es_aeat_sii
 #: field:account.invoice,sii_registration_key:0
 msgid "SII registration key"
 msgstr "Clave de registro SII"

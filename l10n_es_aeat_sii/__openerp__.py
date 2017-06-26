@@ -35,6 +35,7 @@
         "account_refund_original",
         "l10n_es_aeat",
         "connector",
+        "account_payment_partner"
     ],
     "data": [
         "data/ir_config_parameter.xml",
@@ -47,10 +48,12 @@
         "data/aeat_sii_mapping_registration_keys_data.xml",
         "views/aeat_sii_map_view.xml",
         "data/aeat_sii_map_data.xml",
+        "data/aeat_sii_mapping_payment_keys_data.xml",
         "security/ir.model.access.csv",
         "security/aeat_sii.xml",
         "views/product_view.xml",
-        "views/account_fiscal_position_view.xml"
+        "views/account_fiscal_position_view.xml",
+        "views/account_payment_mode_view.xml"
     ],
     "post_init_hook": "add_key_to_existing_invoices",
 }
