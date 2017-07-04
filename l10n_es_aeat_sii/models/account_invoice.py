@@ -393,8 +393,9 @@ class AccountInvoice(models.Model):
                         sub_dict.setdefault('Exenta', {'BaseImponible': 0})
                         if exempt_cause:
                             sub_dict['Exenta']['CausaExencion'] = exempt_cause
-                        sub_dict['Exenta']['BaseImponible'] += (
-                            inv_line._get_sii_line_price_subtotal()
+                        sub_dict['Exenta']['BaseImponible'] += float_round(
+                            inv_line._get_sii_line_price_subtotal() * sign,
+                            2
                         )
                     else:
                         sub_dict.setdefault('NoExenta', {
