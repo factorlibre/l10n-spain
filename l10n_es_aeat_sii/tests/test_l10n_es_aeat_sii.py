@@ -76,6 +76,7 @@ class TestL10nEsAeatSii(common.TransactionCase):
             'tax_sign': 1,
         })
         self.period = self.env['account.period'].find()
+        self.env.user.company_id.sii_description_method = 'manual'
         self.invoice = self.env['account.invoice'].create({
             'partner_id': self.partner.id,
             'date_invoice': fields.Date.today(),
@@ -91,12 +92,14 @@ class TestL10nEsAeatSii(common.TransactionCase):
                     'price_unit': 100,
                     'quantity': 1,
                     'invoice_line_tax_id': [(6, 0, self.tax.ids)],
-                })]
+                })],
+            'sii_manual_description': '/',
         })
 
     def _open_invoice(self):
         self.invoice.company_id.write({
             'sii_enabled': True,
+            'sii_test': True,
             'use_connector': True,
             'chart_template_id': self.env.ref(
                 'l10n_es.account_chart_template_pymes').id,
@@ -132,7 +135,7 @@ class TestL10nEsAeatSii(common.TransactionCase):
                 },
                 'DescripcionOperacion': u'/',
                 'ClaveRegimenEspecialOTrascendencia': special_regime,
-                'ImporteTotal': self.invoice.amount_total,
+                'ImporteTotal': self.invoice.cc_amount_total,
             },
             'PeriodoImpositivo': {
                 'Periodo': str(self.invoice.period_id.code[:2]),
@@ -160,12 +163,12 @@ class TestL10nEsAeatSii(common.TransactionCase):
                         ],
                     },
                 },
-                "CuotaDeducible": self.invoice.amount_tax,
+                "CuotaDeducible": self.invoice.cc_amount_tax,
             })
         if invoice_type == 'R4':
             invoices = self.invoice.origin_invoices_ids
-            base_rectificada = sum(invoices.mapped('amount_untaxed'))
-            cuota_rectificada = sum(invoices.mapped('amount_tax'))
+            base_rectificada = sum(invoices.mapped('cc_amount_untaxed'))
+            cuota_rectificada = sum(invoices.mapped('cc_amount_tax'))
             res[expedida_recibida].update({
                 'TipoRectificativa': 'S',
                 'ImporteRectificacion': {
@@ -225,3 +228,32 @@ class TestL10nEsAeatSii(common.TransactionCase):
         self.invoice.journal_id.update_posted = True
         with self.assertRaises(exceptions.Warning):
             self.invoice.action_cancel()
+
+    def test_sii_description(self):
+        company = self.invoice.company_id
+        company.write({
+            'sii_header_customer': 'Test customer header',
+            'sii_header_supplier': 'Test supplier header',
+            'sii_description': ' | Test description',
+            'sii_description_method': 'fixed',
+        })
+        invoice_temp = self.invoice.copy()
+        self.assertEqual(
+            invoice_temp.sii_description,
+            'Test customer header | Test description',
+        )
+        invoice_temp = self.invoice.copy({'type': 'in_invoice'})
+        self.assertEqual(
+            invoice_temp.sii_description,
+            'Test supplier header | Test description',
+        )
+        company.sii_description_method = 'manual'
+        invoice_temp = self.invoice.copy()
+        self.assertEqual(invoice_temp.sii_description, 'Test customer header')
+        invoice_temp.sii_description = 'Other thing'
+        self.assertEqual(invoice_temp.sii_description, 'Other thing')
+        company.sii_description_method = 'auto'
+        invoice_temp = self.invoice.copy()
+        self.assertEqual(
+            invoice_temp.sii_description, 'Test customer header | Test line',
+        )
