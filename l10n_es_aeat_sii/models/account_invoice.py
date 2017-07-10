@@ -1147,7 +1147,7 @@ class AccountInvoiceLine(models.Model):
         """Obtain the effective invoice line price after discount. Needed as
         we can modify the unit price via inheritance."""
         self.ensure_one()
-        return self._get_sii_line_price_unit() * self.quantity
+        return float_round(self._get_sii_line_price_unit() * self.quantity, 2)
 
     @api.multi
     def _get_sii_tax_line_req(self):
@@ -1180,7 +1180,7 @@ class AccountInvoiceLine(models.Model):
             tax_type = tax_line.amount
         if tax_type not in tax_dict:
             tax_dict[tax_type] = {
-                'TipoImpositivo': str(tax_type * 100),
+                'TipoImpositivo': str(round(tax_type, 2) * 100),
                 'BaseImponible': 0,
                 'CuotaRepercutida': 0,
                 'CuotaSoportada': 0,
@@ -1203,7 +1203,7 @@ class AccountInvoiceLine(models.Model):
             key = 'CuotaRepercutida'
         else:
             key = 'CuotaSoportada'
-        tax_dict[tax_type][key] += taxes['taxes'][0]['amount']
+        tax_dict[tax_type][key] += float_round(taxes['taxes'][0]['amount'], 2)
 
 
 @job(default_channel='root.invoice_validate_sii')
