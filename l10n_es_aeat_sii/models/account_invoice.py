@@ -462,9 +462,10 @@ class AccountInvoice(models.Model):
                         nsub_dict = service_dict.setdefault(
                             'NoSujeta', {'ImporteTAIReglasLocalizacion': 0},
                         )
-                        nsub_dict['ImporteTAIReglasLocalizacion'] += (
-                            inv_line._get_sii_line_price_subtotal() * sign
-                        )
+                        nsub_dict['ImporteTAIReglasLocalizacion'] += round(
+                            float_round(
+                                inv_line._get_sii_line_price_subtotal() *
+                                sign, 2), 2)
         for val in taxes_f.values() + taxes_to.values():
             val['CuotaRepercutida'] = round(
                 float_round(val['CuotaRepercutida'] * sign, 2), 2)
