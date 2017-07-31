@@ -610,6 +610,11 @@ msgid "SII Active"
 msgstr "Activa para el SII"
 
 #. module: l10n_es_aeat_sii
+#: view:account.invoice:l10n_es_aeat_sii.view_account_invoice_sii_filter
+msgid "SII Admitted With Error"
+msgstr "SII Aceptada con errores"
+
+#. module: l10n_es_aeat_sii
 #: field:account.invoice,sii_csv:0
 msgid "SII CSV"
 msgstr "SII CSV"
