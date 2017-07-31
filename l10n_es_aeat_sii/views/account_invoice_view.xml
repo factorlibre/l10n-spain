@@ -168,7 +168,10 @@
                 <xpath expr="//group[@string='Group By']" position="inside">
                     <separator/>
                     <filter string="SII error"
-                        domain="[('sii_send_failed', '=', True)]"
+                        domain="[('sii_send_failed', '=', True),('sii_state', '!=', 'sent_w_errors')]"
+                        context="{'group_by':'sii_send_error'}"/>
+                    <filter string="SII Admitted With Error"
+                        domain="[('sii_state', '=', 'sent_w_errors')]"
                         context="{'group_by':'sii_send_error'}"/>
                 </xpath>
             </field>
