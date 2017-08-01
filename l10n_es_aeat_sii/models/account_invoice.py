@@ -515,8 +515,9 @@ class AccountInvoice(models.Model):
                         'DesgloseIVA',
                         {'DetalleIVA': {'BaseImponible': 0}},
                     )
-                    nsub_dict['DetalleIVA']['BaseImponible'] += inv_line.\
-                        _get_sii_line_price_subtotal() * sign
+                    nsub_dict['DetalleIVA']['BaseImponible'] += round(
+                        float_round(inv_line._get_sii_line_price_subtotal() *
+                                    sign, 2), 2)
 
         if taxes_isp:
             taxes_dict.setdefault(
