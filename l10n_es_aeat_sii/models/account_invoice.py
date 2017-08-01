@@ -413,7 +413,7 @@ class AccountInvoice(models.Model):
                         'NoSujeta', {default_no_taxable_cause: 0},
                     )
                     nsub_dict[default_no_taxable_cause] += (
-                        inv_line._get_sii_line_price_subtotal() * sign
+                        float_round(inv_line._get_sii_line_price_subtotal() * sign, 2)
                     )
                 if tax_line in (taxes_sfess + taxes_sfesse + taxes_sfesns):
                     type_breakdown = taxes_dict.setdefault(
@@ -453,7 +453,7 @@ class AccountInvoice(models.Model):
                             'NoSujeta', {'ImporteTAIReglasLocalizacion': 0},
                         )
                         nsub_dict['ImporteTAIReglasLocalizacion'] += (
-                            inv_line._get_sii_line_price_subtotal() * sign
+                            round(inv_line._get_sii_line_price_subtotal() * sign, 2)
                         )
         for val in taxes_f.values() + taxes_to.values():
             val['CuotaRepercutida'] = float_round(
@@ -626,7 +626,7 @@ class AccountInvoice(models.Model):
                 ),
                 "DescripcionOperacion": self.sii_description,
                 "TipoDesglose": self._get_sii_out_taxes(),
-                "ImporteTotal": self.cc_amount_total * sign,
+                "ImporteTotal": float_round(self.cc_amount_total * sign, 2),
             }
             if self.sii_registration_key_additional1:
                 inv_dict["FacturaExpedida"].\
@@ -725,7 +725,7 @@ class AccountInvoice(models.Model):
                     )
                 },
                 "FechaRegContable": reg_date,
-                "ImporteTotal": self.cc_amount_total * sign,
+                "ImporteTotal": float_round(self.cc_amount_total * sign, 2),
                 "CuotaDeducible": float_round(tax_amount * sign, 2),
             }
             if self.sii_registration_key_additional1:
