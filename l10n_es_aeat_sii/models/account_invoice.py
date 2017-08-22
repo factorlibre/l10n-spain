@@ -671,7 +671,7 @@ class AccountInvoice(models.Model):
                 ),
                 "DescripcionOperacion": self.sii_description,
                 "TipoDesglose": self._get_sii_out_taxes(),
-                "ImporteTotal": self.cc_amount_total * sign,
+                "ImporteTotal": round(self.cc_amount_total * sign, 2),
             }
             if self.sii_registration_key_additional1:
                 inv_dict["FacturaExpedida"].\
@@ -770,8 +770,8 @@ class AccountInvoice(models.Model):
                     )
                 },
                 "FechaRegContable": reg_date,
-                "ImporteTotal": self.cc_amount_total * sign,
-                "CuotaDeducible": round(float_round(tax_amount * sign, 2), 2),
+                "ImporteTotal": float_round(self.cc_amount_total * sign, 2),
+                "CuotaDeducible": float_round(tax_amount * sign, 2),
             }
             if self.sii_registration_key_additional1:
                 inv_dict["FacturaRecibida"].\
@@ -1318,7 +1318,7 @@ class AccountInvoiceLine(models.Model):
         """Obtain the effective invoice line price after discount. Needed as
         we can modify the unit price via inheritance."""
         self.ensure_one()
-        return self._get_sii_line_price_unit() * self.quantity
+        return float_round(self._get_sii_line_price_unit() * self.quantity, 2)
 
     @api.multi
     def _get_sii_tax_line_req(self):
@@ -1351,7 +1351,7 @@ class AccountInvoiceLine(models.Model):
             tax_type = abs(tax_line.amount)
         if tax_type not in tax_dict:
             tax_dict[tax_type] = {
-                'TipoImpositivo': str(tax_type * 100),
+                'TipoImpositivo': str(abs(round(tax_type, 2) * 100)),
                 'BaseImponible': 0,
                 'CuotaRepercutida': 0,
                 'CuotaSoportada': 0,
