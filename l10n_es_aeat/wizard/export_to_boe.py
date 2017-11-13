@@ -26,7 +26,7 @@ class L10nEsAeatReportExportToBoe(models.TransientModel):
         ], string="State", default='open')
 
     def _format_string(self, text, length, fill=' ', align='<'):
-        u"""Format the string into a fixed length ASCII (iso-8859-1) record.
+        """Format the string into a fixed length ASCII (iso-8859-1) record.
 
         Note:
             'Todos los campos alfanuméricos y alfabéticos se presentarán
@@ -42,7 +42,7 @@ class L10nEsAeatReportExportToBoe(models.TransientModel):
         # Replace accents and convert to upper
         from unidecode import unidecode
         text = text.upper()
-        text = ''.join([unidecode(x) if x not in (u'Ñ', u'Ç') else x
+        text = ''.join([unidecode(x) if x not in ('Ñ', 'Ç') else x
                         for x in text])
         text = re.sub(
             r"[^A-Z0-9\s\.,-_&'´\\:;/\(\)ÑÇ\"]", '', text, re.UNICODE | re.X)
@@ -67,7 +67,7 @@ class L10nEsAeatReportExportToBoe(models.TransientModel):
     def _format_number(self, number, int_length, dec_length=0,
                        include_sign=False, positive_sign=' ',
                        negative_sign='N'):
-        u"""Format the number into a fixed length ASCII (iso-8859-1) record.
+        """Format the number into a fixed length ASCII (iso-8859-1) record.
 
         Note:
             'Todos los campos numéricos se presentarán alineados a la derecha
@@ -101,7 +101,7 @@ class L10nEsAeatReportExportToBoe(models.TransientModel):
         return str(ascii_string)
 
     def _format_boolean(self, value, yes='X', no=' '):
-        u"""Format a boolean value into a fixed length ASCII (iso-8859-1) record.
+        """Format a boolean value into a fixed length ASCII (iso-8859-1) record.
         """
         res = value and yes or no
         # Return the string assuring that is not unicode
