@@ -81,3 +81,4 @@ class TestL10nEsAeatMod115Base(TestL10nEsAeatModBase):
             self.model115.button_confirm()
         self.model115.partner_bank_id = self.customer_bank.id
         self.model115.button_confirm()
+        self.assertEqual(self.model115.tipo_declaracion, 'I')
