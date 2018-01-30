@@ -322,7 +322,7 @@ class L10nEsAeatMod303Report(models.Model):
                    ('D', 'A devolver'),
                    ('C', 'A compensar'),
                    ('N', 'Sin actividad/Resultado cero')],
-        compute="_compute_result_type")
+        compute="_compute_result_type", readonly=False)
     compensate = fields.Boolean(
         string="Compensate", states={'done': [('readonly', True)]},
         help="Si se marca, indicará que el importe a devolver se "
