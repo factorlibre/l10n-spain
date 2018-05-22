@@ -26,7 +26,9 @@ from openerp import netsvc
 from openerp.osv import fields, osv, orm
 from openerp.tools.translate import _
 from openerp.tools import float_is_zero
+import logging
 
+_logger = logging.getLogger(__name__)
 
 class CancelFyc(orm.TransientModel):
 
@@ -262,6 +264,7 @@ class ExecuteFyc(orm.TransientModel):
         account_move_ids = move_obj.search(cr, uid, [
             ('period_id', 'in', period_ids),
             ('state', '!=', 'draft'),
+            ('balance', '<>', 0),
         ], context=context)
         # For each found move, check it
         unbalanced_moves = []
@@ -398,14 +401,27 @@ class ExecuteFyc(orm.TransientModel):
                 'journal_id': journal_id,
             })
         # Finally create the account move with all the lines (if needed)
+        len_total = len(move_lines)
+        j = 0
         if len(move_lines):
+
             move_id = self.pool.get('account.move').create(cr, uid, {
-                'line_id': map(lambda x: (0, 0, x), move_lines),
+                # 'line_id': map(lambda x: (0, 0, x), move_lines),
                 'ref': description,
                 'date': date,
                 'period_id': period_id,
                 'journal_id': journal_id,
             }, context={})
+            move_line_ids = []
+            for line in move_lines:
+                j = j + 1
+                _logger.info("dest2 %s de %s" % (j, len_total))
+                move_line_ids.append(
+                    self.pool['account.move.line'].create(
+                        cr, uid, line, context=context))
+            cr.execute(
+                """UPDATE account_move_line SET move_id=%s where id in %s""", (
+                    move_id, tuple(move_line_ids)))
         else:
             move_id = False
         return move_id
@@ -525,14 +541,27 @@ class ExecuteFyc(orm.TransientModel):
                 'partner_id': line.partner_id.id,
             })
         # Finally create the account move with all the lines (if needed)
+        len_total = len(move_lines)
+        j = 0
         if len(move_lines):
-            move_id = move_obj.create(cr, uid, {
-                'line_id': map(lambda x: (0, 0, x), move_lines),
+
+            move_id = self.pool.get('account.move').create(cr, uid, {
+                # 'line_id': map(lambda x: (0, 0, x), move_lines),
                 'ref': description,
                 'date': date,
                 'period_id': period_id,
                 'journal_id': journal_id,
             }, context={})
+            move_line_ids = []
+            for line in move_lines:
+                j = j + 1
+                _logger.info("dest2 %s de %s" % (j, len_total))
+                move_line_ids.append(
+                    self.pool['account.move.line'].create(
+                        cr, uid, line, context=context))
+            cr.execute(
+                """UPDATE account_move_line SET move_id=%s where id in %s""", (
+                    move_id, tuple(move_line_ids)))
         else:
             move_id = False
         return move_id
