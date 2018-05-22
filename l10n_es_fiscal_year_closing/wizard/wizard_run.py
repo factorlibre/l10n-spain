@@ -30,6 +30,7 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+
 class CancelFyc(orm.TransientModel):
 
     _name = "account.fiscalyear.closing.cancel_wizard"
@@ -422,6 +423,13 @@ class ExecuteFyc(orm.TransientModel):
             cr.execute(
                 """UPDATE account_move_line SET move_id=%s where id in %s""", (
                     move_id, tuple(move_line_ids)))
+            move_unlink_ids = self.pool.get('account.move').search(cr, uid, [
+                ('period_id', '=', period_id),
+                ('line_id', '=', False),
+            ], context=context)
+            if move_unlink_ids:
+                self.pool.get('account.move').unlink(
+                    cr, uid, move_unlink_ids, context=context)
         else:
             move_id = False
         return move_id
@@ -562,6 +570,13 @@ class ExecuteFyc(orm.TransientModel):
             cr.execute(
                 """UPDATE account_move_line SET move_id=%s where id in %s""", (
                     move_id, tuple(move_line_ids)))
+            move_unlink_ids = self.pool.get('account.move').search(cr, uid, [
+                ('period_id', '=', period_id),
+                ('line_id', '=', False),
+            ], context=context)
+            if move_unlink_ids:
+                self.pool.get('account.move').unlink(
+                    cr, uid, move_unlink_ids, context=context)
         else:
             move_id = False
         return move_id
