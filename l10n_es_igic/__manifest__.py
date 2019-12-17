@@ -24,7 +24,6 @@
     "depends": ['l10n_es'],
     "license": "AGPL-3",
     'data': [
-        'data/account_chart_template_igic.xml',
         'data/account_account_common_igic.xml',
         'data/account_tax_group_data.xml',
         'data/taxes_common_igic.xml',
