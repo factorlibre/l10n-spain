@@ -607,7 +607,7 @@ class L10nEsReportIntrastatProduct(models.Model):
                     parent_values['incoterm_id'] =\
                         self.company_id.default_incoterm.id
             else:
-                parent_values['incoterm_id'] = self.incoterm_id.id
+                parent_values['incoterm_id'] = invoice.incoterm_id.id
 
             # Get partner on which we will check the 'country of origin'
             # on product_supplierinfo
