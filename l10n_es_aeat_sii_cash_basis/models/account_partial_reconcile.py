@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2018 Tecnativa - Pedro M. Baeza
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
@@ -12,7 +11,6 @@ class AccountPartialReconcile(models.Model):
     def create_tax_cash_basis_entry(self, value_before_reconciliation):
         if (config['test_enable'] and
                 not self.env.context.get('test_sii_cash_basis')):
-            # Do nothing when testing other modules
             invoices = []
         else:
             invoices = (

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2018 Tecnativa - Pedro M. Baeza
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
@@ -10,17 +9,17 @@ SII_PAYMENT_DICTS = {
     'out_invoice_payment': {
         "IDFactura": {
             "IDEmisorFactura": {
-                "NIF": u'F35999705',
-                "NombreRazon": u"Test partner",
+                "NIF": 'F35999705',
+                "NombreRazon": "Test partner",
             },
-            "NumSerieFacturaEmisor": u'FACE001',
+            "NumSerieFacturaEmisor": 'FACE001',
             "FechaExpedicionFacturaEmisor": '01-02-2018',
         },
         "Pagos": {
             "Pago": [{
                 'Fecha': '20-02-2018',
                 'Importe': 110.0,
-                'Medio': u'01',
+                'Medio': '01',
             }],
         },
 
@@ -45,7 +44,7 @@ class TestCashBasisSii(TestL10nEsAeatSiiBase):
             'user_type_id': cls.account_type.id,
         })
         cls.tax.write({
-            'use_cash_basis': True,
+            'tax_exigibility': True,
             'cash_basis_account': cls.account_tax_cash_basis.id,
         })
         cls.journal = cls.env['account.journal'].create({

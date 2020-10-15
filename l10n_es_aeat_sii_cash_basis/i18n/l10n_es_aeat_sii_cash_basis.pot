@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 10.0\n"
+"Project-Id-Version: Odoo Server 11.0\n"
 "Report-Msgid-Bugs-To: \n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
@@ -151,4 +151,3 @@ msgstr ""
 #: model:ir.model,name:l10n_es_aeat_sii_cash_basis.model_aeat_sii_payment_mode_key
 msgid "aeat.sii.payment.mode.key"
 msgstr ""
-

@@ -14,16 +14,16 @@ SII - Extensión para criterio de caja
     :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
     :alt: License: AGPL-3
 .. |badge3| image:: https://img.shields.io/badge/github-OCA%2Fl10n--spain-lightgray.png?logo=github
-    :target: https://github.com/OCA/l10n-spain/tree/10.0/l10n_es_aeat_sii_cash_basis
+    :target: https://github.com/OCA/l10n-spain/tree/11.0/l10n_es_aeat_sii_cash_basis
     :alt: OCA/l10n-spain
 .. |badge4| image:: https://img.shields.io/badge/weblate-Translate%20me-F47D42.png
     :target: https://translation.odoo-community.org/projects/l10n-spain-10-0/l10n-spain-10-0-l10n_es_aeat_sii_cash_basis
     :alt: Translate me on Weblate
 .. |badge5| image:: https://img.shields.io/badge/runbot-Try%20me-875A7B.png
-    :target: https://runbot.odoo-community.org/runbot/189/10.0
+    :target: https://runbot.odoo-community.org/runbot/189/11.0
     :alt: Try me on Runbot
 
-|badge1| |badge2| |badge3| |badge4| |badge5| 
+|badge1| |badge2| |badge3| |badge4| |badge5|
 
 Módulo que extiende el envío de información al SII que hace Odoo para las
 empresas que requieran criterio de caja.
@@ -108,8 +108,8 @@ promote its widespread use.
 
 Current `maintainer <https://odoo-community.org/page/maintainer-role>`__:
 
-|maintainer-pedrobaeza| 
+|maintainer-pedrobaeza|
 
-This module is part of the `OCA/l10n-spain <https://github.com/OCA/l10n-spain/tree/10.0/l10n_es_aeat_sii_cash_basis>`_ project on GitHub.
+This module is part of the `OCA/l10n-spain <https://github.com/OCA/l10n-spain/tree/11.0/l10n_es_aeat_sii_cash_basis>`_ project on GitHub.
 
 You are welcome to contribute. To learn how please visit https://odoo-community.org/page/Contribute.
