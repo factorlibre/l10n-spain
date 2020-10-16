@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2018 Tecnativa - Pedro M. Baeza
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
@@ -27,7 +26,7 @@ class AccountPartialReconcileCashBasis(models.Model):
                     tax_lines += line
         if tax_lines:
             tax_lines.write({'tax_exigible': False})
-        for line in base_lines.values():
+        for line in list(base_lines.values()):
             line.tax_ids = [
                 (3, x.id) for x in
                 line.tax_ids.filtered(lambda l: l.description == 'P_IRPF2')
@@ -37,6 +36,6 @@ class AccountPartialReconcileCashBasis(models.Model):
         ).create_tax_cash_basis_entry(value_before_reconciliation)
         if tax_lines:
             tax_lines.write({'tax_exigible': True})
-        for taxes, line in base_lines.items():
+        for taxes, line in list(base_lines.items()):
             line.tax_ids = [(6, 0, taxes.ids)]
         return res
