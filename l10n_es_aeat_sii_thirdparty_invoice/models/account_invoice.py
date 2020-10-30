@@ -38,7 +38,7 @@ class AccountInvoice(models.Model):
         if not cancel:
             if self.sii_thirdparty_invoice:
                 inv_dict['FacturaExpedida'].update({
-                    'EmitidaPorTerceros': 'S',
+                    'EmitidaPorTercerosODestinatario': 'S',
                 })
 
         return inv_dict
