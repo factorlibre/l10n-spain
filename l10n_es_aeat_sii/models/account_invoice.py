@@ -651,16 +651,24 @@ class AccountInvoice(models.Model):
         taxes_isp = {}
         taxes_ns = {}
         taxes_nd = {}
+        taxes_in = {}
         taxes_sfrs = self._get_sii_taxes_map(['SFRS'])
         taxes_sfrsa = self._get_sii_taxes_map(['SFRSA'])
         taxes_sfrisp = self._get_sii_taxes_map(['SFRISP'])
         taxes_sfrns = self._get_sii_taxes_map(['SFRNS'])
         taxes_sfrnd = self._get_sii_taxes_map(['SFRND'])
+        taxes_in_total = self._get_sii_taxes_map(['IncludedInTotal'])
+        taxes_in_total_irpf = self._get_sii_taxes_map(['IncludedInTotalIRPF'])
         tax_amount = 0.0
+        in_amount_total = 0.0
         # Check if refund type is 'By differences'. Negative amounts!
         sign = self._get_sii_sign()
         for inv_line in self.invoice_line:
             for tax_line in inv_line.invoice_line_tax_id:
+                if tax_line in taxes_in_total:
+                    inv_line._update_sii_tax_line(taxes_in, tax_line)
+                if tax_line in taxes_in_total_irpf:
+                    inv_line._update_sii_tax_line(taxes_in, tax_line, True)
                 if tax_line in taxes_sfrisp:
                     inv_line._update_sii_tax_line(taxes_isp, tax_line)
                 elif tax_line in taxes_sfrs:
@@ -715,7 +723,10 @@ class AccountInvoice(models.Model):
             taxes_dict.setdefault(
                 'DesgloseIVA', {'DetalleIVA': taxes_fa.values()},
             )
-        return taxes_dict, tax_amount
+        for val in taxes_in.values():
+            in_amount_total += abs(round(
+                float_round(val['CuotaSoportada'] * sign, 2), 2))
+        return taxes_dict, tax_amount, in_amount_total
 
     @api.multi
     def _sii_check_exceptions(self):
@@ -870,7 +881,8 @@ class AccountInvoice(models.Model):
             self.period_id.date_start).year
         periodo = '%02d' % fields.Date.from_string(
             self.period_id.date_start).month
-        desglose_factura, tax_amount = self._get_sii_in_taxes()
+        desglose_factura, tax_amount, in_amount_total = (
+            self._get_sii_in_taxes())
         inv_dict = {
             "IDFactura": {
                 "IDEmisorFactura": {},
@@ -911,7 +923,10 @@ class AccountInvoice(models.Model):
                     )
                 },
                 "FechaRegContable": reg_date,
-                "ImporteTotal": self.cc_amount_total * sign,
+                "ImporteTotal": round(
+                    float_round(
+                        self.cc_amount_total * sign + in_amount_total, 2),
+                    2) or 0.0,
                 "CuotaDeducible": (self.period_id.date_start >=
                                    SII_START_DATE
                                    and round(float_round(tax_amount,
@@ -1492,7 +1507,7 @@ class AccountInvoiceLine(models.Model):
         return {}
 
     @api.model
-    def _update_sii_tax_line(self, tax_dict, tax_line):
+    def _update_sii_tax_line(self, tax_dict, tax_line, get_tax=False):
         """Update the SII taxes dictionary for the passed tax line.
 
         :param self: Single invoice line record.
@@ -1531,9 +1546,10 @@ class AccountInvoiceLine(models.Model):
             key = 'CuotaSoportada'
         if taxes['total'] >= 0:
             sii_included_taxes = [t for t in taxes['taxes']
-                                  if t['amount'] >= 0]
+                                  if t['amount'] >= 0 or get_tax]
         else:
-            sii_included_taxes = [t for t in taxes['taxes'] if t['amount'] < 0]
+            sii_included_taxes = [t for t in taxes['taxes']
+                                  if t['amount'] < 0 or get_tax]
         for tax in sii_included_taxes:
             tax_dict[tax_type][key] += tax['amount']
 
