@@ -9,7 +9,6 @@
             <field name="arch" type="xml">
                 <field name="sii_description" position="after">
                     <field name="sii_thirdparty_invoice"/>
-                    <field name="sii_force_number"/>
                 </field>
             </field>
         </record>

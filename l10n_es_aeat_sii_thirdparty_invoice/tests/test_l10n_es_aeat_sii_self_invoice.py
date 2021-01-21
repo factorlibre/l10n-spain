@@ -2,7 +2,6 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo.tests import common
-from odoo import exceptions, fields
 
 
 class TestAccountInvoice(common.TransactionCase):
@@ -25,25 +24,6 @@ class TestAccountInvoice(common.TransactionCase):
             }),
         })
 
-    def test_sii_force_number(self):
-        invoice = self.invoice
-        invoice.sii_force_number = 'TESTNUMBER'
-
-        self.assertEqual('TESTNUMBER', invoice.internal_number)
-
-    def test_get_sii_invoice_dict_with_thirdparty_number_is_ok(self):
-        invoice = self.invoice
-        invoice.sii_force_number = 'TESTNUMBER'
-        invoice.sii_thirdparty_invoice = True
-
-        inv_dict = invoice._get_sii_invoice_dict_out()
-        self.assertEqual(
-            'TESTNUMBER',
-            inv_dict.get(
-                "IDFactura",
-                {}).get("NumSerieFacturaEmisor", False)
-        )
-
     def test_get_sii_invoice_dict_with_thirdparty_code_is_ok(self):
         invoice = self.invoice
         invoice.sii_force_number = 'TESTNUMBER'
@@ -55,20 +35,6 @@ class TestAccountInvoice(common.TransactionCase):
             inv_dict.get(
                 "FacturaExpedida",
                 {}).get("EmitidaPorTercerosODestinatario", False)
-        )
-
-    def test_get_sii_invoice_dict_normal_number_ok(self):
-        invoice = self.invoice
-        invoice.number = 'TEST_NORMALNUMBER'
-        invoice.sii_force_number = 'TEST_THIRDPARTYNUMBER'
-        invoice.sii_thirdparty_invoice = False
-
-        inv_dict = invoice._get_sii_invoice_dict_out()
-        self.assertEqual(
-            'TEST_NORMALNUMBER',
-            inv_dict.get(
-                "IDFactura",
-                {}).get("NumSerieFacturaEmisor", False)
         )
 
     def test_get_sii_invoice_dict_normal_no_thirdparty_code(self):
