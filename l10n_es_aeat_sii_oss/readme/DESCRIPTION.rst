@@ -1,0 +1,1 @@
+Módulo para la presentación inmediata del IVA de los países intracomunitarios para comercio B2C según el marco de la normativa One Shop Stop Europea
