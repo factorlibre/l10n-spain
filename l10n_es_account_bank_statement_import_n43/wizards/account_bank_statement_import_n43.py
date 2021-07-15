@@ -112,7 +112,7 @@ class AccountBankStatementImport(models.TransientModel):
         credit_count = 0
         credit = 0.0
         for st_line in st_group['lines']:
-            if st_line['importe'] < 0:
+            if st_line['importe'] <= 0:
                 debit_count += 1
                 debit -= st_line['importe']
             else:
