@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # © 2016 - FactorLibre - Ismael Calvo <ismael.calvo@factorlibre.com>
+# © 2022 - FactorLibre - Javier Iniesta <javier.iniesta@factorlibre.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 from openerp import models, fields, api, _
@@ -388,6 +389,12 @@ class L10nEsReportIntrastatProduct(models.Model):
             else:
                 parent_values['partner_vat_to_write'] = False
 
+        if self.type == 'export' and self.year_month >= '2022':
+            parent_values['partner_vat_to_write'] = (
+                invoice.partner_shipping_id.vat or
+                invoice.partner_id.vat or
+                'QV999999999999'
+            )
         for line_to_create in lines_to_create:
             line_to_create['partner_vat'] =\
                 parent_values['partner_vat_to_write']
@@ -635,9 +642,10 @@ class L10nEsReportIntrastatProduct(models.Model):
         if not self.intrastat_line_ids:
             raise ValidationError(_('There is not any product line'))
         rows = []
+        write_vat = self.type == 'export' and self.year_month >= '2022'
         for line in self.intrastat_line_ids:
             # TO DO port/airport
-            rows.append((
+            row = (
                 line.partner_country_code,  # Estado destino/origen
                 line.state.code,  # Provincia destino/origen # state_code
                 line.incoterm_code,  # Condiciones de entrega
@@ -651,7 +659,10 @@ class L10nEsReportIntrastatProduct(models.Model):
                 str(line.quantity).replace('.', ','),  # Unidades suplementarias
                 str(line.amount_company_currency).replace('.', ','),  # Importe facturado
                 str(line.amount_company_currency).replace('.', ','),  # Valor estadístico
-            ))
+            )
+            if write_vat:
+                row += (line.partner_vat,)
+            rows.append(row)
 
         csv_string = self._format_csv(rows, ';')
         attach_id = self._attach_csv_file(csv_string, 'aeat')
