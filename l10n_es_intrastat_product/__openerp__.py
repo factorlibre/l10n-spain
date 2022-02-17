@@ -21,11 +21,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+# © 2022 - FactorLibre - Javier Iniesta <javier.iniesta@factorlibre.com>
 
 
 {
     'name': 'Spain Intrastat Product',
-    'version': '1.2',
+    'version': '1.3',
     'category': 'Localisation/Report Intrastat',
     'license': 'AGPL-3',
     'summary': "Genera archivo para presentar las declaraciones Intrastat",
