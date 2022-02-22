@@ -112,6 +112,7 @@ class L10nEsReportIntrastatProduct(models.Model):
         """This function is called for each invoice"""
         self.ensure_one()
         line_obj = self.env['l10n.es.report.intrastat.product.line']
+        partner_obj = self.env['res.partner']
         weight_uom_categ = self.env.ref('product.product_uom_categ_kgm')
         kg_uom = self.env.ref('product.product_uom_kgm')
         pce_uom_categ = self.env.ref('product.product_uom_categ_unit')
@@ -390,8 +391,13 @@ class L10nEsReportIntrastatProduct(models.Model):
                 parent_values['partner_vat_to_write'] = False
 
         if self.type == 'export' and self.year_month >= '2022':
+            shipping_vat = False
+            addr = invoice.partner_id.address_get(['delivery']) or {}
+            shipping_addr = addr.get('delivery', False)
+            if shipping_addr:
+                shipping_vat = partner_obj.browse(shipping_addr).vat
             parent_values['partner_vat_to_write'] = (
-                invoice.partner_shipping_id.vat or
+                shipping_vat or
                 invoice.partner_id.vat or
                 'QV999999999999'
             )
