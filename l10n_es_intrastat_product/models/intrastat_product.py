@@ -246,7 +246,8 @@ class L10nEsReportIntrastatProduct(models.Model):
                                 intrastat_uom_id_to_write))
 
                 # The origin country should only be declated on Import
-                if self.type == 'export':
+                # or when the year is after 2022
+                if self.type == 'export' and self.year_month < '2022':
                     product_origin_country_id_to_write = False
                 elif line.product_id.origin_country_id:
                     # If we have the country of origin on the product: take it
