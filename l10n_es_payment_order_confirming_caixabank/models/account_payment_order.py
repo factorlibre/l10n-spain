@@ -186,6 +186,15 @@ class AccountPaymentOrder(models.Model):
 
         fixed_text += self.convert(nif, 12)
 
+        # Logica para saber si es nacional o no el banco
+        country = line.partner_bank_id.acc_number and \
+            line.partner_bank_id.acc_number[:2].upper() or ''
+        is_national = country.upper() == 'ES' and True or False
+        country_int_code = False
+        if not is_national:
+            country_int_code = self.env['res.country'].search([
+                ('code', 'ilike', country)], limit=1).code
+
         for tipo_dato in bloque_registros:
             text = ''
             text += fixed_text
@@ -233,7 +242,10 @@ class AccountPaymentOrder(models.Model):
                 else:
                     text += '  '
                 # 66: Proveedor no residente
-                text += 'N'
+                if not is_national and country_int_code:
+                    text += 'S'
+                else:
+                    text += 'N'
                 # 67: Indicador confirmación
                 text += 'C'
                 # 68 - 70: Moneda de factura
@@ -261,8 +273,10 @@ class AccountPaymentOrder(models.Model):
                 # 30: Clave de gastos
                 text += '1'
                 # 31 - 32: Código ISO pais destino
-                # TODO lo dejo siempre a ES?
-                text += 'ES'
+                if not is_national and country_int_code:
+                    text += country_int_code
+                else:
+                    text += 'ES'
                 # 63 - 38 Libre
                 text += 6 * ' '
                 # 39 - 50: Código SWIFT del banco destino (bic)
