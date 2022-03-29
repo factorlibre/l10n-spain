@@ -220,9 +220,6 @@ class Mod349(models.Model):
                 year = str(report.year)
 
                 key_vals = data.get((partner, op_key, period_type, year))
-                if key_vals:
-                    key_vals['refund_details'] += refund_details
-                    continue
 
                 # Sum all details period origin
                 all_details_period = detail_obj.search([
@@ -252,6 +249,11 @@ class Mod349(models.Model):
                     if last_refund_detail:
                         origin_amount = last_refund_detail.refund_id.\
                             total_operation_amount
+                        if key_vals:
+                            key_vals['original_amount'] = origin_amount
+                if key_vals:
+                    key_vals['refund_details'] += refund_details
+                    continue
             else:
                 # There's no previous 349 declaration report in Odoo
                 original_amls = move_line_obj.search([
