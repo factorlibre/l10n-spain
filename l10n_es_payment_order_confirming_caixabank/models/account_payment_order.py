@@ -164,8 +164,9 @@ class AccountPaymentOrder(models.Model):
 
     def _pop_beneficiarios_conf_caix(self, line):
         all_text = ''
+        # 046 se quita la opcion 46 por ser opcional y estar probocando problemas
         bloque_registros = [
-            '010', '043', '044', '046', '011', '012', '014',
+            '010', '043', '044', '011', '012', '014',
             '015', '016', '017', '018', '019', '055'
         ]
         fixed_text = ''
