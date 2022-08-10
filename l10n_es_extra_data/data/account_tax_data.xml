@@ -13,7 +13,7 @@
         <field name="tag_ids" eval="[(6, False, [ref('l10n_es.mod_303_28_29'), ref('l10n_es.mod_303_40_41')])]"/>
     </record>
     <record id="account_tax_template_s_iva5s" model="account.tax.template">
-        <field name="description"/>S_IVA5S</field>
+        <field name="description">S_IVA5S</field>
         <field name="type_tax_use">sale</field>
         <field name="account_id" ref="l10n_es.account_common_477"/>
         <field name="name">IVA 5%</field>
