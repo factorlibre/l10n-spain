@@ -1,13 +1,13 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* l10n_es_aeat_mod303
+#	* l10n_es_aeat_mod303
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 11.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-16 18:10+0000\n"
-"PO-Revision-Date: 2021-03-26 14:46+0000\n"
+"POT-Creation-Date: 2023-03-16 12:37+0000\n"
+"PO-Revision-Date: 2023-03-16 12:37+0000\n"
 "Last-Translator: brendapaniagua <brenda.paniagua@qubiq.es>\n"
 "Language-Team: \n"
 "Language: es\n"
@@ -392,7 +392,7 @@ msgid "ID"
 msgstr "ID"
 
 #. module: l10n_es_aeat_mod303
-#: code:addons/l10n_es_aeat_mod303/models/mod303.py:270
+#: code:addons/l10n_es_aeat_mod303/models/mod303.py:275
 #, python-format
 msgid ""
 "In previous declarations this year you reported a Result Type 'To "
@@ -536,7 +536,7 @@ msgid "Resultado"
 msgstr "Resultado"
 
 #. module: l10n_es_aeat_mod303
-#: code:addons/l10n_es_aeat_mod303/models/mod303.py:415
+#: code:addons/l10n_es_aeat_mod303/models/mod303.py:417
 #, python-format
 msgid "Select an account for receiving the money"
 msgstr "Seleccione una cuenta bancaria para recibir el dinero"
@@ -566,7 +566,7 @@ msgstr ""
 "esta casilla el 100%"
 
 #. module: l10n_es_aeat_mod303
-#: code:addons/l10n_es_aeat_mod303/models/mod303.py:426
+#: code:addons/l10n_es_aeat_mod303/models/mod303.py:428
 #, python-format
 msgid "The fee to compensate must be indicated as a positive number."
 msgstr "La cuota a compensar debe ser indicada como una cantidad positiva."
@@ -592,8 +592,28 @@ msgstr "A ingresar"
 
 #. module: l10n_es_aeat_mod303
 #: selection:l10n.es.aeat.mod303.report,result_type:0
+msgid "To enter - AEAT account"
+msgstr "A ingresar - cuenta AEAT"
+
+#. module: l10n_es_aeat_mod303
+#: selection:l10n.es.aeat.mod303.report,result_type:0
+msgid "To enter - Bank account debit"
+msgstr "A ingresar - Cuenta bancaria débito"
+
+#. module: l10n_es_aeat_mod303
+#: selection:l10n.es.aeat.mod303.report,result_type:0
 msgid "To return"
 msgstr "Negativa"
+
+#. module: l10n_es_aeat_mod303
+#: selection:l10n.es.aeat.mod303.report,result_type:0
+msgid "To return - AEAT account"
+msgstr "A devolver - cuenta AEAT"
+
+#. module: l10n_es_aeat_mod303
+#: selection:l10n.es.aeat.mod303.report,result_type:0
+msgid "To return - Foreign bank account"
+msgstr "A devolver - Cuenta bancaria extranjera"
 
 #. module: l10n_es_aeat_mod303
 #: model:ir.model.fields,field_description:l10n_es_aeat_mod303.field_l10n_es_aeat_mod303_report_potential_cuota_compensar
