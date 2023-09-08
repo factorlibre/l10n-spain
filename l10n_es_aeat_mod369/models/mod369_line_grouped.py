@@ -56,6 +56,7 @@ class L10nEsAeatMod369LineGrouped(models.Model):
         string="Mod369 report", comodel_name="l10n.es.aeat.mod369.report"
     )
     country_id = fields.Many2one(string="Country", comodel_name="res.country")
+    oss_country_id = fields.Many2one(string="OSS Country", comodel_name="res.country")
     country_code = fields.Char(string="Country code", related="country_id.code")
     tax_id = fields.Many2one(string="Tax", comodel_name="account.tax")
     vat_type = fields.Float(string="VAT Type", related="tax_id.amount")
