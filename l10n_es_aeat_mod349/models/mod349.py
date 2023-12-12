@@ -438,10 +438,9 @@ class Mod349PartnerRecord(models.Model):
     def _process_vat(self, record, errors):
         partner_vat = record.partner_vat
         country_code = "".join(c for c in partner_vat[0:2] if not c.isnumeric())
-        european_codes = record.partner_id._get_aeat_europe_codes()
         if not country_code:
             errors.append(_("VAT without country code"))
-        elif country_code not in european_codes:
+        elif country_code not in record.partner_id._get_aeat_europe_codes():
             europe = self.env.ref("base.europe", raise_if_not_found=False)
             map_european_codes = [
                 record.partner_id._map_aeat_country_iso_code(c)
