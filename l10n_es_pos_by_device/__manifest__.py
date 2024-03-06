@@ -6,19 +6,20 @@
     "author": "Landoo Sistemas de Información S.L, " "Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/l10n-spain",
     "license": "AGPL-3",
-    "version": "14.0.1.1.1",
+    "version": "16.0.1.0.0",
     "maintainers": ["ao-landoo"],
     "depends": ["l10n_es_pos"],
     "data": [
         "security/ir.model.access.csv",
         "security/device_security.xml",
-        "views/pos_templates.xml",
         "views/pos_views.xml",
         "views/res_config_views.xml",
     ],
-    "qweb": [
-        "static/src/xml/Screens/Chrome/Chrome.xml",
-        "static/src/xml/Screens/Chrome/DeviceName.xml",
-    ],
+    "assets": {
+        "point_of_sale.assets": [
+            "l10n_es_pos_by_device/static/src/xml/**/*",
+            "l10n_es_pos_by_device/static/src/js/**/*",
+        ],
+    },
     "installable": True,
 }

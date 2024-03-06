@@ -142,7 +142,7 @@ msgstr "Dispositivo físico TPV"
 #. module: l10n_es_pos_by_device
 #: model:ir.actions.act_window,name:l10n_es_pos_by_device.pos_devices_act_window
 #: model:ir.ui.menu,name:l10n_es_pos_by_device.pos_device_menu
-#: model_terms:ir.ui.view,arch_db:l10n_es_pos_by_device.pos_config_view_form_by_device
+#: model_terms:ir.ui.view,arch_db:l10n_es_pos_by_device.view_res_config_settings_pos_seq_device
 msgid "POS Physical devices"
 msgstr "Dispositivos físicos TPV"
 
@@ -182,10 +182,9 @@ msgid "Select Physical Device"
 msgstr "Selecciona dispositivo físico"
 
 #. module: l10n_es_pos_by_device
-#: model_terms:ir.ui.view,arch_db:l10n_es_pos_by_device.pos_config_view_form_by_device
+#: model_terms:ir.ui.view,arch_db:l10n_es_pos_by_device.view_res_config_settings_pos_seq_device
 msgid "Select available physical devices for this POS configuration"
-msgstr ""
-"Selecciona los dispositivos físicos disponibles para esta configuración TPV"
+msgstr "Selecciona los dispositivos físicos disponibles para esta configuración TPV"
 
 #. module: l10n_es_pos_by_device
 #: model:ir.model.fields,field_description:l10n_es_pos_by_device.field_pos_device__sequence
