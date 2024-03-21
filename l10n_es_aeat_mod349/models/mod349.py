@@ -436,9 +436,26 @@ class Mod349PartnerRecord(models.Model):
             allfields=["l10n_es_aeat_349_operation_key"],
         )["l10n_es_aeat_349_operation_key"]["selection"]
 
+    def _get_and_assign_country_code(self, record):
+        country_code = record.partner_id._map_aeat_country_code(
+            "".join(c for c in record.partner_vat[0:2] if not c.isnumeric())
+        )
+        if country_code:
+            country = self.env["res.country"].search([("code", "=", country_code)])
+            return record.partner_id._map_aeat_country_iso_code(country)
+
+        country = False
+        if record.country_id:
+            country = record.country_id
+        elif record.partner_id.country_id:
+            country = record.partner_id.country_id
+        if country:
+            country_code = record.partner_id._map_aeat_country_iso_code(country)
+            record.partner_vat = country_code + record.partner_vat
+        return country_code
+
     def _process_vat(self, record, errors):
-        partner_vat = record.partner_vat
-        country_code = "".join(c for c in partner_vat[0:2] if not c.isnumeric())
+        country_code = self._get_and_assign_country_code(record)
         if not country_code:
             errors.append(_("VAT without country code"))
         elif country_code not in record.partner_id._get_aeat_europe_codes():
