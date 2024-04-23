@@ -437,21 +437,19 @@ class Mod349PartnerRecord(models.Model):
         )["l10n_es_aeat_349_operation_key"]["selection"]
 
     def _get_and_assign_country_code(self, record):
-        country_code = record.partner_id._map_aeat_country_code(
-            "".join(c for c in record.partner_vat[0:2] if not c.isnumeric())
-        )
-        if country_code:
-            country = self.env["res.country"].search([("code", "=", country_code)])
-            return record.partner_id._map_aeat_country_iso_code(country)
+        # Get country code from partner in a first place
+        country_code = record.partner_id._parse_aeat_vat_info()[0]
 
-        country = False
-        if record.country_id:
-            country = record.country_id
-        elif record.partner_id.country_id:
-            country = record.partner_id.country_id
-        if country:
-            country_code = record.partner_id._map_aeat_country_iso_code(country)
-            record.partner_vat = country_code + record.partner_vat
+        # Map country code with _map_aeat_country_code
+        # and then to ISO code with _map_aeat_country_iso_code
+        country_code = record.partner_id._map_aeat_country_code(country_code)
+        country = self.env["res.country"].search([("code", "=", country_code)])
+        country_code = record.partner_id._map_aeat_country_iso_code(country)
+
+        # If country code is found, and it's not in the VAT, assign it
+        if country_code and not record.partner_vat.startswith(country_code):
+            vat_number = record.partner_id._parse_aeat_vat_info()[-1]
+            record.partner_vat = country_code + vat_number
         return country_code
 
     def _process_vat(self, record, errors):
