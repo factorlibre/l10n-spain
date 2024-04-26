@@ -175,9 +175,18 @@ class L10nEsAeatMod347Report(models.Model):
         return super(L10nEsAeatMod347Report, self).button_confirm()
 
     def button_send_mails(self):
-        self.partner_record_ids.filtered(
-            lambda x: x.state == "pending" and x.partner_id.email
-        ).send_email_direct()
+        partner_obj = self.env["res.partner"]
+        pending_records = self.partner_record_ids.filtered(
+            lambda x: x.state == "pending"
+        )
+        mail_send_records = self.env["l10n.es.aeat.mod347.partner_record"]
+        for record in pending_records:
+            partner = partner_obj.browse(
+                record.partner_id.address_get(["invoice"])["invoice"]
+            )
+            if partner.email:
+                mail_send_records += record
+        mail_send_records.send_email_direct()
 
     def btn_list_records(self):
         return {
@@ -596,6 +605,7 @@ class L10nEsAeatMod347PartnerRecord(models.Model):
             default_template_id=template and template.id or False,
             default_composition_mode="comment",
             mark_invoice_as_sent=True,
+            mark_347_record_as_sent=True,
         )
         return {
             "name": _("Compose Email"),
@@ -625,13 +635,9 @@ class L10nEsAeatMod347PartnerRecord(models.Model):
 
     def send_email_direct(self):
         template = self.env.ref("l10n_es_aeat_mod347.email_template_347")
-        sent_records = self.env["l10n.es.aeat.mod347.partner_record"]
-        for record in self:
-            mail_id = template.send_mail(record.id)
-            if mail_id:
-                sent_records |= record
-        if sent_records:
-            sent_records.write({"state": "sent"})
+        for record in self.with_context(mark_347_record_as_sent=True):
+            template.send_mail(record.id)
+        self.write({"state": "sent"})
 
     def action_pending(self):
         self.write({"state": "pending"})
@@ -651,6 +657,17 @@ class L10nEsAeatMod347PartnerRecord(models.Model):
                 partner=partner,
             )
         return recipients
+
+    @api.returns("mail.message", lambda value: value.id)
+    def message_post(self, **kwargs):
+        partner_obj = self.env["res.partner"]
+        ret = super().message_post(**kwargs)
+        partner = partner_obj.browse(
+            self.partner_id.address_get(["invoice"])["invoice"]
+        )
+        if partner.email and self.env.context.get("mark_347_record_as_sent"):
+            self.write({"state": "sent"})
+        return ret
 
 
 class L10nEsAeatMod347RealStateRecord(models.Model):

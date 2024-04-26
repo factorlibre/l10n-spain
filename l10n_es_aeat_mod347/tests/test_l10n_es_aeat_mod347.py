@@ -121,6 +121,20 @@ class TestL10nEsAeatMod347(TestL10nEsAeatModBase):
             "2019-01-01", {"partner_id": cls.supplier_2.id, "move_type": "in_refund"}
         )
 
+    def _send_compose_347_message(self, partner_record):
+        form = Form(
+            self.env["mail.compose.message"].with_context(
+                **{
+                    "default_partner_ids": partner_record.partner_id.ids,
+                    "default_model": "l10n.es.aeat.mod347.partner_record",
+                    "default_res_id": partner_record.id,
+                    "mark_347_record_as_sent": True,
+                }
+            )
+        )
+        saved_form = form.save()
+        saved_form.action_send_mail()
+
     def test_model_347(self):
         # Check flag propagation
         self.assertFalse(self.invoice_1.not_in_mod347)
@@ -200,9 +214,9 @@ class TestL10nEsAeatMod347(TestL10nEsAeatModBase):
         self.assertTrue(first_partner_mod347_record.state, "pending")
         self.assertTrue(second_partner_mod347_record.state, "sent")
 
-        first_partner_mod347_record.action_send()
+        self._send_compose_347_message(first_partner_mod347_record)
         self.assertTrue(first_partner_mod347_record.state, "pending")
 
         first_partner.email = "test1@email.com"
-        first_partner_mod347_record.action_send()
+        self._send_compose_347_message(first_partner_mod347_record)
         self.assertTrue(first_partner_mod347_record.state, "sent")
