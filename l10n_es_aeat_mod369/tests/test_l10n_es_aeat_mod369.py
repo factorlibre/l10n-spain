@@ -186,10 +186,8 @@ class TestL10nEsAeatMod369Base(TestL10nEsAeatModBase):
     def test_model_369_account_move_positive_amount(self):
         self.model369.button_calculate()
         self.create_account_move()
-
         self.assertEqual(self.model369.name, self.model369.move_id.ref)
         self.assertEqual(self.model369.move_id.journal_id, self.model369.journal_id)
-
         account_template = self.env.ref("l10n_es.account_common_4750")
         account_4750 = self.model369.company_id.get_account_from_template(
             account_template
@@ -212,15 +210,12 @@ class TestL10nEsAeatMod369Base(TestL10nEsAeatModBase):
                 self.create_account_move()
         else:
             self.create_account_move()
-
         self.assertEqual(self.model369.name, self.model369.move_id.ref)
         self.assertEqual(self.model369.move_id.journal_id, self.model369.journal_id)
-
         account_template = self.env.ref("l10n_es.account_common_4700")
         account_4700 = self.model369.company_id.get_account_from_template(
             account_template
         )
-
         for ml in self.model369.move_id.line_ids:
             if ml.credit > 0:
                 self.assertEqual(

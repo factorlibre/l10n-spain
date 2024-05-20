@@ -4,7 +4,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html)
 
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError
 
 
 class L10nEsAeatMod369Report(models.Model):
@@ -127,8 +127,7 @@ class L10nEsAeatMod369Report(models.Model):
     )
 
     def _compute_allow_posting(self):
-        for report in self:
-            report.allow_posting = True
+        self.allow_posting = True
 
     @api.model
     def _get_period_from_date(self, date, monthly=False):
@@ -340,53 +339,36 @@ class L10nEsAeatMod369Report(models.Model):
             groups._compute_totals()
         return res
 
-    @api.model
-    def _prepare_regularization_move_line(self):
+    def _prepare_regularization_extra_move_lines(self):
+        lines = super()._prepare_regularization_extra_move_lines()
         if self.total_amount > 0:
             account_template = self.env.ref("l10n_es.account_common_4750")
             account_4750 = self.company_id.get_account_from_template(account_template)
-            return {
-                "name": account_4750.name,
-                "account_id": account_4750.id,
-                "debit": 0,
-                "credit": self.total_amount,
-            }
+            lines.append(
+                {
+                    "name": account_4750.name,
+                    "account_id": account_4750.id,
+                    "debit": 0,
+                    "credit": self.total_amount,
+                }
+            )
         elif self.total_amount < 0:
             account_template = self.env.ref("l10n_es.account_common_4700")
             account_4700 = self.company_id.get_account_from_template(account_template)
-            return {
-                "name": account_4700.name,
-                "account_id": account_4700.id,
-                "debit": -self.total_amount,
-                "credit": 0,
-            }
-        return False
-
-    def _prepare_regularization_move_lines(self):
-        """Prepare the list of dictionaries for the regularization move lines."""
-        self.ensure_one()
-        regularization_ml = self._prepare_regularization_move_line()
-        lines = [regularization_ml] if regularization_ml else []
-        lines += self._prepare_regularization_extra_move_lines()
-        debit = sum(x["debit"] for x in lines)
-        credit = sum(x["credit"] for x in lines)
-        lines.append(
-            self._prepare_counterpart_move_line(
-                self.counterpart_account_id, debit, credit
+            lines.append(
+                {
+                    "name": account_4700.name,
+                    "account_id": account_4700.id,
+                    "debit": -self.total_amount,
+                    "credit": 0,
+                }
             )
-        )
         return lines
 
     @api.model
     def _prepare_counterpart_move_line(self, account, debit, credit):
-        vals = {
-            "name": account.name,
-            "account_id": account.id,
-        }
-        precision = self.env["decimal.precision"].precision_get("Account")
-        balance = round(debit - credit, precision)
-        vals["debit"] = 0.0 if debit > credit else -balance
-        vals["credit"] = balance if debit > credit else 0.0
+        vals = super()._prepare_counterpart_move_line(account, debit, credit)
+        vals.update({"name": account.name, "partner_id": False})
         return vals
 
     def create_regularization_move(self):
@@ -394,6 +376,6 @@ class L10nEsAeatMod369Report(models.Model):
         if self.total_amount != 0:
             return super().create_regularization_move()
         else:
-            raise ValidationError(
+            raise UserError(
                 _("It is not possible to create a move if the total amount is 0.")
             )
