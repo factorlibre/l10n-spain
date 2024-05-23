@@ -3,7 +3,7 @@
 # License AGPL-3 - See https://www.gnu.org/licenses/agpl-3.0
 import logging
 
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError
 
 from odoo.addons.l10n_es_aeat.tests.test_l10n_es_aeat_mod_base import (
     TestL10nEsAeatModBase,
@@ -206,7 +206,7 @@ class TestL10nEsAeatMod369Base(TestL10nEsAeatModBase):
         self.model369.button_calculate()
         self.model369.total_amount *= -1
         if self.model369.total_amount == 0:
-            with self.assertRaises(ValidationError):
+            with self.assertRaises(UserError):
                 self.create_account_move()
         else:
             self.create_account_move()
