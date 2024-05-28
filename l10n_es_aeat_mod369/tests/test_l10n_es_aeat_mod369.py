@@ -188,40 +188,44 @@ class TestL10nEsAeatMod369Base(TestL10nEsAeatModBase):
         self.create_account_move()
         self.assertEqual(self.model369.name, self.model369.move_id.ref)
         self.assertEqual(self.model369.move_id.journal_id, self.model369.journal_id)
-        account_template = self.env.ref("l10n_es.account_common_4750")
-        account_4750 = self.model369.company_id.get_account_from_template(
-            account_template
+        account_4750 = self.env["account.account"].search(
+            [
+                ("company_id", "=", self.model369.company_id.id),
+                ("code", "=ilike", "4750%"),
+            ]
         )
-        for ml in self.model369.move_id.line_ids:
-            if ml.debit > 0:
-                self.assertEqual(
-                    self.model369.counterpart_account_id.id, ml.account_id.id
-                )
-                self.assertEqual(ml.debit, self.model369.total_amount)
-            elif ml.credit > 0:
-                self.assertEqual(account_4750.id, ml.account_id.id)
-                self.assertEqual(ml.credit, self.model369.total_amount)
+        debit_line = self.model369.move_id.line_ids[1]
+        credit_line = self.model369.move_id.line_ids[0]
+        self.assertEqual(
+            self.model369.counterpart_account_id.id, debit_line.account_id.id
+        )
+        self.assertEqual(debit_line.debit, self.model369.total_amount)
+        self.assertEqual(account_4750.id, credit_line.account_id.id)
+        self.assertEqual(credit_line.credit, self.model369.total_amount)
 
     def test_model_369_account_move_negative_amount(self):
         self.model369.button_calculate()
         self.model369.total_amount *= -1
-        if self.model369.total_amount == 0:
-            with self.assertRaises(UserError):
-                self.create_account_move()
-        else:
-            self.create_account_move()
+        self.create_account_move()
         self.assertEqual(self.model369.name, self.model369.move_id.ref)
         self.assertEqual(self.model369.move_id.journal_id, self.model369.journal_id)
-        account_template = self.env.ref("l10n_es.account_common_4700")
-        account_4700 = self.model369.company_id.get_account_from_template(
-            account_template
+        account_4700 = self.env["account.account"].search(
+            [
+                ("company_id", "=", self.model369.company_id.id),
+                ("code", "=ilike", "4700%"),
+            ]
         )
-        for ml in self.model369.move_id.line_ids:
-            if ml.credit > 0:
-                self.assertEqual(
-                    self.model369.counterpart_account_id.id, ml.account_id.id
-                )
-                self.assertEqual(ml.credit, abs(self.model369.total_amount))
-            elif ml.debit > 0:
-                self.assertEqual(account_4700.id, ml.account_id.id)
-                self.assertEqual(ml.debit, abs(self.model369.total_amount))
+        debit_line = self.model369.move_id.line_ids[0]
+        credit_line = self.model369.move_id.line_ids[1]
+        self.assertEqual(
+            self.model369.counterpart_account_id.id, credit_line.account_id.id
+        )
+        self.assertEqual(credit_line.credit, abs(self.model369.total_amount))
+        self.assertEqual(account_4700.id, debit_line.account_id.id)
+        self.assertEqual(debit_line.debit, abs(self.model369.total_amount))
+
+    def test_model_369_account_move_zero_amount(self):
+        self.model369.button_calculate()
+        self.model369.total_amount = 0
+        with self.assertRaises(UserError):
+            self.create_account_move()
