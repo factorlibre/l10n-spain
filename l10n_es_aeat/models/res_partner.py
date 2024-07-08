@@ -29,7 +29,7 @@ class ResPartner(models.Model):
         if not europe:
             europe = self.env["res.country.group"].search(
                 [('name', '=', 'Europe')], limit=1)
-        return europe.country_ids.mapped('code')
+        return europe.country_ids.mapped('code') + ["XI"]  # Nothern Ireland
 
     @ormcache('self.vat, self.country_id')
     def _parse_aeat_vat_info(self):
