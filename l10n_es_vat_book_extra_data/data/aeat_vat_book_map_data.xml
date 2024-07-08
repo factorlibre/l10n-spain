@@ -15,7 +15,6 @@
             (4, ref('l10n_es_extra_data.account_tax_template_p_iva5_a')),
             (4, ref('l10n_es_extra_data.account_tax_template_p_iva5_sc')),
             (4, ref('l10n_es_extra_data.account_tax_template_p_iva5_ic_a_1')),
-            (4, ref('l10n_es_extra_data.account_tax_template_p_iva0_ic_a_1')),
             (4, ref('l10n_es_extra_data.account_tax_template_p_iva5_ic_sc_1')),
             (4, ref('l10n_es_extra_data.account_tax_template_p_iva0_ic_sc_1')),
             (4, ref('l10n_es_extra_data.account_tax_template_p_iva5_isc_1')),]"/>
