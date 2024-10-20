@@ -12,6 +12,6 @@
 
 * `APSL - Nagarro <https://apsl.tech>`__:
 
-  * Miquel Pascual 
+  * Miquel Pascual
   * Bernat Obrador
-  * Miquel Alzanilles
+  * Miquel Alzanillas
