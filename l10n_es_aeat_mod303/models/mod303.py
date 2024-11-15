@@ -479,6 +479,7 @@ class L10nEsAeatMod303Report(models.Model):
     def calculate(self):
         self.write({"cuota_compensar": 0})
         res = super(L10nEsAeatMod303Report, self).calculate()
+        self.write({"cuota_compensar": 0})
         for mod303 in self:
             prev_reports = self.search(
                 [("date_start", "<", mod303.date_start)]
