@@ -9,10 +9,11 @@
     "category": "Product",
     "author": "FactorLibre, Odoo Community Association (OCA)",
     "license": "AGPL-3",
-    "depends": ["product"],
+    "depends": ["product", "l10n_es_aeat"],
     "website": "https://github.com/OCA/l10n-spain",
     "data": [
         "views/product_template_views.xml",
+        "views/res_company_views.xml",
     ],
     "installable": True,
     "application": False,
