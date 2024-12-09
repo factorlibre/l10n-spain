@@ -19,12 +19,14 @@
                 (4, ref('l10n_es.account_tax_template_p_iva21_ic_bi_1')),
                 (4, ref('l10n_es.account_tax_template_p_iva21_ic_bi_2')),
                 (4, ref('l10n_es.account_tax_template_p_iva21_ic_bi')),
+                (4, ref('l10n_es_extra_data.account_tax_template_p_iva2_ic_bc')),
                 (4, ref('l10n_es.account_tax_template_p_iva4_ic_bc_1')),
                 (4, ref('l10n_es.account_tax_template_p_iva4_ic_bc_2')),
                 (4, ref('l10n_es.account_tax_template_p_iva4_ic_bc')),
                 (4, ref('l10n_es.account_tax_template_p_iva4_ic_bi_1')),
                 (4, ref('l10n_es.account_tax_template_p_iva4_ic_bi_2')),
                 (4, ref('l10n_es.account_tax_template_p_iva4_ic_bi')),
+                (4, ref('l10n_es_extra_data.account_tax_template_p_iva7-5_ic_bc')),
                 (4, ref('l10n_es.account_tax_template_p_iva10_ic_bc_1')),
                 (4, ref('l10n_es.account_tax_template_p_iva10_ic_bc_2')),
                 (4, ref('l10n_es.account_tax_template_p_iva10_ic_bc')),
@@ -51,6 +53,8 @@
             <field name="operation_key">I</field>
             <field name="tax_tmpl_ids" eval="[
                 (4, ref('l10n_es.account_tax_template_p_iva21_sp_in')),
+                (4, ref('l10n_es_extra_data.account_tax_template_p_iva2_ic_sc')),
+                (4, ref('l10n_es_extra_data.account_tax_template_p_iva7-5_ic_sc')),
                 (4, ref('l10n_es.account_tax_template_p_iva10_sp_in')),
                 (4, ref('l10n_es.account_tax_template_p_iva4_sp_in')),
             ]"/>
