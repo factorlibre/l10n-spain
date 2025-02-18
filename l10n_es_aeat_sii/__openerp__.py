@@ -59,4 +59,5 @@
         "views/account_journal_view.xml",
     ],
     "post_init_hook": "add_key_to_existing_invoices",
+    "pre_init_hook": "pre_init_hook"
 }

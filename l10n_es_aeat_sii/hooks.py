@@ -33,3 +33,11 @@ def add_key_to_existing_invoices(cr, registry):
             ALTER TABLE account_invoice
             ALTER COLUMN sii_registration_key SET NOT NULL;
             """)
+
+def pre_init_hook(cr):
+    cr.execute(
+        """
+            ALTER TABLE account_invoice
+            ADD COLUMN IF NOT EXISTS sii_description TEXT;
+        """
+    )
