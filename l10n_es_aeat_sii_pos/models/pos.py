@@ -70,7 +70,8 @@ class PosSession(models.Model):
                     first_ticket, last_ticket),
                 'price_unit': values['amount_total'],
                 'invoice_line_tax_id': [(6, 0, values['tax_ids'])],
-                'quantity': 1
+                'quantity': 1,
+                'account_id': self.config_id.journal_id.default_debit_account_id.id,
             }))
         invoice_vals['invoice_line'] = invoice_lines
         invoice_vals['sii_description'] =\
