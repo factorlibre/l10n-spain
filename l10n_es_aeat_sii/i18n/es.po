@@ -1,22 +1,21 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
 # * l10n_es_aeat_sii
-# 
+#
 # Translators:
 # OCA Transbot <transbot@odoo-community.org>, 2017
-# Pedro Rodríguez <pedro@otherway.es>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-29 01:00+0000\n"
-"PO-Revision-Date: 2017-08-29 01:00+0000\n"
-"Last-Translator: Pedro Rodríguez <pedro@otherway.es>, 2017\n"
+"POT-Creation-Date: 2017-12-28 01:48+0000\n"
+"PO-Revision-Date: 2017-12-28 01:48+0000\n"
+"Last-Translator: OCA Transbot <transbot@odoo-community.org>, 2017\n"
 "Language-Team: Spanish (https://www.transifex.com/oca/teams/23907/es/)\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. module: l10n_es_aeat_sii
@@ -50,6 +49,11 @@ msgid "Additional SII registration key"
 msgstr "Clave de registro adicional SII"
 
 #. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_24
+msgid "Adquisiciones intracomunitarias de bienes y prestaciones de servicios"
+msgstr ""
+
+#. module: l10n_es_aeat_sii
 #: model:ir.model,name:l10n_es_aeat_sii.model_aeat_sii_mapping_registration_keys
 msgid "Aeat SII Invoice Registration Keys"
 msgstr "AEAT SII Claves de Identificación Operaciones"
@@ -79,6 +83,11 @@ msgid "Aeat SII Registration Keys"
 msgstr "SII - Tabla de claves"
 
 #. module: l10n_es_aeat_sii
+#: model:ir.ui.menu,name:l10n_es_aeat_sii.menu_aeat_sii_send_first_semester
+msgid "Aeat SII Send First Semester"
+msgstr "Aeat SII Enviar primer semestre"
+
+#. module: l10n_es_aeat_sii
 #: view:account.invoice:l10n_es_aeat_sii.view_account_invoice_sii_filter
 msgid "Already sent but with local changes not sent yet"
 msgstr "Enviada previamente al SII pero con cambios locales no enviados"
@@ -91,8 +100,8 @@ msgstr "Ya enviadas al SII. Incluye facturas canceladas"
 #. module: l10n_es_aeat_sii
 #: help:res.company,sii_header_customer:0
 msgid ""
-"An optional header description for customer invoices. Applied on all the SII"
-" description methods"
+"An optional header description for customer invoices. Applied on all the SII "
+"description methods"
 msgstr ""
 "Cabecera de la descripción opcional para facturas de cliente. Aplicado en "
 "todos los métodos de descripción de SII"
@@ -100,8 +109,8 @@ msgstr ""
 #. module: l10n_es_aeat_sii
 #: help:res.company,sii_header_supplier:0
 msgid ""
-"An optional header description for supplier invoices. Applied on all the SII"
-" description methods"
+"An optional header description for supplier invoices. Applied on all the SII "
+"description methods"
 msgstr ""
 "Cabecera de la descripción opcional para facturas de proveedor. Aplicado en "
 "todos los métodos de descripción de SII"
@@ -123,8 +132,8 @@ msgid ""
 "By default, the invoice is sent/queued in validation process. With manual "
 "method, there's a button to send the invoice."
 msgstr ""
-"Por defecto, la factura es enviada/encolada en el proceso de validación. Con"
-" el método manual, hay un botón para enviarla."
+"Por defecto, la factura es enviada/encolada en el proceso de validación. Con "
+"el método manual, se dispone de un botón para enviar la factura."
 
 #. module: l10n_es_aeat_sii
 #: selection:account.invoice,sii_refund_type:0
@@ -138,6 +147,7 @@ msgstr "Por sustitución"
 
 #. module: l10n_es_aeat_sii
 #: view:l10n.es.aeat.sii.password:l10n_es_aeat_sii.l10n_es_sii_password_wizard_view
+#: view:l10n.es.sii.first.semester:l10n_es_aeat_sii.aeat_sii_send_first_semester_wizard
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -172,8 +182,15 @@ msgid ""
 "Check it to use connector instead of sending the invoice directly when it's "
 "validated"
 msgstr ""
-"Márquela para utilizar el conector en lugar de enviar directamente la "
-"factura cuando es validada."
+"Márquelo para usar el conector en lugar de enviar la factura directamente "
+"cuando se valida."
+
+#. module: l10n_es_aeat_sii
+#: help:account.invoice,sii_macrodata:0
+msgid ""
+"Check to confirm that the invoice has an absolute amount greater o equal to "
+"100 000 000,00 euros."
+msgstr ""
 
 #. module: l10n_es_aeat_sii
 #: help:res.partner,sii_simplified_invoice:0
@@ -181,8 +198,18 @@ msgid ""
 "Checking this mark, invoices done to this partner will be sent to SII as "
 "simplified invoices."
 msgstr ""
-"Marcando esta casilla, las facturas realizadas a esta empresa serán enviadas"
-" al SII como facturas simplificadas."
+"Marcando esta casilla, las facturas realizadas a esta empresa serán enviadas "
+"al SII como facturas simplificadas."
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_10
+msgid ""
+"Cobros por cuenta de terceros de honorarios profesionales o de derechos "
+"derivados de la propiedad industrial, de autor u otros por cuenta de sus "
+"socios, asociados o colegiados efectuados por sociedades, asociaciones, "
+"colegios profesionales u otras entidades que realicen estas funciones de "
+"cobro"
+msgstr ""
 
 #. module: l10n_es_aeat_sii
 #: field:account.invoice,sii_registration_key_code:0
@@ -223,6 +250,7 @@ msgstr "Configuración del conector"
 #: field:aeat.sii.mapping.registration.keys,create_uid:0
 #: field:l10n.es.aeat.sii,create_uid:0
 #: field:l10n.es.aeat.sii.password,create_uid:0
+#: field:l10n.es.sii.first.semester,create_uid:0
 msgid "Created by"
 msgstr "Creado por"
 
@@ -231,6 +259,7 @@ msgstr "Creado por"
 #: field:aeat.sii.mapping.registration.keys,create_date:0
 #: field:l10n.es.aeat.sii,create_date:0
 #: field:l10n.es.aeat.sii.password,create_date:0
+#: field:l10n.es.sii.first.semester,create_date:0
 msgid "Created on"
 msgstr "Creado en"
 
@@ -240,7 +269,7 @@ msgid "Date from"
 msgstr "Fecha desde"
 
 #. module: l10n_es_aeat_sii
-#: field:aeat.sii.map,date_to:0
+#: field:aeat.sii.map,date_to:0 field:l10n.es.sii.first.semester,date_to:0
 msgid "Date to"
 msgstr "Fecha hasta"
 
@@ -269,6 +298,7 @@ msgstr "Configuración de descripción"
 #: field:aeat.sii.mapping.registration.keys,display_name:0
 #: field:l10n.es.aeat.sii,display_name:0
 #: field:l10n.es.aeat.sii.password,display_name:0
+#: field:l10n.es.sii.first.semester,display_name:0
 msgid "Display Name"
 msgstr "Nombre mostrado"
 
@@ -295,7 +325,7 @@ msgid "End Date"
 msgstr "Fecha hasta"
 
 #. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/aeat_sii_map.py:39
+#: code:addons/l10n_es_aeat_sii/models/aeat_sii_map.py:42
 #, python-format
 msgid "Error! The dates of the record overlap with an existing record."
 msgstr "¡Error! Las fechas del registro se superponen con otro registro"
@@ -304,6 +334,36 @@ msgstr "¡Error! Las fechas del registro se superponen con otro registro"
 #: selection:account.fiscal.position,sii_partner_identification_type:0
 msgid "Export"
 msgstr "Exportación"
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_02
+msgid "Exportación"
+msgstr ""
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_14
+msgid ""
+"Factura con IVA pendiente de devengo en certificaciones de obra cuyo "
+"destinatario sea una Administración Pública"
+msgstr ""
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_15
+msgid "Factura con IVA pendiente de devengo en operaciones de tracto sucesivo"
+msgstr ""
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_28
+msgid ""
+"Factura correspondiente a una importación (informada sin asociar a un DUA)"
+msgstr ""
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_09
+msgid ""
+"Facturación de las prestaciones de servicios de agencias de viaje que actúan "
+"como mediadoras en nombre y por cuenta ajena (D.A.4ª RD1619/2012)"
+msgstr ""
 
 #. module: l10n_es_aeat_sii
 #: field:l10n.es.aeat.sii,file:0
@@ -339,7 +399,7 @@ msgstr "Agrupar por..."
 #. module: l10n_es_aeat_sii
 #: field:aeat.sii.map,id:0 field:aeat.sii.map.lines,id:0
 #: field:aeat.sii.mapping.registration.keys,id:0 field:l10n.es.aeat.sii,id:0
-#: field:l10n.es.aeat.sii.password,id:0
+#: field:l10n.es.aeat.sii.password,id:0 field:l10n.es.sii.first.semester,id:0
 msgid "ID"
 msgstr "ID"
 
@@ -359,15 +419,15 @@ msgid ""
 "date when the invoice is recorded in the system and is independent of the "
 "date of the accounting entry of the invoice"
 msgstr ""
-"Indica la fecha de registro contable establecida en el SII, la cual debe ser"
-" la fecha en que se registra la factura en el sistema con independencia de "
-"la fecha del asiento contable de la factura"
+"Indica la fecha de registro contable establecida en el SII, la cual debe ser "
+"la fecha en que se registra la factura en el sistema con independencia de la "
+"fecha del asiento contable de la factura"
 
 #. module: l10n_es_aeat_sii
 #: help:account.invoice,sii_state:0
 msgid ""
-"Indicates the state of this invoice in relation with the presentation at the"
-" SII"
+"Indicates the state of this invoice in relation with the presentation at the "
+"SII"
 msgstr "Indica el estado de esta factura en relación al registro en el SII"
 
 #. module: l10n_es_aeat_sii
@@ -413,16 +473,11 @@ msgid "Is Test Environment?"
 msgstr "¿Es un entorno de pruebas?"
 
 #. module: l10n_es_aeat_sii
-#: field:account.invoice,travel_tax_free:0
-#: field:account.journal,travel_tax_free:0
-msgid "Journal for SII traveller regime"
-msgstr "Diario para régimen de viajeros del SII"
-
-#. module: l10n_es_aeat_sii
 #: field:aeat.sii.map,__last_update:0 field:aeat.sii.map.lines,__last_update:0
 #: field:aeat.sii.mapping.registration.keys,__last_update:0
 #: field:l10n.es.aeat.sii,__last_update:0
 #: field:l10n.es.aeat.sii.password,__last_update:0
+#: field:l10n.es.sii.first.semester,__last_update:0
 msgid "Last Modified on"
 msgstr "Últ. modificación en"
 
@@ -431,6 +486,7 @@ msgstr "Últ. modificación en"
 #: field:aeat.sii.mapping.registration.keys,write_uid:0
 #: field:l10n.es.aeat.sii,write_uid:0
 #: field:l10n.es.aeat.sii.password,write_uid:0
+#: field:l10n.es.sii.first.semester,write_uid:0
 msgid "Last Updated by"
 msgstr "Últ. actualización por"
 
@@ -439,6 +495,7 @@ msgstr "Últ. actualización por"
 #: field:aeat.sii.mapping.registration.keys,write_date:0
 #: field:l10n.es.aeat.sii,write_date:0
 #: field:l10n.es.aeat.sii.password,write_date:0
+#: field:l10n.es.sii.first.semester,write_date:0
 msgid "Last Updated on"
 msgstr "Últ. actualización en"
 
@@ -451,6 +508,11 @@ msgstr "Líneas"
 #: view:l10n.es.aeat.sii:l10n_es_aeat_sii.l10n_es_sii_form_view
 msgid "Load Certificate"
 msgstr "Cargar certificado"
+
+#. module: l10n_es_aeat_sii
+#: field:account.invoice,sii_macrodata:0
+msgid "MacroData"
+msgstr ""
 
 #. module: l10n_es_aeat_sii
 #: selection:res.company,sii_description_method:0
@@ -473,18 +535,25 @@ msgstr "Método"
 #: help:res.company,sii_description_method:0
 msgid ""
 "Method for the SII invoices description, can be one of these:\n"
-"- Automatic: the description will be the join of the invoice   lines description\n"
+"- Automatic: the description will be the join of the invoice   lines "
+"description\n"
 "- Fixed: the description write on the below field 'SII   Description'\n"
-"- Manual (by default): It will be necessary to manually enter   the description on each invoice\n"
+"- Manual (by default): It will be necessary to manually enter   the "
+"description on each invoice\n"
 "\n"
-"For all the options you can append a header text using the below fields 'SII Sale header' and 'SII Purchase header'"
+"For all the options you can append a header text using the below fields 'SII "
+"Sale header' and 'SII Purchase header'"
 msgstr ""
-"Método para la descripción de las facturas para el SII. Puede ser uno de estos:\n"
-"- Automático: la descripción será la unión de la descripción de las líneas de la factura\n"
+"Método para la descripción de las facturas para el SII. Puede ser uno de "
+"estos:\n"
+"- Automático: la descripción será la unión de la descripción de las líneas "
+"de la factura\n"
 "- Fijo: la descripción escrita en el campo de abajo 'Descripción SII'\n"
-"- Manual (por defecto): será necesario introducir manualmente la descripción en cada factura\n"
+"- Manual (por defecto): será necesario introducir manualmente la descripción "
+"en cada factura\n"
 "\n"
-"Para todas las opciones puede añadir un texto de cabecera usando los campos de abajo 'Cabecera de cliente para SII' y 'Cabecera de proveedor para SII'"
+"Para todas las opciones puede añadir un texto de cabecera usando los campos "
+"de abajo 'Cabecera de cliente para SII' y 'Cabecera de proveedor para SII'"
 
 #. module: l10n_es_aeat_sii
 #: field:aeat.sii.map,name:0
@@ -509,7 +578,7 @@ msgid "Never sent to SII"
 msgstr "Nunca enviadas al SII"
 
 #. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:315
+#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:336
 #, python-format
 msgid "No VAT configured for the company '{}'"
 msgstr "La compañía '{}' no tiene ningún NIF establecido"
@@ -547,9 +616,62 @@ msgid "OpenSSL version is not supported. Upgrade to 0.15 or greater."
 msgstr "La versión OpenSSL no está soportada. Actualice a 0.15 o superior."
 
 #. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_03
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_18
+msgid ""
+"Operaciones a las que se aplique el régimen especial de bienes usados, "
+"objetos de arte, antigüedades y objetos de colección"
+msgstr ""
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_27
+msgid "Operaciones de arrendamiento de local de negocio"
+msgstr ""
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_12
+msgid ""
+"Operaciones de arrendamiento de local de negocio no  sujetos a retención"
+msgstr ""
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_11
+msgid "Operaciones de arrendamiento de local de negocio sujetas a retención"
+msgstr ""
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_13
+msgid ""
+"Operaciones de arrendamiento de local de negocio sujetas y no sujetas a "
+"retención"
+msgstr ""
+
+#. module: l10n_es_aeat_sii
 #: selection:account.fiscal.position,sii_no_taxable_cause:0
 msgid "Operaciones no sujetas en el TAI por reglas de localización"
 msgstr "Operaciones no sujetas en el TAI por reglas de localización"
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_17
+msgid ""
+"Operaciones por las que los empresarios satisfacen compensaciones en las "
+"adquisiciones a personas acogidas al Régimen especial de la agricultura, "
+"ganaderia y pesca"
+msgstr ""
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_08
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_23
+msgid ""
+"Operaciones sujetas al IPSI / IGIC (Impuesto sobre la Producción, los "
+"Servicios y la Importación / Impuesto General Indirecto Canario)"
+msgstr ""
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_01
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_16
+msgid "Operación de régimen general"
+msgstr ""
 
 #. module: l10n_es_aeat_sii
 #: model:ir.model,name:l10n_es_aeat_sii.model_res_partner
@@ -560,6 +682,12 @@ msgstr "Empresa"
 #: field:l10n.es.aeat.sii.password,password:0
 msgid "Password"
 msgstr "Contraseña"
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_29
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_30
+msgid "Primer semestre 2017"
+msgstr ""
 
 #. module: l10n_es_aeat_sii
 #: field:l10n.es.aeat.sii,private_key:0
@@ -608,14 +736,33 @@ msgid "Registered in SII but last modifications not sent"
 msgstr "Registro correcto en SII con modificaciones pendientes de comunicar"
 
 #. module: l10n_es_aeat_sii
-#: field:account.invoice,travel_tax_free_invoice:0
-msgid "Related travel tax free invoice"
-msgstr "Factura del régimen de viajeros relacionada"
-
-#. module: l10n_es_aeat_sii
 #: view:queue.job:l10n_es_aeat_sii.view_queue_job_sii
 msgid "Requeue"
 msgstr "Re-encolar"
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_05
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_20
+msgid "Régimen especial agencias de viajes"
+msgstr ""
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_07
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_22
+msgid "Régimen especial criterio de caja"
+msgstr ""
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_06
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_21
+msgid "Régimen especial grupo de entidades en IVA (Nivel Avanzado)"
+msgstr ""
+
+#. module: l10n_es_aeat_sii
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_04
+#: model:aeat.sii.mapping.registration.keys,name:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_19
+msgid "Régimen especial oro de inversión"
+msgstr ""
 
 #. module: l10n_es_aeat_sii
 #: view:account.fiscal.position:l10n_es_aeat_sii.view_account_position_form
@@ -631,11 +778,6 @@ msgstr "SII"
 #: field:account.fiscal.position,sii_active:0
 msgid "SII Active"
 msgstr "Activa para el SII"
-
-#. module: l10n_es_aeat_sii
-#: view:account.invoice:l10n_es_aeat_sii.view_account_invoice_sii_filter
-msgid "SII Admitted With Error"
-msgstr "SII Aceptada con errores"
 
 #. module: l10n_es_aeat_sii
 #: field:account.invoice,sii_csv:0
@@ -720,7 +862,7 @@ msgstr "Anuladas SII"
 #. module: l10n_es_aeat_sii
 #: field:account.invoice,sii_description:0
 msgid "SII computed description"
-msgstr "SII computed description"
+msgstr "Descripción calculada SII"
 
 #. module: l10n_es_aeat_sii
 #: view:account.invoice:l10n_es_aeat_sii.view_account_invoice_sii_filter
@@ -750,7 +892,7 @@ msgstr "Última cabecera enviada al SII"
 #. module: l10n_es_aeat_sii
 #: field:account.invoice,sii_manual_description:0
 msgid "SII manual description"
-msgstr "Descripción manul SII"
+msgstr "Descripción manual SII"
 
 #. module: l10n_es_aeat_sii
 #: view:account.invoice:l10n_es_aeat_sii.view_account_invoice_sii_filter
@@ -788,6 +930,16 @@ msgid "Sale"
 msgstr "Ventas"
 
 #. module: l10n_es_aeat_sii
+#: view:l10n.es.sii.first.semester:l10n_es_aeat_sii.aeat_sii_send_first_semester_wizard
+msgid "Send First Semester"
+msgstr "Enviar primer semestre"
+
+#. module: l10n_es_aeat_sii
+#: view:l10n.es.sii.first.semester:l10n_es_aeat_sii.aeat_sii_send_first_semester_wizard
+msgid "Send Invoices"
+msgstr "Enviar facturas"
+
+#. module: l10n_es_aeat_sii
 #: model:ir.actions.server,name:l10n_es_aeat_sii.action_send_sii_invoices
 msgid "Send Invoices to SII"
 msgstr "Enviar facturas al SII"
@@ -797,6 +949,16 @@ msgstr "Enviar facturas al SII"
 #: view:account.invoice:l10n_es_aeat_sii.invoice_supplier_sii_form
 msgid "Send cancellation to SII"
 msgstr "Enviar anulación al SII"
+
+#. module: l10n_es_aeat_sii
+#: field:l10n.es.sii.first.semester,in_invoices:0
+msgid "Send in invoices"
+msgstr "Enviar facturas recibidas"
+
+#. module: l10n_es_aeat_sii
+#: model:ir.actions.act_window,name:l10n_es_aeat_sii.action_aeat_sii_send_first_semester
+msgid "Send invoices first semester"
+msgstr ""
 
 #. module: l10n_es_aeat_sii
 #: field:res.company,send_mode:0
@@ -809,8 +971,14 @@ msgid "Send now"
 msgstr "Enviar ahora"
 
 #. module: l10n_es_aeat_sii
+#: field:l10n.es.sii.first.semester,out_invoices:0
+msgid "Send out invoices"
+msgstr "Enviar facturas emitidas"
+
+#. module: l10n_es_aeat_sii
 #: view:account.invoice:l10n_es_aeat_sii.invoice_sii_form
 #: view:account.invoice:l10n_es_aeat_sii.invoice_supplier_sii_form
+#: view:l10n.es.sii.first.semester:l10n_es_aeat_sii.aeat_sii_send_first_semester_wizard
 msgid "Send to SII"
 msgstr "Enviar al SII"
 
@@ -870,34 +1038,43 @@ msgid "The last attemp to sent to SII has failed"
 msgstr "El último intento de envío al SII ha fallado"
 
 #. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:591
+#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:735
 #, python-format
 msgid "The partner has not a VAT configured."
 msgstr "La empresa no tiene un NIF establecido."
 
 #. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:648
-#, python-format
-msgid "The related traveler tax free invoice is needed on the invoice '{}'"
-msgstr "La factura del régimen de viajeros relacionada es necesaria en la factura '{}'"
-
-#. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:608
+#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:752
 #, python-format
 msgid "The supplier number invoice is required"
 msgstr "El nº de factura del proveedor es obligatorio"
 
 #. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:599
+#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:743
 #, python-format
 msgid "This company doesn't have SII enabled."
 msgstr "Esta compañía no tiene habilitado el SII."
 
 #. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:603
+#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:747
 #, python-format
 msgid "This invoice is not SII enabled."
 msgstr "Esta factura no está habilitada para el SII."
+
+#. module: l10n_es_aeat_sii
+#: view:l10n.es.sii.first.semester:l10n_es_aeat_sii.aeat_sii_send_first_semester_wizard
+msgid ""
+"This wizard will send to SII the invoices in the first semester.\n"
+"                        You can choose to the date until you want to send "
+"and the type of the invoices.\n"
+"                        For in invoices will send all the invoices in the "
+"periods until the date selected:"
+msgstr ""
+"Este asistente enviará al SII las facturas del primer semestre.\n"
+"                        Puede elegir la fecha hasta la que quiere que se "
+"envíen y el tipo de facturas:\n"
+"                        En el caso de las facturas de proveedor se enviarán "
+"todas las de los períodos comprendidos hasta la fecha seleccionada:"
 
 #. module: l10n_es_aeat_sii
 #: view:aeat.sii.mapping.registration.keys:l10n_es_aeat_sii.aeat_sii_mapping_registration_keys_view_search
@@ -921,47 +1098,47 @@ msgid "With modifications not sent to SII"
 msgstr "Modificaciones no enviadas al SII"
 
 #. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:1098
+#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:1281
 #, python-format
 msgid "You can not cancel this invoice because there is a job running!"
-msgstr "No puede cancelar una factura porque hay un trabajo ejecutándose!"
+msgstr "¡No puede cancelar una factura porque hay un trabajo ejecutándose!"
 
 #. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:1064
+#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:1247
 #, python-format
 msgid ""
 "You can not communicate the cancellation of this invoice at this moment "
 "because there is a job running!"
 msgstr ""
-"En este momento no puede comunicar la cancelación de esta factura porque hay"
-" un trabajo ejecutándose!"
+"¡En este momento no puede comunicar la cancelación de esta factura porque "
+"hay un trabajo ejecutándose!"
 
 #. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:992
+#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:1175
 #, python-format
 msgid ""
 "You can not communicate this invoice at this moment because there is a job "
 "running!"
 msgstr ""
-"En este momento no puede comunicar esta factura porque hay un trabajo "
+"¡En este momento no puede comunicar esta factura porque hay un trabajo "
 "ejecutándose!"
 
 #. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:1113
+#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:1296
 #, python-format
 msgid "You can not set to draft this invoice because there is a job running!"
 msgstr ""
-"En este momento no puede poner en borrador esta factura porque hay un "
+"¡En este momento no puede poner en borrador esta factura porque hay un "
 "trabajo ejecutándose!"
 
 #. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:586
+#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:730
 #, python-format
 msgid "You can't make a supplier simplified invoice."
 msgstr "No puede realizar una factura simplificada a un proveedor."
 
 #. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:201
+#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:222
 #, python-format
 msgid ""
 "You cannot change the invoice date of an invoice already registered at the "
@@ -971,18 +1148,18 @@ msgstr ""
 "cancelar la factura y crear una nueva con la fecha correcta"
 
 #. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:218
+#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:239
 #, python-format
 msgid ""
 "You cannot change the supplier invoice number of an invoice already "
-"registered at the SII. You must cancel the invoice and create a new one with"
-" the correct number"
+"registered at the SII. You must cancel the invoice and create a new one with "
+"the correct number"
 msgstr ""
 "No puede cambiar el número de factura del proveedor de una factura enviada "
 "al SII. Debe cancelar la factura y crear una nueva con el número correcto"
 
 #. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:211
+#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:232
 #, python-format
 msgid ""
 "You cannot change the supplier of an invoice already registered at the SII. "
@@ -992,19 +1169,19 @@ msgstr ""
 "la factura y crear una nueva con el proveedor correcto"
 
 #. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:235
+#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:256
 #, python-format
 msgid "You cannot delete an invoice already registered at the SII."
 msgstr "No puede eliminar una factura enviada al SII."
 
 #. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:594
+#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:738
 #, python-format
 msgid "You have to select what account chart template use this company."
 msgstr "Debe seleccionar qué plan contable utiliza esta compañía"
 
 #. module: l10n_es_aeat_sii
-#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:167
+#: code:addons/l10n_es_aeat_sii/models/account_invoice.py:188
 #, python-format
 msgid "You must have at least one refunded invoice"
 msgstr "Debe tener al menos una factura rectificada"
@@ -1078,6 +1255,7 @@ msgstr "[E6] Otros"
 
 #. module: l10n_es_aeat_sii
 #: view:l10n.es.aeat.sii.password:l10n_es_aeat_sii.l10n_es_sii_password_wizard_view
+#: view:l10n.es.sii.first.semester:l10n_es_aeat_sii.aeat_sii_send_first_semester_wizard
 msgid "or"
 msgstr "o"
 

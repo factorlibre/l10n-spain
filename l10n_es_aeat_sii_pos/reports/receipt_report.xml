@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<data>
+<template id="l10n_es_pos_report_receipt"
+          inherit_id="point_of_sale.report_receipt">
+
+          <xpath expr="//div[@class='col-xs-12 text-center']/div" position="inside">
+        <span>
+        <t t-esc="o.name"/><br />
+        <t t-esc="o.pos_reference"/>
+        </span>
+    </xpath>
+</template>
+</data>
+</openerp>
