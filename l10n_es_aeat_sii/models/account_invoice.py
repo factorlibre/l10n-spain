@@ -764,7 +764,7 @@ class AccountInvoice(models.Model):
         partner = self.partner_id.commercial_partner_id
         company = self.company_id
         ejercicio = fields.Date.from_string(self.date).year
-        periodo = '%02d' % fields.Date.from_string(self.date).month
+        periodo = self._get_document_period()
         is_simplified_invoice = self._is_sii_simplified_invoice()
         inv_dict = {
             "IDFactura": {
@@ -860,7 +860,7 @@ class AccountInvoice(models.Model):
         reg_date = self._change_date_format(
             self._get_account_registration_date())
         ejercicio = fields.Date.from_string(self.date).year
-        periodo = '%02d' % fields.Date.from_string(self.date).month
+        periodo = self._get_document_period()
         desglose_factura, tax_amount, not_in_amount_total = (
             self._get_sii_in_taxes())
         inv_dict = {
@@ -935,6 +935,14 @@ class AccountInvoice(models.Model):
                         'CuotaRectificada': refund_tax_amount,
                     }
         return inv_dict
+
+    def _get_document_period(self):
+        month = int('%02d' % fields.Date.from_string(self.date).month)
+        if self.company_id.sii_period == "monthly":
+            period = "%02d" % month
+        else:
+            period = str(int(((month - 1) / 3) + 1)) + "T"
+        return period
 
     @api.multi
     def _get_sii_invoice_dict(self):
