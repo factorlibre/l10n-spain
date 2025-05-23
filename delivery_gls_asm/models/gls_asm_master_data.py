@@ -63,6 +63,8 @@ GLS_ASM_SERVICES = [
     ("66", "ASMTRAVELLERS"),
     ("74", "EUROBUSINESS PARCEL"),
     ("76", "EUROBUSINESS SMALL PARCEL"),
+    ("78", "PICK&SHIP"),
+    ("79", "PICK&RETURN"),
     ("96", "BUSINESS PARCEL"),
 ]
 
