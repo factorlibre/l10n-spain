@@ -24,9 +24,16 @@ class TestL10nEsAeatMod303Base(TestL10nEsAeatModBase):
 
     def test_model_123(self):
         # Purchase invoices
-        self._invoice_purchase_create('2017-01-01')
-        self._invoice_purchase_create('2017-01-02')
-        self._invoice_purchase_create('2017-01-03')
+        self.with_context(
+            bypass_attachment_required=True, skip_validation_date_test=True
+        )._invoice_purchase_create("2017-01-01")
+        self.with_context(
+            bypass_attachment_required=True, skip_validation_date_test=True
+        )._invoice_purchase_create("2017-01-02")
+        self.with_context(
+            bypass_attachment_required=True, skip_validation_date_test=True
+        )._invoice_purchase_create("2017-01-03")
+
         export_config = self.env.ref(
             'l10n_es_aeat_mod123.aeat_mod123_main_export_config')
         model123_new = self.env['l10n.es.aeat.mod123.report'].new({
