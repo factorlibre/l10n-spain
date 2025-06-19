@@ -53,9 +53,10 @@ class AccountInvoice(models.Model):
         for inv in self:
             # Include the invoice reference on the created journal item
             # This is done for displaying the number on the conciliation
-            inv.move_id.ref = (
-                "{0} - {1}" if inv.move_id.ref else "{1}"
-            ).format(inv.move_id.ref, inv.invoice_number)
+            if inv.move_id:
+                inv.move_id.ref = (
+                    "{0} - {1}" if inv.move_id.ref else "{1}"
+                ).format(inv.move_id.ref, inv.invoice_number)
         return res
 
     @api.multi
