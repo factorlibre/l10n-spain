@@ -41,11 +41,6 @@
                             attrs="{'required': [('sii_enabled', '=', True)]}"
                             widget="selection"
                         />
-                        <field
-                            name="sii_registration_key_code"
-                            groups="l10n_es_aeat.group_account_aeat, account.group_account_invoice"
-                            invisible="1"
-                        />
                         <field name="sii_enabled" invisible="1" />
                     </group>
                     <group
