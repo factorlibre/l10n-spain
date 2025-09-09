@@ -10,7 +10,7 @@
     "depends": [
         "point_of_sale",
         "l10n_es_pos",
-        "l10n_es_verifactu",
+        "l10n_es_verifactu_oca",
         "pos_default_partner",
     ],
     "assets": {
