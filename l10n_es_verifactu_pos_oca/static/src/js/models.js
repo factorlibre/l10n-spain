@@ -1,4 +1,4 @@
-odoo.define("l10n_es_verifactu_pos.models", function (require) {
+odoo.define("l10n_es_verifactu_pos_oca.models", function (require) {
     "use strict";
 
     const {Order} = require("point_of_sale.models");

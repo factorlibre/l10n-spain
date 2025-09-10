@@ -16,12 +16,6 @@ class PosOrder(models.Model):
     _name = "pos.order"
     _inherit = ["pos.order", "verifactu.mixin"]
 
-    @api.model
-    def _selection_verifactu_reference_models(self):
-        """Add pos.order to the list of models that can be used as reference."""
-        models = super()._selection_verifactu_reference_models()
-        return models + [("pos.order", "POS Order")]
-
     last_verifactu_invoice_entry_id = fields.Many2one(
         comodel_name="verifactu.invoice.entry",
         string="Last Verifactu Invoice Entry",
@@ -35,7 +29,7 @@ class PosOrder(models.Model):
         readonly=True,
     )
     verifactu_registration_key = fields.Many2one(
-        comodel_name="verifactu.registration.keys",
+        comodel_name="verifactu.registration.key",
         compute="_compute_verifactu_registration_key",
         store=True,
         readonly=False,
@@ -125,7 +119,7 @@ class PosOrder(models.Model):
                         "01",
                     ),
                 ]
-                verifactu_key_obj = self.env["verifactu.registration.keys"]
+                verifactu_key_obj = self.env["verifactu.registration.key"]
                 order.verifactu_registration_key = verifactu_key_obj.search(
                     domain, limit=1
                 )
@@ -185,7 +179,7 @@ class PosOrder(models.Model):
     def _get_verifactu_description(self):
         return self.verifactu_description or self.company_id.verifactu_description
 
-    def _get_chaining(self):
+    def _get_verifactu_chaining(self):
         """Return the verifactu chaining for this POS order.
 
         For POS orders, we use the company-wide chaining like invoices.
@@ -325,7 +319,7 @@ class PosOrder(models.Model):
             "Desglose": taxes_dict,
             "CuotaTotal": amount_tax,
             "ImporteTotal": amount_total,
-            "Encadenamiento": self._get_chaining_invoice_dict(),
+            "Encadenamiento": self._get_verifactu_chaining_invoice_dict(),
             "SistemaInformatico": self._get_verifactu_developer_dict(),
             "FechaHoraHusoGenRegistro": self._get_verifactu_registration_date(),
             "TipoHuella": "01",  # SHA-256
@@ -354,7 +348,7 @@ class PosOrder(models.Model):
         registroAlta.setdefault("RegistroAlta", inv_dict)
         return registroAlta
 
-    def _get_chaining_invoice_dict(self):
+    def _get_verifactu_chaining_invoice_dict(self):
         """Get the chaining invoice dictionary for POS orders using the new system."""
         if (
             self.last_verifactu_invoice_entry_id
@@ -374,6 +368,17 @@ class PosOrder(models.Model):
                     }
                 }
         return {"PrimerRegistro": "S"}
+
+    def _get_verifactu_receiver_dict(self):
+        """Get receiver dict for POS orders."""
+        self.ensure_one()
+        partner = self._aeat_get_partner()
+        if not partner:
+            return {}
+        return {
+            "NombreRazon": partner.name,
+            "NIF": partner._parse_aeat_vat_info()[2] if partner.vat else "",
+        }
 
     def _get_verifactu_taxes_and_total(self):
         """Get the tax breakdown for Verifactu from POS order lines.

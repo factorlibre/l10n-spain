@@ -10,14 +10,14 @@
     "depends": [
         "point_of_sale",
         "l10n_es_pos",
-        "l10n_es_verifactu",
+        "l10n_es_verifactu_oca",
         "pos_default_partner",
     ],
     "assets": {
         "point_of_sale.assets": [
-            "l10n_es_verifactu_pos/static/src/js/models.js",
-            "l10n_es_verifactu_pos/static/src/xml/OrderReceipt.xml",
-            "l10n_es_verifactu_pos/static/src/css/pos_receipts.css",
+            "l10n_es_verifactu_pos_oca/static/src/js/models.js",
+            "l10n_es_verifactu_pos_oca/static/src/xml/OrderReceipt.xml",
+            "l10n_es_verifactu_pos_oca/static/src/css/pos_receipts.css",
         ],
     },
     "data": [

@@ -4,7 +4,7 @@ from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests.common import tagged
 
-from odoo.addons.l10n_es_verifactu.tests.common import TestVerifactuCommon
+from odoo.addons.l10n_es_verifactu_oca.tests.common import TestVerifactuCommon
 
 
 @tagged("post_install", "-at_install")
@@ -271,7 +271,7 @@ class TestL10nEsVerifactuPOS(TestVerifactuCommon):
         order = self.env["pos.order"].browse(order_ids[0]["id"])
 
         # Check that the order uses company-wide chaining
-        chaining = order._get_chaining()
+        chaining = order._get_verifactu_chaining()
         self.assertEqual(
             chaining,
             self.company.verifactu_chaining_id,
@@ -279,7 +279,7 @@ class TestL10nEsVerifactuPOS(TestVerifactuCommon):
         )
 
         # Check chaining dict generation
-        result = order._get_chaining_invoice_dict()
+        result = order._get_verifactu_chaining_invoice_dict()
         if not order.last_verifactu_invoice_entry_id:
             self.assertEqual(
                 result,
@@ -292,14 +292,6 @@ class TestL10nEsVerifactuPOS(TestVerifactuCommon):
                 self.assertIn("RegistroAnterior", result)
             else:
                 self.assertEqual(result, {"PrimerRegistro": "S"})
-
-    def test_pos_order_selection_models(self):
-        """Test that pos.order is included in the reference models"""
-        pos_order = self.env["pos.order"]
-        models = pos_order._selection_verifactu_reference_models()
-        pos_model = [model for model in models if model[0] == "pos.order"]
-        self.assertTrue(pos_model, "pos.order should be in reference models")
-        self.assertEqual(pos_model[0][1], "POS Order", "Label should be 'POS Order'")
 
     def test_pos_verifactu_multi_order_chaining(self):
         """Test that multiple POS orders are properly chained together"""
