@@ -11,7 +11,8 @@ odoo.define("l10n_es_verifactu_pos_oca.models", function (require) {
             export_for_printing() {
                 const result = super.export_for_printing(...arguments);
                 result.verifactu_qr =
-                    this.finalized && this._get_verifactu_qr_code_data();
+                    (this.finalized || this.l10n_es_unique_id) &&
+                    this._get_verifactu_qr_code_data();
                 return result;
             }
 
