@@ -69,6 +69,10 @@ class ResCompany(models.Model):
         ],
         default="monthly",
     )
+    sii_start_date = fields.Date(
+        help="If this field is set, the sii won't be enabled on invoices with lower "
+        "invoice date. If not set, the sii can be enabled on all invoice dates"
+    )
 
     def _get_sii_eta(self):
         if self.send_mode == 'fixed':

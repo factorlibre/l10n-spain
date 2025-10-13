@@ -413,3 +413,50 @@ class TestL10nEsAeatSii(TestL10nEsAeatSiiBase):
         self.invoice.sii_state = 'sent'
         with self.assertRaises(exceptions.Warning):
             self.invoice.unlink()
+
+    def test_start_date(self):
+        self.invoice.company_id.sii_start_date = "2018-01-01"
+        invoice1 = self.env['account.invoice'].create({
+            'partner_id': self.partner.id,
+            'date_invoice': '2019-01-01',
+            'date': '2019-01-01',
+            'type': 'in_invoice',
+            'reference': 'PH-2020-0031',
+            'account_id': self.partner.property_account_payable_id.id,
+            'invoice_line_ids': [
+                (0, 0, {
+                    'product_id': self.product.id,
+                    'account_id': self.account_expense.id,
+                    'account_analytic_id': self.analytic_account.id,
+                    'name': 'Test line with irpf and iva',
+                    'price_unit': 100,
+                    'quantity': 1,
+                    'invoice_line_tax_ids': [
+                        (6, 0, self.tax.ids + self.tax_irpf19.ids)],
+                })],
+            'sii_manual_description': '/',
+        })
+        self.assertTrue(invoice1.sii_enabled)
+        invoice2 = self.env['account.invoice'].create({
+            'partner_id': self.partner.id,
+            'date_invoice': '2017-01-01',
+            'date': '2017-01-01',
+            'type': 'in_invoice',
+            'reference': 'PH-2020-0031',
+            'account_id': self.partner.property_account_payable_id.id,
+            'invoice_line_ids': [
+                (0, 0, {
+                    'product_id': self.product.id,
+                    'account_id': self.account_expense.id,
+                    'account_analytic_id': self.analytic_account.id,
+                    'name': 'Test line with irpf and iva',
+                    'price_unit': 100,
+                    'quantity': 1,
+                    'invoice_line_tax_ids': [
+                        (6, 0, self.tax.ids + self.tax_irpf19.ids)],
+                })],
+            'sii_manual_description': '/',
+        })
+        self.assertFalse(invoice2.sii_enabled)
+        self.invoice.company_id.sii_start_date = False
+        self.assertTrue(invoice2.sii_enabled)
