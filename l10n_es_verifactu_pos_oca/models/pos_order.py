@@ -337,6 +337,12 @@ class PosOrder(models.Model):
                     }
                 ]
 
+        if self.aeat_state in ("sent_w_errors", "incorrect"):
+            # en caso de subsanación, debe generar un nuevo hash
+            inv_dict["Subsanacion"] = "S"
+        if self.aeat_state == "incorrect":
+            inv_dict["RechazoPrevio"] = "X"
+
         registroAlta = {}
         registroAlta.setdefault("RegistroAlta", inv_dict)
         return registroAlta
@@ -525,12 +531,15 @@ class PosOrder(models.Model):
         """Resend POS orders to verifactu after errors"""
         for order in self:
             if (
-                order.aeat_state == "sent_w_errors"
+                order.aeat_state in ("sent_w_errors", "incorrect")
                 and order.last_verifactu_invoice_entry_id
                 and not order.last_verifactu_invoice_entry_id.send_state == "not_sent"
             ):
+                entry_type = (
+                    "modify" if order.aeat_state == "sent_w_errors" else "register"
+                )
                 order.verifactu_registration_date = fields.Datetime.now()
-                order._generate_verifactu_chaining(entry_type="modify")
+                order._generate_verifactu_chaining(entry_type=entry_type)
 
     def _check_verifactu_configuration(self):
         """Check POS order configuration for verifactu"""

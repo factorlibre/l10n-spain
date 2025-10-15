@@ -11,7 +11,7 @@
                     string="Re-send to Verifactu"
                     name="resend_verifactu"
                     groups="l10n_es_aeat.group_account_aeat"
-                    attrs="{'invisible': ['|','|',('verifactu_enabled', '=', False), ('state', 'not in', ['paid', 'done']), ('aeat_state','!=','sent_w_errors')]}"
+                    attrs="{'invisible': ['|','|',('verifactu_enabled', '=', False), ('state', 'not in', ['paid', 'done']), ('aeat_state','not in', ('sent_w_errors', 'incorrect'))]}"
                 />
             </button>
             <notebook position="inside">
