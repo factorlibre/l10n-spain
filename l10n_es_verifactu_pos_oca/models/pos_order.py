@@ -340,8 +340,8 @@ class PosOrder(models.Model):
         if self.aeat_state in ("sent_w_errors", "incorrect"):
             # en caso de subsanación, debe generar un nuevo hash
             inv_dict["Subsanacion"] = "S"
-        if self.aeat_state == "incorrect":
-            inv_dict["RechazoPrevio"] = "X"
+            if self.aeat_state == "incorrect":
+                inv_dict["RechazoPrevio"] = "X"
 
         registroAlta = {}
         registroAlta.setdefault("RegistroAlta", inv_dict)
