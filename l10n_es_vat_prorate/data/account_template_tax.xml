@@ -9,13 +9,7 @@
     <record id="l10n_es.account_tax_template_p_iva4_bi" model="account.tax.template">
         <field name="template_with_vat_prorate" eval="True" />
     </record>
-    <record id="l10n_es.account_tax_template_p_iva2_sc" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-    </record>
     <record id="l10n_es.account_tax_template_p_iva4_sc" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva7-5_sc" model="account.tax.template">
         <field name="template_with_vat_prorate" eval="True" />
     </record>
     <record id="l10n_es.account_tax_template_p_iva21_bi" model="account.tax.template">
@@ -24,13 +18,7 @@
     <record id="l10n_es.account_tax_template_p_iva10_bc" model="account.tax.template">
         <field name="template_with_vat_prorate" eval="True" />
     </record>
-    <record id="l10n_es.account_tax_template_p_iva2_bc" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-    </record>
     <record id="l10n_es.account_tax_template_p_iva4_bc" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva7-5_bc" model="account.tax.template">
         <field name="template_with_vat_prorate" eval="True" />
     </record>
     <record id="l10n_es.account_tax_template_p_iva10_sc" model="account.tax.template">
@@ -45,13 +33,7 @@
     <record id="l10n_es.account_tax_template_p_iva12_agr" model="account.tax.template">
         <field name="template_with_vat_prorate" eval="True" />
     </record>
-    <record id="l10n_es.account_tax_template_p_iva2_ibc" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-    </record>
     <record id="l10n_es.account_tax_template_p_iva4_ibc" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva7-5_ibc" model="account.tax.template">
         <field name="template_with_vat_prorate" eval="True" />
     </record>
     <record id="l10n_es.account_tax_template_p_iva21_ibc" model="account.tax.template">
@@ -70,7 +52,7 @@
         <field name="template_with_vat_prorate" eval="True" />
         </record>
     <record
-        id="l10n_es.account_tax_template_p_iva21_sp_in"
+        id="l10n_es.account_tax_template_p_iva21_sp_in_1"
         model="account.tax.template"
     >
         <field name="template_with_vat_prorate" eval="True" />
@@ -80,7 +62,7 @@
         />
     </record>
     <record
-        id="l10n_es.account_tax_template_p_iva21_ic_bc"
+        id="l10n_es.account_tax_template_p_iva21_sp_in_2"
         model="account.tax.template"
     >
         <field name="template_with_vat_prorate" eval="True" />
@@ -90,24 +72,7 @@
         />
     </record>
     <record
-        id="l10n_es.account_tax_template_p_iva21_ic_bi"
-        model="account.tax.template"
-    >
-        <field name="template_with_vat_prorate" eval="True" />
-        <field
-            name="prorate_account_template_ids"
-            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
-        />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva4_sp_ex" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-        <field
-            name="prorate_account_template_ids"
-            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
-        />
-    </record>
-    <record
-        id="l10n_es.account_tax_template_p_iva10_sp_ex"
+        id="l10n_es.account_tax_template_p_iva21_ic_bc_1"
         model="account.tax.template"
     >
         <field name="template_with_vat_prorate" eval="True" />
@@ -117,38 +82,7 @@
         />
     </record>
     <record
-        id="l10n_es.account_tax_template_p_iva21_sp_ex"
-        model="account.tax.template"
-    >
-        <field name="template_with_vat_prorate" eval="True" />
-        <field
-            name="prorate_account_template_ids"
-            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
-        />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva2_ic_bc" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-        <field
-            name="prorate_account_template_ids"
-            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
-        />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva4_ic_bc" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-        <field
-            name="prorate_account_template_ids"
-            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
-        />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva4_ic_bi" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-        <field
-            name="prorate_account_template_ids"
-            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
-        />
-    </record>
-    <record
-        id="l10n_es.account_tax_template_p_iva7-5_ic_bc"
+        id="l10n_es.account_tax_template_p_iva21_ic_bc_2"
         model="account.tax.template"
     >
         <field name="template_with_vat_prorate" eval="True" />
@@ -158,7 +92,7 @@
         />
     </record>
     <record
-        id="l10n_es.account_tax_template_p_iva10_ic_bc"
+        id="l10n_es.account_tax_template_p_iva21_ic_bi_1"
         model="account.tax.template"
     >
         <field name="template_with_vat_prorate" eval="True" />
@@ -168,7 +102,7 @@
         />
     </record>
     <record
-        id="l10n_es.account_tax_template_p_iva10_ic_bi"
+        id="l10n_es.account_tax_template_p_iva21_ic_bi_2"
         model="account.tax.template"
     >
         <field name="template_with_vat_prorate" eval="True" />
@@ -177,21 +111,14 @@
             eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
         />
     </record>
-    <record id="l10n_es.account_tax_template_p_iva5_ic_bc" model="account.tax.template">
+    <record id="l10n_es.account_tax_template_p_iva4_sp_ex_1" model="account.tax.template">
         <field name="template_with_vat_prorate" eval="True" />
         <field
             name="prorate_account_template_ids"
             eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
         />
     </record>
-    <record id="l10n_es.account_tax_template_p_iva2_ic_sc" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-        <field
-            name="prorate_account_template_ids"
-            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
-        />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva5_ic_sc" model="account.tax.template">
+    <record id="l10n_es.account_tax_template_p_iva4_sp_ex_2" model="account.tax.template">
         <field name="template_with_vat_prorate" eval="True" />
         <field
             name="prorate_account_template_ids"
@@ -199,73 +126,7 @@
         />
     </record>
     <record
-        id="l10n_es.account_tax_template_p_iva7-5_ic_sc"
-        model="account.tax.template"
-    >
-        <field name="template_with_vat_prorate" eval="True" />
-        <field
-            name="prorate_account_template_ids"
-            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
-        />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva5_ibc" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva2_isc" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva5_isc" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva7-5_isc" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva5_bc" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva5_sc" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-    </record>
-    <record
-        id="l10n_es.account_tax_template_p_iva10_sp_in"
-        model="account.tax.template"
-    >
-        <field name="template_with_vat_prorate" eval="True" />
-        <field
-            name="prorate_account_template_ids"
-            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
-        />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva4_sp_in" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-        <field
-            name="prorate_account_template_ids"
-            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
-        />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva4_isp" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-        <field
-            name="prorate_account_template_ids"
-            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
-        />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva10_isp" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-        <field
-            name="prorate_account_template_ids"
-            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
-        />
-    </record>
-    <record id="l10n_es.account_tax_template_p_iva21_isp" model="account.tax.template">
-        <field name="template_with_vat_prorate" eval="True" />
-        <field
-            name="prorate_account_template_ids"
-            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
-        />
-    </record>
-    <record
-        id="l10n_es.account_tax_template_p_iva4_isp_bi"
+        id="l10n_es.account_tax_template_p_iva10_sp_ex_1"
         model="account.tax.template"
     >
         <field name="template_with_vat_prorate" eval="True" />
@@ -275,7 +136,7 @@
         />
     </record>
     <record
-        id="l10n_es.account_tax_template_p_iva10_isp_bi"
+        id="l10n_es.account_tax_template_p_iva10_sp_ex_2"
         model="account.tax.template"
     >
         <field name="template_with_vat_prorate" eval="True" />
@@ -285,7 +146,7 @@
         />
     </record>
     <record
-        id="l10n_es.account_tax_template_p_iva21_isp_bi"
+        id="l10n_es.account_tax_template_p_iva21_sp_ex_1"
         model="account.tax.template"
     >
         <field name="template_with_vat_prorate" eval="True" />
@@ -294,4 +155,188 @@
             eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
         />
     </record>
+    <record
+        id="l10n_es.account_tax_template_p_iva21_sp_ex_2"
+        model="account.tax.template"
+    >
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record id="l10n_es.account_tax_template_p_iva4_ic_bc_1" model="account.tax.template">
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record id="l10n_es.account_tax_template_p_iva4_ic_bc_2" model="account.tax.template">
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record id="l10n_es.account_tax_template_p_iva4_ic_bi_1" model="account.tax.template">
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record id="l10n_es.account_tax_template_p_iva4_ic_bi_2" model="account.tax.template">
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record
+        id="l10n_es.account_tax_template_p_iva10_ic_bc_1"
+        model="account.tax.template"
+    >
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record
+        id="l10n_es.account_tax_template_p_iva10_ic_bc_2"
+        model="account.tax.template"
+    >
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record
+        id="l10n_es.account_tax_template_p_iva10_ic_bi_1"
+        model="account.tax.template"
+    >
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record
+        id="l10n_es.account_tax_template_p_iva10_ic_bi_2"
+        model="account.tax.template"
+    >
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record
+        id="l10n_es.account_tax_template_p_iva10_sp_in_1"
+        model="account.tax.template"
+    >
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record
+        id="l10n_es.account_tax_template_p_iva10_sp_in_2"
+        model="account.tax.template"
+    >
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record id="l10n_es.account_tax_template_p_iva4_sp_in_1" model="account.tax.template">
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record id="l10n_es.account_tax_template_p_iva4_sp_in_2" model="account.tax.template">
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record id="l10n_es.account_tax_template_p_iva4_isp_1" model="account.tax.template">
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record id="l10n_es.account_tax_template_p_iva4_isp_2" model="account.tax.template">
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record id="l10n_es.account_tax_template_p_iva10_isp_1" model="account.tax.template">
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record id="l10n_es.account_tax_template_p_iva10_isp_2" model="account.tax.template">
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record id="l10n_es.account_tax_template_p_iva21_isp_1" model="account.tax.template">
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record id="l10n_es.account_tax_template_p_iva21_isp_2" model="account.tax.template">
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <!-- <record
+        id="l10n_es_extra_data.account_tax_template_p_iva4_isp_bi_1"
+        model="account.tax.template"
+    >
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record
+        id="l10n_es_extra_data.account_tax_template_p_iva10_isp_bi_1"
+        model="account.tax.template"
+    >
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record>
+    <record
+        id="l10n_es_extra_data.account_tax_template_p_iva21_isp_bi_1"
+        model="account.tax.template"
+    >
+        <field name="template_with_vat_prorate" eval="True" />
+        <field
+            name="prorate_account_template_ids"
+            eval="[(5,0,0), (4, ref('l10n_es.account_common_472'))]"
+        />
+    </record> -->
 </odoo>

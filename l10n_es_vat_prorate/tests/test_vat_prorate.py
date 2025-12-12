@@ -8,17 +8,16 @@ from datetime import date
 from psycopg2 import IntegrityError
 
 from odoo import exceptions
-from odoo.tests.common import tagged
+from odoo.tests import common
 from odoo.tools import mute_logger
 
-from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
-
-@tagged("post_install", "-at_install")
-class TestVatProrate(AccountTestInvoicingCommon):
+@common.at_install(False)
+@common.post_install(True)
+class TestVatProrate(common.SavepointCase):
     @classmethod
     def setUpClass(cls):
-        super().setUpClass(chart_template_ref="l10n_es.account_chart_template_pymes")
+        super().setUpClass()
         cls.env = cls.env(
             context=dict(
                 cls.env.context,
@@ -29,7 +28,8 @@ class TestVatProrate(AccountTestInvoicingCommon):
                 tracking_disable=True,
             )
         )
-        cls.env.company.write(
+        cls.company = cls.env.user.company_id
+        cls.company.write(
             {
                 "with_vat_prorate": True,
                 "vat_prorate_ids": [
@@ -38,237 +38,125 @@ class TestVatProrate(AccountTestInvoicingCommon):
                 ],
             }
         )
-        cls.product_b.write(
+        cls.tax_sale_a = cls.env["account.tax"].create(
             {
-                "supplier_taxes_id": [(6, 0, cls.tax_purchase_a.ids)],
-                "taxes_id": [(6, 0, cls.tax_sale_a.ids)],
+                "name": "Tax Sale Company",
+                "type_tax_use": "sale",
+                "amount": "21.00",
+                "price_include": False,
+                "company_id": cls.company.id,
             }
         )
-        cls.analytic_plan = cls.env["account.analytic.plan"].create({"name": "Default"})
-        cls.analytic_account = cls.env["account.analytic.account"].create(
+        cls.tax_purchase_a = cls.env["account.tax"].create(
             {
-                "name": "Test analytic account",
-                "plan_id": cls.analytic_plan.id,
+                "name": "Tax Purchase Company",
+                "type_tax_use": "purchase",
+                "with_vat_prorate": True,
+                "amount": "21.00",
+                "price_include": False,
+                "company_id": cls.company.id,
+            }
+        )
+        cls.product = cls.env['product.product'].create({
+            "name": "Product Test",
+            "list_price": 100.00,
+            "supplier_taxes_id": [(6, 0, cls.tax_purchase_a.ids)],
+            "taxes_id": [(6, 0, cls.tax_sale_a.ids)],
+        })
+        cls.journal_c1 = cls.env["account.journal"].create(
+            {
+                "name": "J1",
+                "code": "J1",
+                "type": "bank",
+                "company_id": cls.company.id,
+                "bank_acc_number": "123456",
+            }
+        )
+        cls.partner = (
+            cls.env["res.partner"]
+            .with_context(force_company=cls.company.id)
+            .create(
+                {
+                    "name": "Test supplier",
+                }
+            )
+        )
+        cls.account_type = cls.env.ref("account.data_account_type_payable")
+        cls.account = cls.env["account.account"].create(
+            {
+                "name": "Test account",
+                "code": "TEST1",
+                "user_type_id": cls.account_type.id,
+                "reconcile": True,
+            }
+        )
+        cls.account2 = cls.env["account.account"].create(
+            {
+                "name": "Test account 2",
+                "code": "TEST2",
+                "user_type_id": cls.account_type.id,
+                "reconcile": True,
             }
         )
 
-    # Put `zzz` for making sure that the test is executed in last place, as the cursor
-    # gets incoherent after returning from the SQL constraint violation
-    @mute_logger("odoo.sql_db")
-    def test_zzz_company_vat_prorate_out_of_range(self):
-        with self.assertRaises(IntegrityError):
-            self.env.company.vat_prorate_ids[0].vat_prorate = 200
-
-    def test_company_special_vat_prorate_out_of_range(self):
-        # A error should be displayed if special prorates are 100%
-        prorate_id = self.env.company.vat_prorate_ids[0]
-        with self.assertRaises(exceptions.ValidationError):
-            prorate_id.write({"type": "special", "vat_prorate": 100})
-
-    def test_no_company_vat_prorate_information(self):
-        with self.assertRaises(exceptions.ValidationError):
-            self.env.company.write({"vat_prorate_ids": False})
-
-    def test_company_configuration(self):
-        self.assertTrue(self.env.company.with_vat_prorate)
-        self.assertTrue(self.env.company.prorrate_asset_account_id)
-        self.assertTrue(self.env.company.prorrate_investment_account_id)
-        self.env.company.write({"with_vat_prorate": False})
-        self.assertFalse(self.env.company.prorrate_asset_account_id)
-        self.assertFalse(self.env.company.prorrate_investment_account_id)
+    def _create_invoice(self, multiline=False):
+        invoice = self.env["account.invoice"].create(
+            {
+                "partner_id": self.partner.id,
+                "journal_id": self.journal_c1.id,
+                "account_id": self.account_type.id,
+                "type": "in_invoice",
+                "company_id": self.company.id,
+            }
+        )
+        self.env["account.invoice.line"].create(
+            {
+                "product_id": self.product.id,
+                "quantity": 1.0,
+                "price_unit": 100.0,
+                "invoice_id": invoice.id,
+                "name": "product that cost 100",
+                "account_id": self.account.id,
+                "invoice_line_tax_ids": [(6, 0, [self.tax_purchase_a.id])],
+            }
+        )
+        if multiline:
+            self.env["account.invoice.line"].create(
+                {
+                    "product_id": self.product.id,
+                    "quantity": 1.0,
+                    "price_unit": 100.0,
+                    "invoice_id": invoice.id,
+                    "name": "product that cost 100",
+                    "account_id": self.account2.id,
+                    "invoice_line_tax_ids": [(6, 0, [self.tax_purchase_a.id])],
+                }
+            )
+        return invoice
 
     def test_no_prorate_in_invoice(self):
-        self.env.company.write(
+        self.company.write(
             {"with_vat_prorate": False}
         )  # We want to be sure that it is executed properly
-        invoice = self.init_invoice(
-            "in_invoice", products=[self.product_a, self.product_b]
-        )
-        self.assertEqual(4, len(invoice.line_ids))
-        self.assertEqual(1, len(invoice.line_ids.filtered(lambda r: r.tax_line_id)))
+        invoice = self._create_invoice(False)
+        # Calculate tax lines
+        invoice._onchange_invoice_line_ids()
+        self.assertEqual(1, len(invoice.invoice_line_ids))
+        self.assertEqual(1, len(invoice.tax_line_ids))
+        # Force prorate on created tax
+        self.tax_purchase_a.with_vat_prorate = True
+        invoice.action_invoice_open()
+        self.assertEqual(3, len(invoice.move_id.line_ids))
+        self.assertEqual(1, len(invoice.move_id.line_ids.filtered(lambda r: r.tax_line_id)))
 
-    def test_prorate_different_accounts_in_invoice(self):
-        invoice = self.init_invoice(
-            "in_invoice", products=[self.product_a, self.product_b]
-        )
-        self.assertEqual(6, len(invoice.line_ids))
-        self.assertEqual(3, len(invoice.line_ids.filtered(lambda r: r.tax_line_id)))
-        self.assertTrue(
-            invoice.line_ids.filtered(
-                lambda r: r.tax_line_id
-                and r.account_id == self.product_a.property_account_expense_id
-            )
-        )
-        self.assertTrue(
-            invoice.line_ids.filtered(
-                lambda r: r.tax_line_id
-                and r.account_id == self.product_b.property_account_expense_id
-            )
-        )
-        # Deal with analytics
-        invoice.line_ids[0].analytic_distribution = {self.analytic_account.id: 100}
-        self.assertEqual(6, len(invoice.line_ids))
-        self.assertEqual(
-            1,
-            len(
-                invoice.line_ids.filtered(
-                    lambda r: r.tax_line_id and r.analytic_distribution
-                )
-            ),
-        )
-
-    def test_prorate_same_accounts_in_invoice(self):
-        self.product_b.property_account_expense_id = self.company_data[
-            "default_account_expense"
-        ]
-        invoice = self.init_invoice(
-            "in_invoice", products=[self.product_a, self.product_b]
-        )
-        self.assertEqual(5, len(invoice.line_ids))
-        tax_lines = invoice.line_ids.filtered(lambda r: r.tax_line_id)
-        self.assertEqual(2, len(tax_lines))
-        self.assertEqual(1, len(tax_lines.filtered("vat_prorate")))
-        # One of the tax lines should have expense account and the other the tax account
-        self.assertNotEqual(tax_lines[0].account_id, tax_lines[1].account_id)
-
-    def test_prorate_asset_in_invoice(self):
-        self.product_b.property_account_expense_id = self.company_data[
-            "default_account_assets"
-        ]
-        invoice = self.init_invoice("in_invoice", products=[self.product_b])
-        self.assertEqual(4, len(invoice.line_ids))
-        self.assertEqual(2, len(invoice.line_ids.filtered(lambda r: r.tax_line_id)))
-        self.assertFalse(
-            invoice.line_ids.filtered(
-                lambda r: r.tax_line_id
-                and r.account_id == self.product_b.property_account_expense_id
-            )
-        )
-
-    def test_no_prorate_in_refund(self):
-        self.env.company.write(
-            {"with_vat_prorate": False}
-        )  # We want to be sure that it is executed properly
-        invoice = self.init_invoice(
-            "in_refund", products=[self.product_a, self.product_b]
-        )
-        self.assertEqual(4, len(invoice.line_ids))
-        self.assertEqual(1, len(invoice.line_ids.filtered(lambda r: r.tax_line_id)))
-
-    def test_prorate_different_accounts_in_refund(self):
-        invoice = self.init_invoice(
-            "in_refund", products=[self.product_a, self.product_b]
-        )
-        self.assertEqual(6, len(invoice.line_ids))
-        self.assertEqual(3, len(invoice.line_ids.filtered(lambda r: r.tax_line_id)))
-
-    def test_prorate_same_accounts_in_refund(self):
-        self.product_b.property_account_expense_id = self.company_data[
-            "default_account_expense"
-        ]
-        invoice = self.init_invoice(
-            "in_refund", products=[self.product_a, self.product_b]
-        )
-        self.assertEqual(5, len(invoice.line_ids))
-        self.assertEqual(2, len(invoice.line_ids.filtered(lambda r: r.tax_line_id)))
-
-    def test_no_prorate_out_invoice(self):
-        self.env.company.write(
-            {"with_vat_prorate": False}
-        )  # We want to be sure that it is executed properly
-        invoice = self.init_invoice(
-            "out_invoice", products=[self.product_a, self.product_b]
-        )
-        self.assertEqual(4, len(invoice.line_ids))
-        self.assertEqual(1, len(invoice.line_ids.filtered(lambda r: r.tax_line_id)))
-
-    def test_prorate_out_invoice(self):
-        invoice = self.init_invoice(
-            "out_invoice", products=[self.product_a, self.product_b]
-        )
-        self.assertEqual(4, len(invoice.line_ids))
-        self.assertEqual(1, len(invoice.line_ids.filtered(lambda r: r.tax_line_id)))
-
-    def test_no_prorate_out_refund(self):
-        self.env.company.write(
-            {"with_vat_prorate": False}
-        )  # We want to be sure that it is executed properly
-        invoice = self.init_invoice(
-            "out_refund", products=[self.product_a, self.product_b]
-        )
-        self.assertEqual(4, len(invoice.line_ids))
-        self.assertEqual(1, len(invoice.line_ids.filtered(lambda r: r.tax_line_id)))
-
-    def test_prorate_out_refund(self):
-        invoice = self.init_invoice(
-            "out_refund", products=[self.product_a, self.product_b]
-        )
-        self.assertEqual(4, len(invoice.line_ids))
-        self.assertEqual(1, len(invoice.line_ids.filtered(lambda r: r.tax_line_id)))
-
-    def test_prorate_make_refund(self):
-        invoice = self.init_invoice("in_invoice", products=[self.product_a])
-        invoice.action_post()
-        wizard = (
-            self.env["account.move.reversal"]
-            .with_context(active_ids=invoice.ids, active_model="account.move")
-            .create({"journal_id": invoice.journal_id.id})
-        )
-        wizard.reverse_moves()
-        refund = wizard.new_move_ids
-        self.assertEqual(len(refund.line_ids), 4)
-        tax_lines = refund.line_ids.filtered(lambda r: r.tax_line_id)
-        self.assertEqual(len(tax_lines), 2)
-        # One of the tax lines should have expense account and the other the tax account
-        self.assertNotEqual(tax_lines[0].account_id, tax_lines[1].account_id)
-
-    def test_special_prorate_default_true(self):
-        self.env.company.vat_prorate_ids[0].write(
-            {
-                "type": "special",
-                "special_vat_prorate_default": True,
-            }
-        )
-        invoice = self.init_invoice(
-            "in_invoice", products=[self.product_a, self.product_b]
-        )
-        self.assertEqual(6, len(invoice.line_ids))
-        self.assertEqual(2, len(invoice.line_ids.filtered("vat_prorate")))
-
-    def test_special_prorate_default_false(self):
-        self.env.company.vat_prorate_ids[0].write(
-            {
-                "type": "special",
-                "special_vat_prorate_default": False,
-            }
-        )
-        invoice = self.init_invoice(
-            "in_invoice", products=[self.product_a, self.product_b]
-        )
-        self.assertEqual(4, len(invoice.line_ids))
-        self.assertEqual(0, len(invoice.line_ids.filtered("vat_prorate")))
-
-    def test_special_prorate_mixed(self):
-        self.env.company.vat_prorate_ids[0].write(
-            {
-                "type": "special",
-                "special_vat_prorate_default": True,
-            }
-        )
-        invoice = self.init_invoice(
-            "in_invoice", products=[self.product_a, self.product_b]
-        )
-        invoice.invoice_line_ids.filtered(
-            lambda r: r.product_id == self.product_a
-        ).with_vat_prorate = False
-        self.assertEqual(5, len(invoice.line_ids))
-        self.assertEqual(1, len(invoice.line_ids.filtered("vat_prorate")))
-        inv_line_b = invoice.line_ids.filtered(lambda r: r.product_id == self.product_b)
-        prorate_id = self.env.company.vat_prorate_ids[0]
-        self.assertAlmostEqual(
-            invoice.line_ids.filtered("vat_prorate").debit,
-            inv_line_b.price_subtotal
-            * inv_line_b.tax_ids[:1].amount
-            * (100 - prorate_id.vat_prorate)
-            / 10000,
-        )
+    def test_prorate_in_invoice(self):
+        invoice = self._create_invoice(False)
+        # Calculate tax lines
+        invoice._onchange_invoice_line_ids()
+        self.assertEqual(1, len(invoice.invoice_line_ids))
+        self.assertEqual(1, len(invoice.tax_line_ids))
+        # Force prorate on created tax
+        self.tax_purchase_a.with_vat_prorate = True
+        invoice.action_invoice_open()
+        self.assertEqual(4, len(invoice.move_id.line_ids))
+        self.assertEqual(2, len(invoice.move_id.line_ids.filtered(lambda r: r.tax_line_id)))

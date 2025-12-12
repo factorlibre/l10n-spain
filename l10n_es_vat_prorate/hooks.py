@@ -9,19 +9,19 @@ def pre_init_hook(cr):
     logger.info("Prepopulating stored related fields")
     cr.execute(
         """
-        ALTER TABLE account_move
+        ALTER TABLE account_invoice
         ADD COLUMN IF NOT EXISTS prorate_id integer;
         """
     )
     cr.execute(
         """
-        ALTER TABLE account_move
+        ALTER TABLE account_invoice
         ADD COLUMN IF NOT EXISTS with_special_vat_prorate BOOLEAN;
         """
     )
     cr.execute(
         """
-        ALTER TABLE account_move_line
+        ALTER TABLE account_invoice_line
         ADD COLUMN IF NOT EXISTS with_vat_prorate BOOLEAN;
         """
     )
