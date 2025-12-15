@@ -18,7 +18,7 @@
                     attrs="{'invisible': ['|', ('with_vat_prorate', '=', False), ('period_type', 'not in', ['4T', '12'])]}"
                 />
             </field>
-            <field name="statement_type" position="after">
+            <field name="type" position="after">
                 <field
                     name="vat_prorate_percent"
                     attrs="{'invisible': ['|', ('with_vat_prorate', '=', False), ('period_type', 'not in', ['4T', '12'])], 'required': [('with_vat_prorate', '=', True), ('period_type', 'in', ['4T', '12'])]}"

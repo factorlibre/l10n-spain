@@ -4,8 +4,10 @@
 # License AGPL-3 - See http://www.gnu.org/licenses/agpl-3.0
 
 import datetime
+from datetime import datetime as dt
 
 from odoo import _, api, exceptions, fields, models
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
 
 
 class L10nEsAeatMod303Report(models.Model):
@@ -90,11 +92,15 @@ class L10nEsAeatMod303Report(models.Model):
 
     def _special_prorate_method(self):
         self.ensure_one()
+        year_start = dt.strptime(self.date_start, DEFAULT_SERVER_DATE_FORMAT)
+        year_end = dt.strptime(self.date_end, DEFAULT_SERVER_DATE_FORMAT)
+        date_start = datetime.date(year=year_start.year, month=1, day=1)
+        date_end = datetime.date(year=year_end.year, month=12, day=31)
         domain = [
             ("company_id", "child_of", self.company_id.id),
-            ("date", ">=", datetime.date(year=self.date_start.year, month=1, day=1)),
-            ("date", "<=", datetime.date(year=self.date_end.year, month=12, day=31)),
-            ("parent_state", "=", "posted"),
+            ("date", ">=", date_start.strftime(DEFAULT_SERVER_DATE_FORMAT)),
+            ("date", "<=", date_end.strftime(DEFAULT_SERVER_DATE_FORMAT)),
+            ("move_id.state", "=", "posted"),
             ("vat_prorate", "=", True),
         ]
         company_prorate = self.prorate_id.vat_prorate
@@ -134,9 +140,9 @@ class L10nEsAeatMod303Report(models.Model):
             )
         return res
 
-    def _get_move_line_domain(self, date_start, date_end, map_line):
+    def _get_move_line_domain(self, codes, date_start, date_end, map_line):
         """Restrict the deductible taxes to the lines that are not prorate ones."""
-        res = super()._get_move_line_domain(date_start, date_end, map_line)
+        res = super()._get_move_line_domain(codes, date_start, date_end, map_line)
         if (
             map_line.field_number in {29, 33, 35, 37, 39, 41}
             and self.company_id.with_vat_prorate
