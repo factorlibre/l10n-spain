@@ -25,3 +25,9 @@ def pre_init_hook(cr):
         ADD COLUMN IF NOT EXISTS with_vat_prorate BOOLEAN;
         """
     )
+    cr.execute(
+        """
+        ALTER TABLE account_move_line
+        ADD COLUMN IF NOT EXISTS vat_prorate BOOLEAN;
+        """
+    )

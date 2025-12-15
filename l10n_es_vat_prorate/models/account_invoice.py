@@ -67,13 +67,14 @@ class AccountInvoice(models.Model):
                 tax.description.endswith("_1") or tax.description.endswith("_2")
             )
         ):
-            parent_tax_id = self.env["account.tax"].search(
+            parent_tax = self.env["account.tax"].search(
                 [
                     ("company_id", "=", tax.company_id.id),
                     ("description", "=", tax.description[:-2])
                 ], limit=1
             )
-            return parent_tax_id.id if parent_tax_id else False
+            return parent_tax if parent_tax else tax
+        return tax
 
     @api.multi
     def finalize_invoice_move_lines(self, move_lines):
@@ -101,7 +102,7 @@ class AccountInvoice(models.Model):
                     )
                     prec = currency.rounding
                     prorate = invoice.prorate_id.vat_prorate
-                    parent_tax_id = self.get_tax_parent(tax)
+                    parent_tax_id = self.get_tax_parent(tax).id
                     lines_by_account = self.get_lines_by_account(parent_tax_id)
                     total_debit_prorat = float_round(
                         line_values["debit"] * (prorate / 100),
