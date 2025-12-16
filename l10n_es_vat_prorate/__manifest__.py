@@ -10,7 +10,7 @@
     "author": "Creu Blanca, Tecnativa, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/l10n-spain",
     "pre_init_hook": "pre_init_hook",
-    "depends": ["l10n_es_aeat", "l10n_es_extra_data"],
+    "depends": ["l10n_es_aeat", "l10n_es_extra_data", "l10n_es_aeat_sii"],
     "data": [
         "security/ir.model.access.csv",
         "data/account_template_tax.xml",

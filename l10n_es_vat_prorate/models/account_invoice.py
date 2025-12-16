@@ -155,3 +155,18 @@ class AccountInvoice(models.Model):
                     line_values["debit"] = total_debit_prorat
                     line_values["credit"] = total_credit_prorat
         return vals + new_move_lines
+
+    @api.model
+    def _get_sii_tax_dict(self, tax_line, sign):
+        tax_dict = super()._get_sii_tax_dict(tax_line, sign)
+        move_lines = self.move_id.line_ids
+        tax = tax_line.tax_id
+        deductible = 0
+        deductible_lines = move_lines.filtered(
+            lambda line: line.tax_line_id == tax and not line.vat_prorate
+        )
+        for decuctible_line in deductible_lines:
+            deductible += decuctible_line.balance * sign
+        if deductible:
+            tax_dict["CuotaDeducible"] = deductible
+        return tax_dict
