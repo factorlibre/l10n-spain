@@ -5,11 +5,7 @@
 
 from datetime import date
 
-from psycopg2 import IntegrityError
-
-from odoo import exceptions
 from odoo.tests import common
-from odoo.tools import mute_logger
 
 
 @common.at_install(False)
@@ -147,7 +143,9 @@ class TestVatProrate(common.SavepointCase):
         self.tax_purchase_a.with_vat_prorate = True
         invoice.action_invoice_open()
         self.assertEqual(3, len(invoice.move_id.line_ids))
-        self.assertEqual(1, len(invoice.move_id.line_ids.filtered(lambda r: r.tax_line_id)))
+        self.assertEqual(
+            1, len(invoice.move_id.line_ids.filtered(lambda r: r.tax_line_id))
+        )
 
     def test_prorate_in_invoice(self):
         invoice = self._create_invoice(False)
@@ -159,4 +157,6 @@ class TestVatProrate(common.SavepointCase):
         self.tax_purchase_a.with_vat_prorate = True
         invoice.action_invoice_open()
         self.assertEqual(4, len(invoice.move_id.line_ids))
-        self.assertEqual(2, len(invoice.move_id.line_ids.filtered(lambda r: r.tax_line_id)))
+        self.assertEqual(
+            2, len(invoice.move_id.line_ids.filtered(lambda r: r.tax_line_id))
+        )

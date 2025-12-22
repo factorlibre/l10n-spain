@@ -133,13 +133,19 @@ class AccountInvoice(models.Model):
                             amount += taxes.get("amount", 0)
                         new_line_vals = line_values.copy()
 
-                        proportion = amount / line_values["debit"] if line_values["debit"] else 0
+                        proportion = (
+                            amount / line_values["debit"]
+                            if line_values["debit"] else 0
+                        )
                         new_line_vals["debit"] = float_round(
                             remaining_debit * proportion,
                             precision_rounding=prec,
                         )
 
-                        proportion = amount / line_values["credit"] if line_values["credit"] else 0
+                        proportion = (
+                            amount / line_values["credit"]
+                            if line_values["credit"] else 0
+                        )
                         new_line_vals["credit"] = float_round(
                             remaining_credit * proportion,
                             precision_rounding=prec,
