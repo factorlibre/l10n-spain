@@ -21,7 +21,7 @@ def pre_init_hook(cr):
     )
     cr.execute(
         """
-        ALTER TABLE account_invoice_line
+        ALTER TABLE account_invoice
         ADD COLUMN IF NOT EXISTS with_vat_prorate BOOLEAN;
         """
     )
