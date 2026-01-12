@@ -153,13 +153,15 @@ class AccountInvoice(models.Model):
 
                         new_line_vals.update(
                             {
-                                "vat_prorate": True,
                                 "account_id": line_account,
+                                "vat_prorate": True,
                             }
                         )
                         new_move_lines.append((0, 0, new_line_vals))
-                    line_values["debit"] = total_debit_prorat
-                    line_values["credit"] = total_credit_prorat
+                    line_values.update({
+                        "debit": total_debit_prorat,
+                        "credit": total_credit_prorat,
+                    })
         return vals + new_move_lines
 
     @api.model
