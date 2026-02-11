@@ -27,6 +27,11 @@ class L10nEsVatBookLineTax(models.Model):
     tax_amount = fields.Float(
         string='Tax fee')
 
+    deductible_amount = fields.Float(
+        string='Deductible fee',
+        default=0.0,
+    )
+
     total_amount = fields.Float(
         string='Total')
 

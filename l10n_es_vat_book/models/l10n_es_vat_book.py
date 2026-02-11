@@ -212,6 +212,20 @@ class L10nEsVatBook(models.Model):
             'special_tax_group': False,
         }
 
+    def _get_undeductible_tax_ids(self):
+        undeductible_tax_ids = self._context.get('undeductible_tax_ids')
+        if undeductible_tax_ids is not None:
+            return set(undeductible_tax_ids)
+        map_line = self.env.ref(
+            'l10n_es_vat_book.aeat_vat_book_map_line_p_iva_nd')
+        taxes = self.get_taxes_from_templates(map_line.tax_tmpl_ids)
+        return set(taxes.ids)
+
+    def _is_prorate_line(self, move_line):
+        return bool(
+            move_line._fields.get('vat_prorate') and move_line.vat_prorate
+        )
+
     def _prepare_book_line_tax_vals(self, move_line, vat_book_line):
         balance = move_line.credit - move_line.debit
         if vat_book_line['line_type'] in [
@@ -219,10 +233,23 @@ class L10nEsVatBook(models.Model):
             balance = -balance
         base_amount_untaxed = balance if move_line.tax_ids else 0.0
         fee_amount_untaxed = balance if move_line.tax_line_id else 0.0
+        deductible_amount = 0.0
+        if move_line.tax_line_id:
+            if vat_book_line['line_type'] in [
+                    'received', 'rectification_received']:
+                undeductible_tax_ids = self._get_undeductible_tax_ids()
+                if (
+                    move_line.tax_line_id.id not in undeductible_tax_ids
+                    and not self._is_prorate_line(move_line)
+                ):
+                    deductible_amount = fee_amount_untaxed
+            else:
+                deductible_amount = fee_amount_untaxed
         return {
             'tax_id': move_line.tax_line_id.id,
             'base_amount': base_amount_untaxed,
             'tax_amount': fee_amount_untaxed,
+            'deductible_amount': deductible_amount,
             'total_amount': base_amount_untaxed + fee_amount_untaxed,
             'move_line_ids': [(4, move_line.id)],
             'special_tax_group': False,
@@ -238,6 +265,7 @@ class L10nEsVatBook(models.Model):
                 tax_lines[key] = vals.copy()
             else:
                 tax_lines[key]['tax_amount'] += vals['tax_amount']
+                tax_lines[key]['deductible_amount'] += vals['deductible_amount']
                 tax_lines[key]['total_amount'] += vals['total_amount']
                 tax_lines[key]['move_line_ids'] += vals['move_line_ids']
             implied_lines.append(tax_lines[key])
@@ -375,14 +403,26 @@ class L10nEsVatBook(models.Model):
             # clean the old records
             rec._clear_old_data()
 
+            undeductible_tax_ids = rec._get_undeductible_tax_ids()
+            ctx = dict(
+                self.env.context,
+                undeductible_tax_ids=list(undeductible_tax_ids),
+            )
             for book_type in ["issued", "received"]:
-                map_lines = self.env["aeat.vat.book.map.line"].search(
-                    [("book_type", "=", book_type)])
+                map_lines = (
+                    self.env["aeat.vat.book.map.line"]
+                    .with_context(ctx)
+                    .search([("book_type", "=", book_type)])
+                )
                 taxes = self.env["account.tax"]
                 for map_line in map_lines:
-                    taxes |= map_line.get_taxes(rec)
-                lines = rec._get_account_move_lines(taxes)
-                rec.create_vat_book_lines(lines, map_line.book_type, taxes)
+                    taxes |= map_line.with_context(ctx).get_taxes(
+                        rec.with_context(ctx)
+                    )
+                lines = rec.with_context(ctx)._get_account_move_lines(taxes)
+                rec.with_context(ctx).create_vat_book_lines(
+                    lines, book_type, taxes
+                )
 
             # Issued
             book_type = 'issued'
@@ -465,7 +505,7 @@ class L10nEsVatBook(models.Model):
                                 re.sub(r'[\W_]+', '', self.company_id.name))
 
     def button_confirm(self):
-        if any(l.exception_text for l in self.line_ids):
+        if any(line.exception_text for line in self.line_ids):
             raise UserError(_('This book has warnings. Fix it before confirm'))
         return super().button_confirm()
 

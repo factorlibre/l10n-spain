@@ -15,7 +15,7 @@ exclude: |
   # You don't usually want a bot to modify your legal texts
   (LICENSE.*|COPYING.*)
 default_language_version:
-  python: python3
+  python: python3.8
 repos:
   - repo: https://github.com/oca/maintainer-tools
     rev: ab1d7f6
@@ -29,16 +29,17 @@ repos:
     hooks:
       - id: setuptools-odoo-make-default
   - repo: https://github.com/OCA/mirrors-flake8
-    rev: v3.4.1
+    rev: v4.0.1
     hooks:
       - id: flake8
-        language_version: python3.6
+        language_version: python3.8
         name: flake8 excluding __init__.py
         exclude: __init__\.py
   - repo: https://github.com/pre-commit/mirrors-pylint
     rev: v2.5.3
     hooks:
       - id: pylint
+        language_version: python3.8
         name: pylint with optional checks
         args:
           - --rcfile=.pylintrc
@@ -47,8 +48,8 @@ repos:
         additional_dependencies: &pylint_deps
           - pylint-odoo==3.5.0
       - id: pylint
+        language_version: python3.8
         name: pylint with mandatory checks
         args:
           - --rcfile=.pylintrc-mandatory
         additional_dependencies: *pylint_deps
-

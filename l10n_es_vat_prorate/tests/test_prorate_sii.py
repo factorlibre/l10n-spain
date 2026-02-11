@@ -1,18 +1,20 @@
 from datetime import date
+import unittest
 
-from odoo.tests.common import tagged
+from odoo.tests import common
 
 from odoo.addons.l10n_es_aeat_sii_oca.tests import test_l10n_es_aeat_sii
 
 
-@tagged("-at_install", "post_install")
+@common.at_install(False)
+@common.post_install(True)
 class TestSIIVatProrate(test_l10n_es_aeat_sii.TestL10nEsAeatSiiBase):
     @classmethod
     def setUpClass(cls):
         try:
             super().setUpClass()
         except Exception:
-            cls.skipTest(cls, "l10n_es_aeat_sii_oca seems not installed")
+            raise unittest.SkipTest("l10n_es_aeat_sii_oca seems not installed")
         cls.company.write(
             {
                 "with_vat_prorate": True,
