@@ -9,7 +9,7 @@ from odoo.addons.l10n_es_aeat.tests.test_l10n_es_aeat_mod_base import \
 _logger = logging.getLogger('aeat.vat.book')
 
 
-class TestL10nEsAeatVatBook(TestL10nEsAeatModBase):
+class TestL10nEsAeatVatBookBase(TestL10nEsAeatModBase):
     debug = False
     taxes_sale = {
         # tax code: (base, tax_amount)
@@ -18,8 +18,11 @@ class TestL10nEsAeatVatBook(TestL10nEsAeatModBase):
     taxes_purchase = {
         # tax code: (base, tax_amount)
         'P_IVA21_SC': (230, 48.3),
+        'P_IVA0_ND': (100, 21),
     }
 
+
+class TestL10nEsAeatVatBook(TestL10nEsAeatVatBookBase):
     def test_model_vat_book(self):
         # Purchase invoices
         purchase = self._invoice_purchase_create('2017-01-01')
@@ -62,6 +65,18 @@ class TestL10nEsAeatVatBook(TestL10nEsAeatModBase):
         for line in vat_book.issued_tax_summary_ids:
             self.assertEqual(line.base_amount, 0.0)
             self.assertEqual(line.tax_amount, 0.0)
+        # P_IVA0_ND - 21% IVA soportado no deducible
+        non_deductible_tax = self.env['account.tax'].search([
+            ('company_id', '=', self.company.id),
+            ('description', '=', 'P_IVA0_ND'),
+        ], limit=1)
+        self.assertTrue(non_deductible_tax)
+        tax_line = vat_book.received_line_ids.mapped('tax_line_ids').filtered(
+            lambda line: line.tax_id == non_deductible_tax
+        )
+        self.assertEqual(len(tax_line), 1)
+        self.assertAlmostEqual(tax_line.tax_amount, 21)
+        self.assertAlmostEqual(tax_line.deductible_amount, 0)
         # Print to PDF
         report_pdf = self.env.ref(
             'l10n_es_vat_book.act_report_vat_book_invoices_issued_pdf'

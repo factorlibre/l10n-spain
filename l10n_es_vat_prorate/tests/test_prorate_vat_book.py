@@ -1,24 +1,26 @@
 from datetime import date
 
-from odoo.tests.common import tagged
+from odoo.tests import common
 
 from odoo.addons.l10n_es_vat_book.tests import test_l10n_es_aeat_vat_book
 
 
-@tagged("-at_install", "post_install")
+@common.at_install(False)
+@common.post_install(True)
 class TestSIIVatProrate(test_l10n_es_aeat_vat_book.TestL10nEsAeatVatBookBase):
     taxes_purchase = {
         # tax code: (base, tax_amount)
         "P_IVA21_SC": (200, 42),
     }
 
-    @classmethod
-    def setUpClass(cls):
+    def setUp(self):
         try:
-            super().setUpClass()
+            super(TestSIIVatProrate, self).setUp()
         except Exception:
-            cls.skipTest(cls, "l10n_es_aeat_vat_book seems not installed")
-        cls.company.write(
+            self.skipTest("l10n_es_vat_book seems not installed")
+        if "l10n.es.vat.book" not in self.env:
+            self.skipTest("l10n_es_vat_book seems not installed")
+        self.company.write(
             {
                 "with_vat_prorate": True,
                 "vat_prorate_ids": [
@@ -38,7 +40,7 @@ class TestSIIVatProrate(test_l10n_es_aeat_vat_book.TestL10nEsAeatVatBookBase):
                 "company_id": self.company.id,
                 "company_vat": "1234567890",
                 "contact_name": "Test owner",
-                "statement_type": "N",
+                "type": "N",
                 "support_type": "T",
                 "contact_phone": "911234455",
                 "year": 2025,

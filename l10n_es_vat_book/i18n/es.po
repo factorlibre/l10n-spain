@@ -460,6 +460,11 @@ msgid "Tax amount"
 msgstr "Cuota"
 
 #. module: l10n_es_vat_book
+#: model:ir.model.fields,field_description:l10n_es_vat_book.field_l10n_es_vat_book_line_tax_deductible_amount
+msgid "Deductible fee"
+msgstr "Cuota deducible"
+
+#. module: l10n_es_vat_book
 #: model:ir.model.fields,field_description:l10n_es_vat_book.field_l10n_es_vat_book_line_tax_tax_amount
 msgid "Tax fee"
 msgstr "Cuota"

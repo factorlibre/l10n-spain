@@ -15,5 +15,9 @@ class L10nEsVatBook(models.Model):
             [("oss_country_id", "!=", False), ("company_id", "=", self.company_id.id)]
         )
         if move_line.tax_line_id in oss_taxes:
-            values.update({"tax_amount": 0, "total_amount": values.get("base_amount")})
+            values.update({
+                "tax_amount": 0,
+                "deductible_amount": 0,
+                "total_amount": values.get("base_amount"),
+            })
         return values
