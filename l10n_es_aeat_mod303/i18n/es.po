@@ -611,6 +611,46 @@ msgid "[71] Settlement result"
 msgstr "[71] Result. liquidación"
 
 #. module: l10n_es_aeat_mod303
+#: model:ir.model.fields,field_description:l10n_es_aeat_mod303.field_l10n_es_aeat_mod303_report_casilla_109
+msgid "[109] Refunds agreed by the Tax Agency"
+msgstr "[109] Devoluciones acordadas por la Agencia Tributaria"
+
+#. module: l10n_es_aeat_mod303
+#: model:ir.model.fields,field_description:l10n_es_aeat_mod303.field_l10n_es_aeat_mod303_report_casilla_112
+msgid "[112] Payment on account for petrol/diesel/biofuel deliveries"
+msgstr "[112] Pago a cuenta de entregas de gasolinas, gasóleos y biocarburantes"
+
+#. module: l10n_es_aeat_mod303
+#: model:ir.model.fields,field_description:l10n_es_aeat_mod303.field_l10n_es_aeat_mod303_report_deduct_payment_petrol_delivery
+msgid "Deduct payment on account for petrol deliveries"
+msgstr "Deducir pago a cuenta de entregas de gasolinas"
+
+#. module: l10n_es_aeat_mod303
+#: model:ir.model.fields,help:l10n_es_aeat_mod303.field_l10n_es_aeat_mod303_report_casilla_109
+msgid ""
+"Result - Refunds agreed by the Tax Agency as a consequence of the "
+"processing of previous self-assessments corresponding to the fiscal year "
+"and period subject to this self-assessment"
+msgstr ""
+"Resultado - Devoluciones acordadas por la Agencia Tributaria como "
+"consecuencia de la tramitación de anteriores autoliquidaciones "
+"correspondientes al ejercicio y período objeto de la autoliquidación"
+
+#. module: l10n_es_aeat_mod303
+#: model:ir.model.fields,help:l10n_es_aeat_mod303.field_l10n_es_aeat_mod303_report_casilla_112
+msgid ""
+"Payment on account attributable to the State Administration for "
+"deliveries of petrol, diesel and biofuels after completion of the non-"
+"customs warehouse regime (Sum of box 36 of all forms 319 corresponding "
+"to deliveries included in this self-assessment)"
+msgstr ""
+"Pago a cuenta atribuible a la Administración del Estado por entregas de "
+"gasolinas, gasóleos y biocarburantes tras la finalización del régimen "
+"de depósito distinto del aduanero (Suma de la casilla 36 de todos los "
+"modelos 319 correspondientes a entregas incluidas en esta "
+"autoliquidación)"
+
+#. module: l10n_es_aeat_mod303
 #: model:ir.model.fields,field_description:l10n_es_aeat_mod303.field_l10n_es_aeat_mod303_report_casilla_77
 msgid "[77] VAT deferred (Settle by customs)"
 msgstr "[77] Iva Diferido (Liquidado por aduana)"

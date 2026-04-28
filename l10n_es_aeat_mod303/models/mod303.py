@@ -109,6 +109,26 @@ class L10nEsAeatMod303Report(models.Model):
         "to discrepancy of administrative criteria that should not be "
         "included in other boxes. Other adjustments",
     )
+    casilla_109 = fields.Float(
+        string="[109] Refunds agreed by the Tax Agency",
+        help="Result - Refunds agreed by the Tax Agency as a consequence of "
+        "the processing of previous self-assessments corresponding to the "
+        "fiscal year and period subject to this self-assessment",
+        states=NON_EDITABLE_ON_DONE,
+    )
+    casilla_112 = fields.Float(
+        string="[112] Payment on account for petrol/diesel/biofuel deliveries",
+        help="Payment on account attributable to the State Administration for "
+        "deliveries of petrol, diesel and biofuels after completion of the "
+        "non-customs warehouse regime (Sum of box 36 of all forms 319 "
+        "corresponding to deliveries included in this self-assessment)",
+        states=NON_EDITABLE_ON_DONE,
+    )
+    deduct_payment_petrol_delivery = fields.Boolean(
+        string="Deduct payment on account for petrol deliveries",
+        default=False,
+        states=NON_EDITABLE_ON_DONE,
+    )
     casilla_111 = fields.Float(
         string="[111] Refund of improperly collected funds",
         help="I request that the amount that, if applicable, may be refunded "
@@ -400,12 +420,17 @@ class L10nEsAeatMod303Report(models.Model):
             )
 
     @api.multi
-    @api.depends('casilla_69', 'previous_result')
+    @api.depends(
+        "casilla_69", "previous_result", "casilla_109", "casilla_112"
+    )
     def _compute_resultado_liquidacion(self):
-        # TODO: Add field 109
         for report in self:
-            report.resultado_liquidacion = (
-                report.casilla_69 - report.previous_result)
+            report.resultado_liquidacion = report.currency_id.round(
+                report.casilla_69
+                - report.previous_result
+                + report.casilla_109
+                - report.casilla_112
+            )
 
     @api.depends('tax_line_ids', 'tax_line_ids.amount')
     def _compute_casilla_88(self):
