@@ -12,6 +12,7 @@
     "depends": ["l10n_es_vat_prorate", "l10n_es_aeat_mod303"],
     "data": [
         "data/2023/aeat.model.export.config.line.csv",
+        "data/2026/aeat.model.export.config.line.csv",
         "views/mod303_views.xml",
     ],
     "installable": True,
