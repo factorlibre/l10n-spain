@@ -133,23 +133,30 @@ class AccountInvoice(models.Model):
                             amount += taxes.get("amount", 0)
                         new_line_vals = line_values.copy()
 
-                        proportion = (
+                        proportion_debit = (
                             amount / line_values["debit"]
                             if line_values["debit"] else 0
                         )
-                        new_line_vals["debit"] = float_round(
-                            remaining_debit * proportion,
-                            precision_rounding=prec,
-                        )
-
-                        proportion = (
+                        proportion_credit = (
                             amount / line_values["credit"]
                             if line_values["credit"] else 0
                         )
-                        new_line_vals["credit"] = float_round(
-                            remaining_credit * proportion,
+                        nd_debit = float_round(
+                            remaining_debit * proportion_debit,
                             precision_rounding=prec,
                         )
+                        nd_credit = float_round(
+                            remaining_credit * proportion_credit,
+                            precision_rounding=prec,
+                        )
+                        # A negative base line yields a negative per-account
+                        # share of the non-deductible tax. Keep debit and credit
+                        # non-negative by moving a negative amount to the
+                        # opposite column (account_move_line credit_debit2
+                        # check: credit + debit >= 0).
+                        net = nd_debit - nd_credit
+                        new_line_vals["debit"] = net if net > 0 else 0.0
+                        new_line_vals["credit"] = -net if net < 0 else 0.0
 
                         new_line_vals.update(
                             {
