@@ -160,3 +160,60 @@ class TestVatProrate(common.SavepointCase):
         self.assertEqual(
             2, len(invoice.move_id.line_ids.filtered(lambda r: r.tax_line_id))
         )
+
+    def test_prorate_negative_base_line(self):
+        """A negative base line whose account only holds that negative line
+        produces a negative non-deductible share. It must land on the opposite
+        column instead of a negative debit/credit, so the move can be posted
+        (account_move_line credit_debit2 check: credit + debit >= 0)."""
+        self.tax_purchase_a.with_vat_prorate = True
+        invoice = self.env["account.invoice"].create(
+            {
+                "partner_id": self.partner.id,
+                "journal_id": self.journal_c1.id,
+                "account_id": self.account_type.id,
+                "type": "in_invoice",
+                "company_id": self.company.id,
+            }
+        )
+        # Positive line on one account.
+        self.env["account.invoice.line"].create(
+            {
+                "product_id": self.product.id,
+                "quantity": 1.0,
+                "price_unit": 90.0,
+                "invoice_id": invoice.id,
+                "name": "service",
+                "account_id": self.account.id,
+                "invoice_line_tax_ids": [(6, 0, [self.tax_purchase_a.id])],
+            }
+        )
+        # Negative correction line on a different account: its only movement
+        # for this tax is negative, so its non-deductible share is negative.
+        self.env["account.invoice.line"].create(
+            {
+                "product_id": self.product.id,
+                "quantity": -1.0,
+                "price_unit": 30.0,
+                "invoice_id": invoice.id,
+                "name": "correction",
+                "account_id": self.account2.id,
+                "invoice_line_tax_ids": [(6, 0, [self.tax_purchase_a.id])],
+            }
+        )
+        invoice._onchange_invoice_line_ids()
+        # Must not raise a CheckViolation on the negative prorate line.
+        invoice.action_invoice_open()
+        self.assertEqual("open", invoice.state)
+        # No move line may carry a negative debit or credit.
+        for move_line in invoice.move_id.line_ids:
+            self.assertGreaterEqual(move_line.debit, 0.0)
+            self.assertGreaterEqual(move_line.credit, 0.0)
+        # The negative line's non-deductible share is booked on the credit side.
+        negative_prorate = invoice.move_id.line_ids.filtered(
+            lambda r: r.vat_prorate and r.account_id == self.account2
+        )
+        self.assertTrue(negative_prorate)
+        self.assertTrue(
+            all(ml.credit > 0 and not ml.debit for ml in negative_prorate)
+        )
