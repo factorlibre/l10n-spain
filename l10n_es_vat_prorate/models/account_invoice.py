@@ -114,7 +114,16 @@ class AccountInvoice(models.Model):
                     )
                     remaining_debit = line_values["debit"] - total_debit_prorat
                     remaining_credit = line_values["credit"] - total_credit_prorat
-                    for line_account in lines_by_account.keys():
+                    # Each per-account non-deductible share is rounded on its
+                    # own, so the sum of rounded shares drifts from the total
+                    # by a few cents and unbalances the move. The last account
+                    # absorbs that residual so the split closes exactly (a
+                    # line's net contribution is debit - credit, and the shares
+                    # must add up to remaining_debit - remaining_credit).
+                    remaining_net = remaining_debit - remaining_credit
+                    accounts = list(lines_by_account.keys())
+                    assigned_net = 0.0
+                    for index, line_account in enumerate(accounts):
                         account_lines = lines_by_account[line_account]
                         amount = 0
                         for line in account_lines:
@@ -155,6 +164,14 @@ class AccountInvoice(models.Model):
                         # opposite column (account_move_line credit_debit2
                         # check: credit + debit >= 0).
                         net = nd_debit - nd_credit
+                        if index == len(accounts) - 1:
+                            # Last account absorbs the rounding residual so the
+                            # split adds up exactly and the move balances.
+                            net = float_round(
+                                remaining_net - assigned_net,
+                                precision_rounding=prec,
+                            )
+                        assigned_net += net
                         new_line_vals["debit"] = net if net > 0 else 0.0
                         new_line_vals["credit"] = -net if net < 0 else 0.0
 

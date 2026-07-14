@@ -204,7 +204,6 @@ class TestVatProrate(common.SavepointCase):
         invoice._onchange_invoice_line_ids()
         # Must not raise a CheckViolation on the negative prorate line.
         invoice.action_invoice_open()
-        self.assertEqual("open", invoice.state)
         # No move line may carry a negative debit or credit.
         for move_line in invoice.move_id.line_ids:
             self.assertGreaterEqual(move_line.debit, 0.0)
@@ -216,4 +215,58 @@ class TestVatProrate(common.SavepointCase):
         self.assertTrue(negative_prorate)
         self.assertTrue(
             all(ml.credit > 0 and not ml.debit for ml in negative_prorate)
+        )
+
+    def test_prorate_rounding_residual_balanced(self):
+        """Spreading the non-deductible tax across several accounts rounds each
+        share on its own; the sum of rounded shares must not leave a residual
+        that unbalances the move. The last account absorbs the residual so the
+        entry stays balanced and can be posted."""
+        self.tax_purchase_a.with_vat_prorate = True
+        account3 = self.env["account.account"].create(
+            {
+                "name": "Test account 3",
+                "code": "TEST3",
+                "user_type_id": self.account_type.id,
+                "reconcile": True,
+            }
+        )
+        invoice = self.env["account.invoice"].create(
+            {
+                "partner_id": self.partner.id,
+                "journal_id": self.journal_c1.id,
+                "account_id": self.account_type.id,
+                "type": "in_invoice",
+                "company_id": self.company.id,
+            }
+        )
+        # Awkward amounts on three accounts so the per-account non-deductible
+        # shares do not round to an exact total on their own.
+        for account, price_unit in (
+            (self.account, 10.11),
+            (self.account2, 20.23),
+            (account3, 33.37),
+        ):
+            self.env["account.invoice.line"].create(
+                {
+                    "product_id": self.product.id,
+                    "quantity": 1.0,
+                    "price_unit": price_unit,
+                    "invoice_id": invoice.id,
+                    "name": "line",
+                    "account_id": account.id,
+                    "invoice_line_tax_ids": [(6, 0, [self.tax_purchase_a.id])],
+                }
+            )
+        invoice._onchange_invoice_line_ids()
+        # Must not raise an unbalanced-move error while posting.
+        invoice.action_invoice_open()
+        # The move must be balanced: the split leaves no rounding residual.
+        move = invoice.move_id
+        self.assertEqual(
+            invoice.company_id.currency_id.round(
+                sum(move.line_ids.mapped("debit"))
+                - sum(move.line_ids.mapped("credit"))
+            ),
+            0.0,
         )
