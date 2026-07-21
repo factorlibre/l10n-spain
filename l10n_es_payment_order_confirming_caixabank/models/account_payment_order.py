@@ -162,6 +162,9 @@ class AccountPaymentOrder(models.Model):
             sign_text += amount_text[i]
         return sign_text
 
+    def _get_conf_caix_beneficiary_name(self, line):
+        return line.partner_id.name.upper()
+
     def _pop_beneficiarios_conf_caix(self, line):
         all_text = ''
         # 046 se quita la opcion 46 por ser opcional y estar probocando problemas
@@ -313,8 +316,9 @@ class AccountPaymentOrder(models.Model):
             ###################################################################
             if tipo_dato == '011':
                 # 30 - 65 Nombre del proveedor
-                nombre_pro = self.strim_txt(line.partner_id.name, 36)
-                text += nombre_pro.upper()
+                nombre_pro = self.strim_txt(
+                    self._get_conf_caix_beneficiary_name(line), 36)
+                text += nombre_pro
                 # 66 - 72 Libre
                 text += 7 * ' '
             ###################################################################
