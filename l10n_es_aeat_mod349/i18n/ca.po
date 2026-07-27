@@ -120,18 +120,6 @@ msgid "Aeat 349 Map Line"
 msgstr ""
 
 #. module: l10n_es_aeat_mod349
-#: code:addons/l10n_es_aeat_mod349/models/mod349.py:343
-#, python-format
-msgid "All partner records fields (country, VAT number) must be filled."
-msgstr ""
-
-#. module: l10n_es_aeat_mod349
-#: code:addons/l10n_es_aeat_mod349/models/mod349.py:348
-#, python-format
-msgid "All partner refunds fields (country, VAT number) must be filled."
-msgstr ""
-
-#. module: l10n_es_aeat_mod349
 #: model:ir.model.fields,field_description:l10n_es_aeat_mod349.field_l10n_es_aeat_mod349_partner_record_detail_amount_untaxed
 #: model:ir.model.fields,field_description:l10n_es_aeat_mod349.field_l10n_es_aeat_mod349_partner_refund_detail_amount_untaxed
 msgid "Amount untaxed"
@@ -635,3 +623,4 @@ msgstr ""
 #: model:ir.actions.act_window,name:l10n_es_aeat_mod349.action_aeat_349_mapping
 msgid "aeat 349 Map"
 msgstr ""
+

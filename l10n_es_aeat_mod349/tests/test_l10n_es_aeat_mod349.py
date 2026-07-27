@@ -3,6 +3,7 @@
 # License AGPL-3 - See https://www.gnu.org/licenses/agpl-3.0
 
 import logging
+from odoo import exceptions
 from odoo.addons.l10n_es_aeat.tests.test_l10n_es_aeat_mod_base import \
     TestL10nEsAeatModBase
 
@@ -206,3 +207,108 @@ class TestL10nEsAeatMod349Base(TestL10nEsAeatModBase):
             self.assertTrue(
                 export_to_boe._export_config(model349, export_config)
             )
+
+    def _create_349_report(self):
+        return self.env['l10n.es.aeat.mod349.report'].sudo(
+            self.account_manager).create({
+                'name': '3490000000002',
+                'company_id': self.company.id,
+                'company_vat': '1234567890',
+                'contact_name': 'Test owner',
+                'type': 'N',
+                'support_type': 'T',
+                'contact_phone': '911234455',
+                'year': 2017,
+                'period_type': '1T',
+                'date_start': '2017-01-01',
+                'date_end': '2017-03-31',
+            })
+
+    def _create_349_refund(self, report, move_line, origin_amount, amounts):
+        refund = self.env['l10n.es.aeat.mod349.partner_refund'].create({
+            'report_id': report.id,
+            'partner_id': self.customer.id,
+            'partner_vat': self.customer.vat,
+            'country_id': self.customer.country_id.id,
+            'operation_key': 'E',
+            'period_type': '1T',
+            'year': 2017,
+            'total_origin_amount': origin_amount,
+        })
+        for amount in amounts:
+            self.env['l10n.es.aeat.mod349.partner_refund_detail'].create({
+                'report_id': report.id,
+                'refund_id': refund.id,
+                'refund_line_id': move_line.id,
+                'amount_untaxed': amount,
+            })
+        return refund
+
+    def test_349_refund_rounding_residue(self):
+        """A fully rectified operation must not block the report.
+
+        Adding up the same decimal amounts in a different grouping leaves a
+        binary floating point residue. That residue is negative and shows up
+        as -0,00, and without rounding it fails the `>= 0.0` validity check,
+        blocking the confirmation of an otherwise correct report.
+        """
+        self.customer.write({
+            'vat': 'BE0411905847',
+            'country_id': self.env.ref('base.be').id,
+        })
+        invoice = self._invoice_sale_create('2017-01-02')
+        move_line = invoice.move_id.line_ids[0]
+        report = self._create_349_report()
+        # 489.10 * 3 == 1467.30 in decimal, but 1467.30 - (489.10 * 3) is
+        # -2.27e-13 in binary floating point.
+        residue_refund = self._create_349_refund(
+            report, move_line, 1467.30, [489.10, 489.10, 489.10])
+        self.assertEqual(residue_refund.total_operation_amount, 0.0)
+        self.assertTrue(residue_refund.partner_refund_ok)
+        self.assertFalse(residue_refund._get_invalid_reasons())
+        # Also pin what the user reads in the summary: the reported symptom was
+        # an amount rendered as -0,00, and no negative zero must reach it.
+        self.assertEqual(
+            '%.2f' % residue_refund.total_operation_amount, '0.00')
+        # A genuinely negative amount must still be caught and explained
+        negative_refund = self._create_349_refund(
+            report, move_line, 1000.0, [489.10, 489.10, 489.10])
+        self.assertAlmostEqual(
+            negative_refund.total_operation_amount, -467.30, places=2)
+        self.assertFalse(negative_refund.partner_refund_ok)
+        self.assertTrue(negative_refund._get_invalid_reasons())
+        report.partner_refund_ids = negative_refund
+        with self.assertRaises(exceptions.Warning):
+            report._check_report_lines()
+
+    def test_349_partner_record_invalid_reasons(self):
+        """A partner record explains why it is not valid, field by field"""
+        self.customer.write({
+            'vat': 'BE0411905847',
+            'country_id': self.env.ref('base.be').id,
+        })
+        invoice = self._invoice_sale_create('2017-01-02')
+        move_line = invoice.move_id.line_ids[0]
+        report = self._create_349_report()
+        record = self.env['l10n.es.aeat.mod349.partner_record'].create({
+            'report_id': report.id,
+            'partner_id': self.customer.id,
+            'partner_vat': self.customer.vat,
+            'country_id': self.customer.country_id.id,
+            'operation_key': 'E',
+        })
+        # Without details the total is zero, which is a reason on its own
+        self.assertFalse(record.partner_record_ok)
+        self.assertEqual(len(record._get_invalid_reasons()), 1)
+        self.env['l10n.es.aeat.mod349.partner_record_detail'].create({
+            'report_id': report.id,
+            'partner_record_id': record.id,
+            'move_line_id': move_line.id,
+            'amount_untaxed': 2400.0,
+        })
+        self.assertTrue(record.partner_record_ok)
+        self.assertFalse(record._get_invalid_reasons())
+        # Every missing field adds its own reason
+        record.write({'partner_vat': False, 'country_id': False})
+        self.assertFalse(record.partner_record_ok)
+        self.assertEqual(len(record._get_invalid_reasons()), 2)

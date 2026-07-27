@@ -13,7 +13,8 @@ import math
 import re
 from odoo import models, fields, api, exceptions, _
 from odoo.fields import first
-from odoo.tools import float_is_zero
+from odoo.tools import float_is_zero, float_round
+from odoo.tools.misc import formatLang
 
 
 class Mod349(models.Model):
@@ -266,6 +267,12 @@ class Mod349(models.Model):
             })
             key_vals['original_amount'] += origin_amount
             key_vals['refund_details'] += refund_details
+        # Rounding of the declaring company, not of the user's active one: a
+        # user filing for a subsidiary may have a different company active.
+        # Falls back to the active company, because a rounding of 0 would make
+        # float_round return 0.0 and silently wipe the amount.
+        company = self.company_id or self.env.user.company_id
+        rounding = company.currency_id.rounding
         for key, key_vals in data.items():
             partner, op_key, period_type, year = key
             partner_refund = obj.create({
@@ -274,7 +281,13 @@ class Mod349(models.Model):
                 'partner_vat': partner.vat,
                 'operation_key': op_key,
                 'country_id': partner.country_id.id,
-                'total_origin_amount': key_vals['original_amount'],
+                # Round here rather than at each of the three sources of
+                # origin_amount, so the accumulation above is covered too. An
+                # unrounded floating point residue would be negative and fail
+                # the `total_origin_amount >= 0.0` check in
+                # _compute_partner_refund_ok, blocking the report.
+                'total_origin_amount': float_round(
+                    key_vals['original_amount'], precision_rounding=rounding),
                 'period_type': period_type,
                 'year': year,
             })
@@ -348,14 +361,26 @@ class Mod349(models.Model):
         for item in self:
             for partner_record in item.partner_record_ids:
                 if not partner_record.partner_record_ok:
-                    raise exceptions.Warning(
-                        _("All partner records fields (country, VAT number) "
-                          "must be filled."))
+                    raise exceptions.Warning(_(
+                        "Invalid partner record for %s (operation key %s): "
+                        "%s."
+                    ) % (
+                        partner_record.partner_id.display_name,
+                        partner_record.operation_key or '-',
+                        "; ".join(partner_record._get_invalid_reasons()),
+                    ))
             for partner_record in item.partner_refund_ids:
                 if not partner_record.partner_refund_ok:
-                    raise exceptions.Warning(
-                        _("All partner refunds fields (country, VAT number) "
-                          "must be filled."))
+                    raise exceptions.Warning(_(
+                        "Invalid rectification for %s (operation key %s, "
+                        "period %s %s): %s."
+                    ) % (
+                        partner_record.partner_id.display_name,
+                        partner_record.operation_key or '-',
+                        partner_record.period_type or '-',
+                        partner_record.year or '-',
+                        "; ".join(partner_record._get_invalid_reasons()),
+                    ))
 
     @api.multi
     def _check_names(self):
@@ -432,6 +457,21 @@ class Mod349PartnerRecord(models.Model):
             record.total_operation_amount = sum(
                 record.mapped('record_detail_ids.amount_untaxed')
             )
+
+    @api.multi
+    def _get_invalid_reasons(self):
+        """Return the reasons why this record is not valid, so the user can
+        act on the right field instead of guessing.
+        """
+        self.ensure_one()
+        reasons = []
+        if not self.partner_vat:
+            reasons.append(_("the VAT number is missing"))
+        if not self.country_id:
+            reasons.append(_("the country is missing"))
+        if not self.total_operation_amount:
+            reasons.append(_("the total operation amount is zero"))
+        return reasons
 
 
 class Mod349PartnerRecordDetail(models.Model):
@@ -534,14 +574,45 @@ class Mod349PartnerRefund(models.Model):
                 record.total_origin_amount >= 0.0
             )
 
+    @api.multi
+    def _get_invalid_reasons(self):
+        """Return the reasons why this rectification is not valid, so the user
+        can act on the right field instead of guessing.
+        """
+        self.ensure_one()
+        reasons = []
+        if not self.partner_vat:
+            reasons.append(_("the VAT number is missing"))
+        if not self.country_id:
+            reasons.append(_("the country is missing"))
+        if self.total_operation_amount < 0.0:
+            reasons.append(_(
+                "the amount after rectification is negative (%s), which means "
+                "the rectified amount exceeds the one originally declared"
+            ) % formatLang(self.env, self.total_operation_amount))
+        if self.total_origin_amount < 0.0:
+            reasons.append(_(
+                "the original amount is negative (%s)"
+            ) % formatLang(self.env, self.total_origin_amount))
+        return reasons
+
     @api.depends('refund_detail_ids')
     def _compute_total_operation_amount(self):
         for record in self:
             rectified_amount = sum(
                 record.mapped('refund_detail_ids.amount_untaxed')
             )
-            record.total_operation_amount = (
-                record.total_origin_amount - rectified_amount
+            # Rounding of the declaring company, with the active one as a
+            # fallback: a rounding of 0 would make float_round return 0.0.
+            company = record.report_id.company_id or self.env.user.company_id
+            rounding = company.currency_id.rounding
+            # Round the subtraction: a fully rectified operation leaves a
+            # floating point residue (-9e-13, shown as -0,00) that is negative
+            # and would wrongly fail the `>= 0.0` check in
+            # _compute_partner_refund_ok, blocking the report confirmation.
+            record.total_operation_amount = float_round(
+                record.total_origin_amount - rectified_amount,
+                precision_rounding=rounding,
             )
 
 
