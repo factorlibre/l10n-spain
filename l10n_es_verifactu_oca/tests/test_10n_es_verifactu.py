@@ -138,6 +138,10 @@ class TestL10nEsAeatVerifactu(TestVerifactuCommon):
                     "fiscal_position_id": self.fp_nacional.id,
                     "verifactu_registration_key": self.fp_registration_key_01.id,
                     "verifactu_registration_date": "2026-01-01 19:20:30",
+                    # There is no linked original invoice, so the rectified
+                    # document is identified through these fields.
+                    "verifactu_original_document_number": "ORIGIN001",
+                    "verifactu_original_document_date": "2025-12-31",
                 },
             ),
             (
@@ -156,6 +160,26 @@ class TestL10nEsAeatVerifactu(TestVerifactuCommon):
                 name, inv_type, lines, extra_vals
             )
         return
+
+    def test_check_rectified_document(self):
+        """A rectification by differences must identify the rectified document,
+        either through the linked original invoice or through the manual fields.
+        """
+        # A regular invoice is not a rectification, so it is always valid
+        self.assertTrue(self.invoice._check_rectified_document())
+        refund = self._create_test_invoice(move_type="out_refund")
+        self.assertEqual(refund.verifactu_refund_type, "I")
+        # Neither the link nor the manual fields
+        self.assertFalse(refund._check_rectified_document())
+        # Only the number is not enough, the date is also mandatory
+        refund.verifactu_original_document_number = "ORIGIN001"
+        self.assertFalse(refund._check_rectified_document())
+        refund.verifactu_original_document_date = "2025-12-31"
+        self.assertTrue(refund._check_rectified_document())
+        # The linked original invoice is enough by itself
+        linked_refund = self._create_test_invoice(move_type="out_refund")
+        linked_refund.reversed_entry_id = self.invoice
+        self.assertTrue(linked_refund._check_rectified_document())
 
     def test_verifactu_start_date(self):
         self.company.verifactu_start_date = "2018-01-01"
