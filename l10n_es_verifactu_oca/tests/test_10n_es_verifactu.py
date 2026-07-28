@@ -551,6 +551,19 @@ class TestL10nEsAeatVerifactuQR(TestVerifactuCommon):
             self.assertTrue(
                 messages, "An error message should be posted to the invoice"
             )
+    def test_verifactu_macrodata_reported(self):
+        """Macrodato must be reported as "S" in the RegistroAlta when the total
+        is over the limit; otherwise AEAT rejects the record (error 1139).
+
+        The omission case (normal amount -> no Macrodato) is already covered by
+        the reference-JSON tests, whose fixtures contain no Macrodato key."""
+        self._activate_certificate(self.certificate_password)
+        self.invoice.invoice_line_ids.price_unit = 130000000
+        self.invoice.action_post()
+        self.assertEqual(
+            self.invoice._get_verifactu_invoice_dict()["RegistroAlta"].get("Macrodato"),
+            "S",
+        )
 
 
 class TestVerifactuSendResponse(TestVerifactuCommon):
