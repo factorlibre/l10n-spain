@@ -123,22 +123,6 @@ msgid "Aeat 349 Map Line"
 msgstr "Mapeo de Línea Aeat 349"
 
 #. module: l10n_es_aeat_mod349
-#: code:addons/l10n_es_aeat_mod349/models/mod349.py:343
-#, python-format
-msgid "All partner records fields (country, VAT number) must be filled."
-msgstr ""
-"Todos los campos de los registros de empresas (país, número NIF) deben estar "
-"rellenados."
-
-#. module: l10n_es_aeat_mod349
-#: code:addons/l10n_es_aeat_mod349/models/mod349.py:348
-#, python-format
-msgid "All partner refunds fields (country, VAT number) must be filled."
-msgstr ""
-"Todos los campos de las rectificaciones (país, número, NIF) deben estar "
-"rellenados."
-
-#. module: l10n_es_aeat_mod349
 #: model:ir.model.fields,field_description:l10n_es_aeat_mod349.field_l10n_es_aeat_mod349_partner_record_detail_amount_untaxed
 #: model:ir.model.fields,field_description:l10n_es_aeat_mod349.field_l10n_es_aeat_mod349_partner_refund_detail_amount_untaxed
 msgid "Amount untaxed"
@@ -299,6 +283,20 @@ msgstr "ID (identificación)"
 #: model:ir.ui.view,arch_db:l10n_es_aeat_mod349.view_l10n_ES_aeat_mod349_partner_refund_form
 msgid "Info"
 msgstr "Info"
+
+#. module: l10n_es_aeat_mod349
+#: code:addons/l10n_es_aeat_mod349/models/mod349.py:360
+#, python-format
+msgid "Invalid partner record for %s (operation key %s): %s."
+msgstr "Registro de empresa no válido para %s (clave de operación %s): %s."
+
+#. module: l10n_es_aeat_mod349
+#: code:addons/l10n_es_aeat_mod349/models/mod349.py:370
+#, python-format
+msgid ""
+"Invalid rectification for %s (operation key %s, period %s %s): %s."
+msgstr ""
+"Rectificación no válida para %s (clave de operación %s, periodo %s %s): %s."
 
 #. module: l10n_es_aeat_mod349
 #: model:ir.model,name:l10n_es_aeat_mod349.model_account_invoice
@@ -650,3 +648,40 @@ msgstr "Año"
 #: model:ir.actions.act_window,name:l10n_es_aeat_mod349.action_aeat_349_mapping
 msgid "aeat 349 Map"
 msgstr "Mapeo aeat 349"
+
+
+#. module: l10n_es_aeat_mod349
+#: code:addons/l10n_es_aeat_mod349/models/mod349.py:464
+#: code:addons/l10n_es_aeat_mod349/models/mod349.py:580
+#, python-format
+msgid "the VAT number is missing"
+msgstr "falta el número de NIF"
+
+#. module: l10n_es_aeat_mod349
+#: code:addons/l10n_es_aeat_mod349/models/mod349.py:585
+#, python-format
+msgid ""
+"the amount after rectification is negative (%s), which means the rectified "
+"amount exceeds the one originally declared"
+msgstr ""
+"el importe total tras rectificación es negativo (%s), lo que significa que el "
+"importe rectificado supera al declarado originalmente"
+
+#. module: l10n_es_aeat_mod349
+#: code:addons/l10n_es_aeat_mod349/models/mod349.py:466
+#: code:addons/l10n_es_aeat_mod349/models/mod349.py:582
+#, python-format
+msgid "the country is missing"
+msgstr "falta el país"
+
+#. module: l10n_es_aeat_mod349
+#: code:addons/l10n_es_aeat_mod349/models/mod349.py:590
+#, python-format
+msgid "the original amount is negative (%s)"
+msgstr "el importe original es negativo (%s)"
+
+#. module: l10n_es_aeat_mod349
+#: code:addons/l10n_es_aeat_mod349/models/mod349.py:468
+#, python-format
+msgid "the total operation amount is zero"
+msgstr "el importe total de la operación es cero"
