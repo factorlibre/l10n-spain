@@ -131,7 +131,8 @@ class L10nEsAeatMod369Report(models.Model):
 
     @api.model
     def _get_period_from_date(self, date, monthly=False):
-        month = date.month
+        # Date fields are read as strings, not as date objects.
+        month = fields.Date.from_string(date).month
         if not monthly:
             if month in [1, 2, 3]:
                 return "T1"
@@ -210,7 +211,9 @@ class L10nEsAeatMod369Report(models.Model):
             tax_data = oss_taxes_map.get(map_line.field_number, {})
             if tax_data:
                 tax = tax_data.get("tax", self.env["account.tax"])
-                country = tax.country_id
+                # account.tax has no country of its own: the declaring
+                # country is the company's.
+                country = tax.company_id.country_id
                 oss_country = tax.oss_country_id
                 name = "Régimen Unión - OSS {} - {} {}%".format(
                     country.name,
@@ -262,9 +265,10 @@ class L10nEsAeatMod369Report(models.Model):
             for line in tax_lines.filtered(lambda tl: len(tl.move_line_ids) > 0):
                 mod369_line = line.mod369_line_id
                 ref_move_lines = line.move_line_ids.filtered(
-                    lambda ml: ml.move_type == "out_refund"
-                    and ml.move_id.reversed_entry_id
-                    and ml.move_id.reversed_entry_id.invoice_date < report.date_start
+                    lambda ml: ml.invoice_id.type == "out_refund"
+                    and ml.invoice_id.refund_invoice_id
+                    and ml.invoice_id.refund_invoice_id.date_invoice
+                    < report.date_start
                 )
                 move_lines = line.move_line_ids - ref_move_lines
                 country = mod369_line.country_id
@@ -311,10 +315,13 @@ class L10nEsAeatMod369Report(models.Model):
                     (4, mod369_line.id)
                 ]
                 for mline in ref_move_lines:
-                    orig_move = mline.move_id.reversed_entry_id
-                    refund_fiscal_year = orig_move.date.year
+                    orig_invoice = mline.invoice_id.refund_invoice_id
+                    # The accounting date may be empty, in which case the
+                    # invoice date applies, as the account core does.
+                    orig_date = orig_invoice.date or orig_invoice.date_invoice
+                    refund_fiscal_year = fields.Date.from_string(orig_date).year
                     monthly = report.period_type not in ["1T", "2T", "3T", "4T"]
-                    refund_period = self._get_period_from_date(orig_move.date, monthly)
+                    refund_period = self._get_period_from_date(orig_date, monthly)
                     key = "{}{}{}".format(
                         oss_country.id,
                         refund_fiscal_year,
@@ -345,11 +352,22 @@ class L10nEsAeatMod369Report(models.Model):
             groups._compute_totals()
         return res
 
+    def _get_company_account(self, template_name):
+        """Resolve a chart-template account for this company.
+
+        The per-company account is registered under the xmlid
+        <module>.<company_id>_<template_name>
+        (account/models/chart_template.py:363-367).
+        """
+        self.ensure_one()
+        return self.env.ref(
+            "l10n_es.%s_%s" % (self.company_id.id, template_name)
+        )
+
     def _prepare_regularization_extra_move_lines(self):
         lines = super()._prepare_regularization_extra_move_lines()
         if self.total_amount > 0:
-            account_template = self.env.ref("l10n_es.account_common_4750")
-            account_4750 = self.company_id.get_account_from_template(account_template)
+            account_4750 = self._get_company_account("account_common_4750")
             lines.append(
                 {
                     "name": account_4750.name,
@@ -359,8 +377,7 @@ class L10nEsAeatMod369Report(models.Model):
                 }
             )
         elif self.total_amount < 0:
-            account_template = self.env.ref("l10n_es.account_common_4700")
-            account_4700 = self.company_id.get_account_from_template(account_template)
+            account_4700 = self._get_company_account("account_common_4700")
             lines.append(
                 {
                     "name": account_4700.name,

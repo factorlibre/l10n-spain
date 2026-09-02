@@ -31,9 +31,10 @@ class L10nEsAeatMod369LineGrouped(models.Model):
             report = group.report_id
             for line in group.mod369_line_ids:
                 ref_move_lines = line.tax_line_id.move_line_ids.filtered(
-                    lambda ml: ml.move_type == "out_refund"
-                    and ml.move_id.reversed_entry_id
-                    and ml.move_id.reversed_entry_id.invoice_date < report.date_start
+                    lambda ml: ml.invoice_id.type == "out_refund"
+                    and ml.invoice_id.refund_invoice_id
+                    and ml.invoice_id.refund_invoice_id.date_invoice
+                    < report.date_start
                 )
                 move_lines = line.tax_line_id.move_line_ids - ref_move_lines
                 amount = sum(move_lines.mapped("credit"))
@@ -166,10 +167,14 @@ class L10nEsAeatMod369LineGrouped(models.Model):
 
     @api.depends("oss_country_id", "oss_country_id.code")
     def _compute_country_code(self):
+        # The l10n_es_aeat helper (_map_aeat_country_code) maps AEAT -> ISO,
+        # the opposite direction to the one needed here, so the ISO -> AEAT
+        # mapping is applied locally. It only differs for Greece, which AEAT
+        # codes as EL.
+        iso_to_aeat = {"GR": "EL"}
         for line in self:
-            line.country_code = self.env["res.partner"]._map_aeat_country_iso_code(
-                line.oss_country_id
-            )
+            code = line.oss_country_id.code
+            line.country_code = iso_to_aeat.get(code, code)
 
     def get_calculated_move_lines(self):
         res = self.env.ref("account.action_account_moves_all_a").sudo().read()[0]
@@ -177,9 +182,10 @@ class L10nEsAeatMod369LineGrouped(models.Model):
         res["views"] = [(view.id, "tree")]
         move_lines = self.mapped("mod369_line_ids.tax_line_id.move_line_ids")
         ref_move_lines = move_lines.filtered(
-            lambda ml: ml.move_type == "out_refund"
-            and ml.move_id.reversed_entry_id
-            and ml.move_id.reversed_entry_id.invoice_date < self.report_id.date_start
+            lambda ml: ml.invoice_id.type == "out_refund"
+            and ml.invoice_id.refund_invoice_id
+            and ml.invoice_id.refund_invoice_id.date_invoice
+            < self.report_id.date_start
         )
         res["domain"] = [("id", "in", (move_lines - ref_move_lines).ids)]
         return res
