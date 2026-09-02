@@ -3,12 +3,12 @@
 
 {
     "name": "AEAT modelo 369",
-    "version": "16.0.1.1.2",
+    "version": "11.0.1.0.0",
     "category": "Accounting",
     "author": "Studio73, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/l10n-spain",
     "license": "AGPL-3",
-    "depends": ["l10n_es_aeat", "l10n_eu_oss_oca"],
+    "depends": ["l10n_es_aeat", "l10n_eu_oss"],
     "data": [
         "data/tax_code_map_mod369_data.xml",
         "data/2022/aeat.model.export.config.csv",
