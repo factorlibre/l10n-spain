@@ -7,6 +7,14 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 
+# Which page total a quota feeds, by whether the supply leaves Spain and by
+# service type. A type outside this map feeds no page, as before.
+PAGE_TOTAL_BY_TYPE = {
+    False: {"services": "page_3_total", "goods": "page_4_total"},
+    True: {"services": "page_5_total", "goods": "page_6_total"},
+}
+
+
 class L10nEsAeatMod369Report(models.Model):
     _inherit = "l10n.es.aeat.report.tax.mapping"
     _name = "l10n.es.aeat.mod369.report"
@@ -234,6 +242,35 @@ class L10nEsAeatMod369Report(models.Model):
             vals = dict(**vals, **new_vals)
         return vals
 
+    def _close_page_8_totals(self, country_groups, refund_corrections):
+        """Fill in the page 8 totals that need the whole period summed up.
+
+        Runs once the loop over the tax lines is over, because the
+        corrections of a country are only complete by then.
+        """
+        for group_vals in country_groups.values():
+            if not group_vals.get("is_page_8_line"):
+                continue
+            group_vals["page_3_4_total"] = group_vals.get(
+                "page_3_total", 0.0
+            ) + group_vals.get("page_4_total", 0.0)
+            group_vals["page_5_6_total"] = group_vals.get(
+                "page_5_total", 0.0
+            ) + group_vals.get("page_6_total", 0.0)
+            group_vals["neg_corrections"] = refund_corrections.get(
+                group_vals["oss_country_id"], 0.0
+            )
+            result_total = (
+                group_vals.get("amount", 0.0)
+                + group_vals.get("pos_corrections", 0.0)
+                + group_vals["neg_corrections"]
+            )
+            group_vals["result_total"] = result_total
+            if result_total > 0:
+                group_vals["total_deposit"] = result_total
+            else:
+                group_vals["total_return"] = abs(result_total)
+
     def calculate(self):
         self.mapped("tax_line_ids.mod369_line_id").unlink()
         self.mapped("spain_goods_line_ids").unlink()
@@ -261,6 +298,7 @@ class L10nEsAeatMod369Report(models.Model):
                 "services": {"ES": 1, "OUT-ES": 1},
             }
             country_groups = {}
+            refund_corrections = {}
             tax_lines = report.mapped("tax_line_ids")
             for line in tax_lines.filtered(lambda tl: len(tl.move_line_ids) > 0):
                 mod369_line = line.mod369_line_id
@@ -271,6 +309,12 @@ class L10nEsAeatMod369Report(models.Model):
                     < report.date_start
                 )
                 move_lines = line.move_line_ids - ref_move_lines
+                # The totals are stored fields, so they are added up here,
+                # while these move lines are already at hand, instead of
+                # walking them again on every read of the report.
+                field_type = line.map_line_id.field_type
+                line_amount = sum(move_lines.mapped("credit"))
+                line_amount -= sum(move_lines.mapped("debit"))
                 country = mod369_line.country_id
                 oss_country = mod369_line.oss_country_id
                 tax = mod369_line.oss_tax_id
@@ -297,7 +341,9 @@ class L10nEsAeatMod369Report(models.Model):
                             "report_id": report.id,
                         },
                     )
-                    country_groups[key]["mod369_line_ids"] += [(4, mod369_line.id)]
+                    group = country_groups[key]
+                    group["mod369_line_ids"] += [(4, mod369_line.id)]
+                    group[field_type] = group.get(field_type, 0.0) + line_amount
                 # page 8
                 country_groups.setdefault(
                     oss_country.id,
@@ -311,9 +357,17 @@ class L10nEsAeatMod369Report(models.Model):
                         "is_page_8_line": True,
                     },
                 )
-                country_groups[oss_country.id]["mod369_line_ids"] += [
-                    (4, mod369_line.id)
-                ]
+                page_8_group = country_groups[oss_country.id]
+                page_8_group["mod369_line_ids"] += [(4, mod369_line.id)]
+                page_8_group[field_type] = (
+                    page_8_group.get(field_type, 0.0) + line_amount
+                )
+                if field_type == "amount":
+                    page_key = PAGE_TOTAL_BY_TYPE[outside_spain].get(tax.service_type)
+                    if page_key:
+                        page_8_group[page_key] = (
+                            page_8_group.get(page_key, 0.0) + line_amount
+                        )
                 for mline in ref_move_lines:
                     orig_invoice = mline.invoice_id.refund_invoice_id
                     # The accounting date may be empty, in which case the
@@ -344,12 +398,15 @@ class L10nEsAeatMod369Report(models.Model):
                     )
                     if line.map_line_id.field_type == "amount":
                         country_groups[key]["tax_correction"] -= mline.debit
+                        refund_corrections[oss_country.id] = (
+                            refund_corrections.get(oss_country.id, 0.0) - mline.debit
+                        )
                     country_groups[key]["refund_line_ids"] += [(4, mline.id)]
 
-            groups = self.env["l10n.es.aeat.mod369.line.grouped"].create(
+            self._close_page_8_totals(country_groups, refund_corrections)
+            self.env["l10n.es.aeat.mod369.line.grouped"].create(
                 list(country_groups.values())
             )
-            groups._compute_totals()
         return res
 
     def _get_company_account(self, template_name):

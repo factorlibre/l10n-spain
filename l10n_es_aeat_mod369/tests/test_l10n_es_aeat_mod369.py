@@ -2,6 +2,7 @@
 # Copyright 2022 Tecnativa - Víctor Martínez
 # License AGPL-3 - See https://www.gnu.org/licenses/agpl-3.0
 import logging
+import re
 
 from odoo.exceptions import UserError
 
@@ -326,3 +327,179 @@ class TestL10nEsAeatMod369Base(TestL10nEsAeatModBase):
                 "mod369_line_ids.tax_line_id.move_line_ids"
             ),
         )
+
+    def _boe_blocks(self, contents, strip=True):
+        """Return the BOE blocks as {tag: payload}, padding optional."""
+        return {
+            match.group(1).decode(): (
+                match.group(2).strip() if strip else match.group(2)
+            )
+            for match in re.finditer(
+                br"<T(369\d\d)>(.*?)</T\1>", contents, re.DOTALL
+            )
+        }
+
+    def _export_boe(self):
+        wizard = self.env["l10n.es.aeat.report.export_to_boe"].create({})
+        return wizard.action_get_file_from_config(self.model369)
+
+    def test_10_export_file_equivalence(self):
+        """Every figure of the BOE file, and the width of every block, is
+        pinned.
+
+        The expected bytes were captured by running this same fixture
+        against the implementation this branch replaces, and checked to
+        still hold afterwards. That check is not reproducible from the
+        tree, so read these literals as a recorded baseline, not as proof
+        on their own.
+        """
+        self.model369.button_calculate()
+        contents = self._export_boe()
+        self.assertEqual(
+            self._boe_blocks(contents),
+            {
+                "36900": b"",
+                # Declared quota: 44.00 = 20.00 + 5.00 + 19.00.
+                "36904": b"MOSS DI                      00000000000004400 "
+                b"ES123456789      SPANISH TEST COMPANY"
+                + b" " * 105
+                + b"2017T01                0",
+                # Base and quota per country and rate: FR 20%, FR 10%, DE 19%.
+                "36905": b"FR02000 0000000000001000000000000000002000"
+                b"FR01000 0000000000000500000000000000000500"
+                b"DE01900 0000000000001000000000000000001900",
+                "36906": b"",
+                "36907": b"",
+                "36908": b"",
+                "36909": b"",
+            },
+        )
+        # Each field is padded to its declared `size` (`_format_string`),
+        # so a width change in a field that comes out blank leaves the
+        # payloads above untouched. Five of these blocks are blank here.
+        self.assertEqual(
+            {
+                tag: len(payload)
+                for tag, payload in self._boe_blocks(
+                    contents, strip=False
+                ).items()
+            },
+            {
+                "36900": 93,
+                "36904": 1406,
+                "36905": 1194,
+                "36906": 1670,
+                "36907": 1670,
+                "36908": 746,
+                "36909": 5786,
+            },
+        )
+
+    def test_11_totals_are_frozen_snapshot(self):
+        """The totals keep what `calculate()` put in them.
+
+        They no longer follow their source lines on every read, which is
+        what made the form walk the whole period again each time it was
+        opened. Refreshing them is now an explicit recalculation.
+        """
+        self.model369.button_calculate()
+        page_8 = self.model369.total_line_ids[0]
+        base, amount = page_8.base, page_8.amount
+        self.assertTrue(amount, "the fixture must produce a quota to freeze")
+
+        # Detach the lines the totals were built from: a recomputation on
+        # read would drop them to zero.
+        page_8.write({"mod369_line_ids": [(5, 0, 0)]})
+        page_8.invalidate_cache()
+
+        self.assertEqual(page_8.base, base)
+        self.assertEqual(page_8.amount, amount)
+
+    def test_12_page_8_gathers_previous_period_corrections(self):
+        """The page 8 total of a country carries the corrections of the
+        page 7 groups of that same country.
+
+        `calculate()` sums the corrections as it walks the tax lines, so
+        this pins the figure the AEAT is told to refund.
+        """
+        fpo = self._get_oss_fiscal_position(self.oss_countries["FR"])
+        origin = self._invoice_sale_create(
+            "2016-11-15",
+            {
+                "fiscal_position_id": fpo.id,
+                "invoice_line_ids": [self._oss_line(self.oss_taxes["FR"][0])],
+            },
+        )
+        self._invoice_refund(origin, "2017-02-10")
+
+        self.model369.button_calculate()
+
+        france = self.oss_countries["FR"]
+        page_8 = self.model369.total_line_ids.filtered(
+            lambda group: group.oss_country_id == france
+        )
+        self.assertEqual(len(page_8), 1)
+        corrections = sum(
+            self.model369.refund_line_ids.filtered(
+                lambda group: group.oss_country_id == france
+            ).mapped("tax_correction")
+        )
+        self.assertTrue(corrections < 0, "The correction must subtract")
+        self.assertEqual(page_8.neg_corrections, corrections)
+        self.assertEqual(page_8.result_total, page_8.amount + corrections)
+        # A country of another report keeps its own corrections.
+        germany_page_8 = self.model369.total_line_ids.filtered(
+            lambda group: group.oss_country_id == self.oss_countries["DE"]
+        )
+        self.assertEqual(len(germany_page_8), 1)
+        self.assertEqual(germany_page_8.neg_corrections, 0)
+        # Germany only sells goods here, so its quota lands on the goods page
+        # and not on the services one.
+        self.assertEqual(germany_page_8.page_4_total, germany_page_8.amount)
+        self.assertEqual(germany_page_8.page_3_total, 0)
+        self.assertEqual(
+            germany_page_8.page_3_4_total, germany_page_8.page_4_total
+        )
+        # Supplies from Spain never feed the non-Spanish pages.
+        self.assertEqual(germany_page_8.page_5_total, 0)
+        self.assertEqual(germany_page_8.page_6_total, 0)
+        self.assertEqual(germany_page_8.page_5_6_total, 0)
+        # The quota of the period outweighs the correction, so the country
+        # still has an amount to pay.
+        self.assertTrue(page_8.result_total > 0)
+        self.assertEqual(page_8.total_deposit, page_8.result_total)
+        self.assertEqual(page_8.total_return, 0)
+
+    def test_13_breakdown_leaves_out_previous_period_corrections(self):
+        """The magnifying glass of a grouped line lists the journal items
+        behind it, without the ones reported as corrections on page 7.
+
+        Its criterion now reads what `calculate()` stored instead of
+        working it out again, so it is worth pinning that both agree.
+        """
+        fpo = self._get_oss_fiscal_position(self.oss_countries["FR"])
+        origin = self._invoice_sale_create(
+            "2016-11-15",
+            {
+                "fiscal_position_id": fpo.id,
+                "invoice_line_ids": [self._oss_line(self.oss_taxes["FR"][0])],
+            },
+        )
+        self._invoice_refund(origin, "2017-02-10")
+
+        self.model369.button_calculate()
+
+        corrections = self.model369.refund_line_ids.mapped("refund_line_ids")
+        self.assertTrue(corrections, "the fixture must produce a correction")
+        france = self.oss_countries["FR"]
+        page_8 = self.model369.total_line_ids.filtered(
+            lambda group: group.oss_country_id == france
+        )
+        source = page_8.mapped("mod369_line_ids.tax_line_id.move_line_ids")
+        self.assertTrue(
+            set(corrections.ids) & set(source.ids),
+            "the corrections must be among the lines the group is built from",
+        )
+        listed = page_8.get_calculated_move_lines()["domain"][0][2]
+        self.assertTrue(listed)
+        self.assertFalse(set(corrections.ids) & set(listed))
