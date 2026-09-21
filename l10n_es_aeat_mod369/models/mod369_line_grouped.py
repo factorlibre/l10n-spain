@@ -103,13 +103,11 @@ class L10nEsAeatMod369LineGrouped(models.Model):
         view = self.env.ref("l10n_es_aeat.view_move_line_tree")
         res["views"] = [(view.id, "tree")]
         move_lines = self.mapped("mod369_line_ids.tax_line_id.move_line_ids")
-        ref_move_lines = move_lines.filtered(
-            lambda ml: ml.invoice_id.type == "out_refund"
-            and ml.invoice_id.refund_invoice_id
-            and ml.invoice_id.refund_invoice_id.date_invoice
-            < self.report_id.date_start
-        )
-        res["domain"] = [("id", "in", (move_lines - ref_move_lines).ids)]
+        # The corrections of earlier periods are the ones `calculate()` already
+        # set aside on page 7. Subtracting them keeps the rule in one place and
+        # spares walking every journal item of the period to tell them apart.
+        corrections = self.mapped("report_id.refund_line_ids.refund_line_ids")
+        res["domain"] = [("id", "in", (move_lines - corrections).ids)]
         return res
 
     def get_calculated_refund_move_lines(self):

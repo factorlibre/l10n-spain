@@ -503,3 +503,30 @@ class TestL10nEsAeatMod369Base(TestL10nEsAeatModBase):
         listed = page_8.get_calculated_move_lines()["domain"][0][2]
         self.assertTrue(listed)
         self.assertFalse(set(corrections.ids) & set(listed))
+
+    def test_14_origin_without_date_is_not_a_previous_period_correction(self):
+        """A credit note whose original invoice carries no date stays in the
+        period as a supply.
+
+        Nothing places that invoice in an earlier period, and page 7 derives
+        the year and the period from that same date, so it could not be
+        reported there either.
+        """
+        fpo = self._get_oss_fiscal_position(self.oss_countries["FR"])
+        origin = self._invoice_sale_create(
+            "2016-11-15",
+            {
+                "fiscal_position_id": fpo.id,
+                "invoice_line_ids": [self._oss_line(self.oss_taxes["FR"][0])],
+            },
+        )
+        refund = self._invoice_refund(origin, "2017-02-10")
+        origin.write({"date_invoice": False})
+        self.assertEqual(refund.refund_invoice_id, origin)
+
+        self.model369.button_calculate()
+
+        self.assertFalse(
+            self.model369.refund_line_ids,
+            "an undated origin must not produce a page 7 correction",
+        )

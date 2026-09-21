@@ -242,6 +242,60 @@ class L10nEsAeatMod369Report(models.Model):
             vals = dict(**vals, **new_vals)
         return vals
 
+    def _old_period_refund_line_ids(self, report):
+        """Journal items of the period whose credit note corrects an
+        invoice older than the period.
+
+        Resolved in one query on purpose. Asking the ORM for
+        `invoice_id.refund_invoice_id.date_invoice` makes it list every
+        invoice older than the period first, and feed that whole history
+        back as an `IN (...)` — once per tax line.
+        """
+        # Same scope as the base domain, which uses `child_of`.
+        companies = self.env["res.company"].search(
+            [("id", "child_of", report.company_id.id)]
+        )
+        if not companies:
+            return set()
+        self.env.cr.execute(
+            """
+            SELECT aml.id
+            FROM account_move_line aml
+            JOIN account_invoice ai ON ai.id = aml.invoice_id
+            JOIN account_invoice origin ON origin.id = ai.refund_invoice_id
+            WHERE aml.date >= %s
+              AND aml.date <= %s
+              AND aml.company_id IN %s
+              AND ai.type = 'out_refund'
+              -- Same field the previous implementation compared, so the
+              -- set of credit notes does not change: an origin with no
+              -- date_invoice stays out and the credit note is reported as
+              -- a supply of this period. Page 7 dates the correction with
+              -- `date or date_invoice`, so the two can disagree; that
+              -- predates this change.
+              AND COALESCE(origin.date_invoice, %s) < %s
+            """,
+            (
+                report.date_start,
+                report.date_end,
+                tuple(companies.ids),
+                report.date_end,
+                report.date_start,
+            ),
+        )
+        return {row[0] for row in self.env.cr.fetchall()}
+
+    def _sum_move_lines(self, move_line_ids):
+        """Balance of the given journal items, summed by the database."""
+        if not move_line_ids:
+            return 0.0
+        groups = self.env["account.move.line"].read_group(
+            [("id", "in", move_line_ids)], ["credit", "debit"], []
+        )
+        if not groups:
+            return 0.0
+        return (groups[0]["credit"] or 0.0) - (groups[0]["debit"] or 0.0)
+
     def _close_page_8_totals(self, country_groups, refund_corrections):
         """Fill in the page 8 totals that need the whole period summed up.
 
@@ -299,22 +353,33 @@ class L10nEsAeatMod369Report(models.Model):
             }
             country_groups = {}
             refund_corrections = {}
+            move_line_model = self.env["account.move.line"]
+            old_period_refund_ids = self._old_period_refund_line_ids(report)
             tax_lines = report.mapped("tax_line_ids")
             for line in tax_lines.filtered(lambda tl: len(tl.move_line_ids) > 0):
                 mod369_line = line.mod369_line_id
-                ref_move_lines = line.move_line_ids.filtered(
-                    lambda ml: ml.invoice_id.type == "out_refund"
-                    and ml.invoice_id.refund_invoice_id
-                    and ml.invoice_id.refund_invoice_id.date_invoice
-                    < report.date_start
+                # Credit notes of an earlier period are reported as
+                # corrections on page 7, not as supplies of this one. The
+                # set was resolved once for the whole report, so picking
+                # them out here costs no query.
+                ref_move_lines = move_line_model.browse(
+                    [
+                        move_line_id
+                        for move_line_id in line.move_line_ids.ids
+                        if move_line_id in old_period_refund_ids
+                    ]
                 )
-                move_lines = line.move_line_ids - ref_move_lines
-                # The totals are stored fields, so they are added up here,
-                # while these move lines are already at hand, instead of
-                # walking them again on every read of the report.
+                move_line_count = len(line.move_line_ids) - len(ref_move_lines)
+                # The totals are stored fields, so they are added up here.
+                # `line.amount` already holds this line's credit - debit,
+                # written by the base module a moment ago, so only the credit
+                # notes left out of the period need summing. Every map line of
+                # the 369 sums both sides and none is inverted, which is what
+                # makes that value the one wanted here.
                 field_type = line.map_line_id.field_type
-                line_amount = sum(move_lines.mapped("credit"))
-                line_amount -= sum(move_lines.mapped("debit"))
+                line_amount = line.amount - self._sum_move_lines(
+                    ref_move_lines.ids
+                )
                 country = mod369_line.country_id
                 oss_country = mod369_line.oss_country_id
                 tax = mod369_line.oss_tax_id
@@ -322,7 +387,7 @@ class L10nEsAeatMod369Report(models.Model):
                 key_country = "OUT-ES" if outside_spain else "ES"
                 mod369_line.oss_sequence = lines_index[tax.service_type][key_country]
                 lines_index[tax.service_type][key_country] += 1
-                if len(move_lines) > 0:
+                if move_line_count > 0:
                     # page 3, 4, 5 or 6
                     key = "{}{}{}{}".format(
                         oss_country.id,
