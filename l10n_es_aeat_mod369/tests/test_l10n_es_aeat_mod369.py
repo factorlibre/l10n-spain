@@ -530,3 +530,47 @@ class TestL10nEsAeatMod369Base(TestL10nEsAeatModBase):
             self.model369.refund_line_ids,
             "an undated origin must not produce a page 7 correction",
         )
+
+    def test_15_exchange_refund_corrects_with_the_net_of_both_quotas(self):
+        """A credit note that exchanges goods corrects the period by the
+        balance of its quotas, not by the returned one alone.
+        """
+        fpo = self._get_oss_fiscal_position(self.oss_countries["FR"])
+        origin = self._invoice_sale_create(
+            "2016-11-15",
+            {
+                "fiscal_position_id": fpo.id,
+                "invoice_line_ids": [
+                    # 20% of 43.10 and 10% of -10.10: quotas of 8.62 and
+                    # -1.01, whose balance is not exact in binary.
+                    self._oss_line(self.oss_taxes["FR"][0], price_unit=43.10),
+                    self._oss_line(self.oss_taxes["FR"][1], price_unit=-10.10),
+                ],
+            },
+        )
+        refund = self._invoice_refund(origin, "2017-02-10")
+        quota_lines = refund.move_id.line_ids.filtered(lambda ml: ml.tax_line_id)
+        self.assertAlmostEqual(sum(quota_lines.mapped("debit")), 8.62, places=2)
+        self.assertAlmostEqual(sum(quota_lines.mapped("credit")), 1.01, places=2)
+
+        self.model369.button_calculate()
+
+        france = self.oss_countries["FR"]
+        corrections = self.model369.refund_line_ids.filtered(
+            lambda group: group.oss_country_id == france
+        )
+        self.assertEqual(len(corrections), 1)
+        self.assertEqual(corrections.tax_correction, -7.61)
+        # The file field is positional, so the sign and the padding are as
+        # much part of it as the figure.
+        self.assertEqual(
+            corrections.tax_correction_str, "-0000000000000761"
+        )
+
+        # Page 8 gathers the same figure, and is fed by its own accumulator.
+        page_8 = self.model369.total_line_ids.filtered(
+            lambda group: group.oss_country_id == france
+        )
+        self.assertEqual(len(page_8), 1)
+        self.assertEqual(page_8.neg_corrections, -7.61)
+        self.assertEqual(page_8.result_total, page_8.amount - 7.61)
