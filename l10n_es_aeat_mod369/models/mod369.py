@@ -354,6 +354,7 @@ class L10nEsAeatMod369Report(models.Model):
             country_groups = {}
             refund_corrections = {}
             move_line_model = self.env["account.move.line"]
+            currency = report.company_id.currency_id
             old_period_refund_ids = self._old_period_refund_line_ids(report)
             tax_lines = report.mapped("tax_line_ids")
             for line in tax_lines.filtered(lambda tl: len(tl.move_line_ids) > 0):
@@ -462,9 +463,16 @@ class L10nEsAeatMod369Report(models.Model):
                         },
                     )
                     if line.map_line_id.field_type == "amount":
-                        country_groups[key]["tax_correction"] -= mline.debit
-                        refund_corrections[oss_country.id] = (
-                            refund_corrections.get(oss_country.id, 0.0) - mline.debit
+                        # An exchange carries quotas on both sides of the
+                        # entry; only their balance corrects the period. The
+                        # balance is rounded because the file is written by
+                        # splitting the stored value, not by formatting it.
+                        quota = mline.credit - mline.debit
+                        country_groups[key]["tax_correction"] = currency.round(
+                            country_groups[key]["tax_correction"] + quota
+                        )
+                        refund_corrections[oss_country.id] = currency.round(
+                            refund_corrections.get(oss_country.id, 0.0) + quota
                         )
                     country_groups[key]["refund_line_ids"] += [(4, mline.id)]
 
