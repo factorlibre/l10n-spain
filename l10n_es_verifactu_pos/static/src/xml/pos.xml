@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-extend="PosTicket">
+        <t t-jquery=".pos-sale-ticket" t-operation="prepend">
+            <t t-if="receipt.verifactu_qr and !is_gift">
+                <div class="verifactu-qr" style="text-align:center">
+                    <img t-att-src="receipt.verifactu_qr" style="width:35mm;height:35mm;image-rendering:pixelated"/><br/>
+                    <span>VERI*FACTU</span>
+                </div>
+            </t>
+        </t>
+    </t>
+
+    <t t-extend="XmlReceipt">
+        <t t-jquery="receipt" t-operation="prepend">
+            <t t-if="receipt.verifactu_qr">
+                <div align="center">
+                    <img t-att-src="receipt.verifactu_qr"/>
+                    <br/>
+                    VERI*FACTU
+                    <br/>
+                    <br/>
+                </div>
+            </t>
+        </t>
+    </t>
+
+</templates>

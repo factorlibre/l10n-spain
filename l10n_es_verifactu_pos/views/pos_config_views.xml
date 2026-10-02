@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="pos_config_view_form_verifactu" model="ir.ui.view">
+        <field name="name">pos.config.form.verifactu</field>
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="l10n_es_pos.view_pos_config_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='l10n_es_pos_simp_seq']" position="after">
+                <div class="col-xs-12 col-md-6 o_setting_box" id="verifactu">
+                    <div class="o_setting_left_pane">
+                        <field name="verifactu_enabled"/>
+                    </div>
+                    <div class="o_setting_right_pane">
+                        <label for="verifactu_enabled"/>
+                        <div class="text-muted">
+                            Print the AEAT VERI*FACTU QR code at the top of the tickets of this POS
+                        </div>
+                        <div class="content-group mt16" attrs="{'invisible': [('verifactu_enabled', '=', False)]}">
+                            <field name="verifactu_base_url" class="oe_inline"/>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
