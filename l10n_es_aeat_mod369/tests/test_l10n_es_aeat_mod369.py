@@ -574,3 +574,113 @@ class TestL10nEsAeatMod369Base(TestL10nEsAeatModBase):
         self.assertEqual(len(page_8), 1)
         self.assertEqual(page_8.neg_corrections, -7.61)
         self.assertEqual(page_8.result_total, page_8.amount - 7.61)
+
+    def _boe_pages(self, contents):
+        """Return the BOE blocks as an ordered list of (tag, payload)."""
+        return [
+            (match.group(1).decode(), match.group(2))
+            for match in re.finditer(
+                br"<T(369\d\d)>(.*?)</T\1>", contents, re.DOTALL
+            )
+        ]
+
+    def _grouped_vals(self, **vals):
+        base_vals = {
+            "report_id": self.model369.id,
+            "tax_id": self.oss_taxes["FR"][0].id,
+            "country_id": self.env.ref("base.es").id,
+            "oss_country_id": self.oss_countries["FR"].id,
+        }
+        base_vals.update(vals)
+        return base_vals
+
+    def _items(self, payload, size):
+        """Split a page payload in its non-padding items."""
+        body = payload[1:]
+        items = [body[i : i + size] for i in range(0, len(body), size)]
+        return [item for item in items if item.strip()]
+
+    def _create_goods_lines(self, count):
+        self.model369.spain_goods_line_ids.unlink()
+        grouped = self.env["l10n.es.aeat.mod369.line.grouped"]
+        for i in range(count):
+            grouped.create(self._grouped_vals(base=i + 1, amount=(i + 1) / 10.0))
+
+    def _export_pages(self, tag):
+        return [
+            payload
+            for page_tag, payload in self._boe_pages(self._export_boe())
+            if page_tag == tag
+        ]
+
+    def test_16_goods_over_28_lines_use_complementary_pages(self):
+        """More than 28 goods lines spill over complementary pages."""
+        self.model369.button_calculate()
+        self._create_goods_lines(57)
+        pages = self._export_pages("36905")
+        self.assertEqual(len(pages), 3, "57 lines need three T36905 pages")
+        self.assertEqual([page[:1] for page in pages], [b" ", b"C", b"C"])
+        self.assertEqual([len(page) for page in pages], [1194] * 3)
+        items = [self._items(page, 42) for page in pages]
+        self.assertEqual([len(page_items) for page_items in items], [28, 28, 1])
+        flat_items = items[0] + items[1] + items[2]
+        self.assertEqual(
+            [(item[:2], item[8:25], item[25:42]) for item in flat_items],
+            [
+                (b"FR", b"%017d" % ((i + 1) * 100), b"%017d" % ((i + 1) * 10))
+                for i in range(57)
+            ],
+        )
+
+    def test_17_corrections_over_28_lines_use_complementary_pages(self):
+        """More than 28 corrections spill over complementary pages."""
+        self.model369.button_calculate()
+        self.model369.refund_line_ids.unlink()
+        grouped = self.env["l10n.es.aeat.mod369.line.grouped"]
+        for i in range(29):
+            grouped.create(
+                self._grouped_vals(
+                    is_refund=True,
+                    refund_fiscal_year=2016,
+                    refund_period="T4",
+                    tax_correction=-(i + 1),
+                )
+            )
+        pages = self._export_pages("36908")
+        self.assertEqual(len(pages), 2, "29 lines need two T36908 pages")
+        self.assertEqual([page[:1] for page in pages], [b" ", b"C"])
+        self.assertEqual([len(page) for page in pages], [746, 746])
+        items = [self._items(page, 26) for page in pages]
+        self.assertEqual([len(page_items) for page_items in items], [28, 1])
+        self.assertEqual(
+            items[0] + items[1],
+            [b"FR2016T04-%016d" % ((i + 1) * 100) for i in range(29)],
+        )
+
+    def test_18_amounts_are_rounded_to_cents(self):
+        """The positional amounts are rounded to cents and 17 wide."""
+        line = self.env["l10n.es.aeat.mod369.line.grouped"].create(
+            self._grouped_vals(
+                base=16720.469999999998,
+                amount=-15.370000000000001,
+                tax_correction=-18.799999999999997,
+            )
+        )
+        self.assertEqual(
+            [line.base_str, line.amount_str, line.tax_correction_str],
+            ["00000000001672047", "-0000000000001537", "-0000000000001880"],
+        )
+
+    def test_19_full_pages_do_not_add_an_empty_complementary_page(self):
+        """Exactly 28 or 56 lines fill their pages without a blank extra one."""
+        self.model369.button_calculate()
+        flags = {}
+        for count in (28, 56):
+            self._create_goods_lines(count)
+            flags[count] = [page[:1] for page in self._export_pages("36905")]
+        self.assertEqual(flags, {28: [b" "], 56: [b" ", b"C"]})
+
+    def test_20_unknown_export_list_is_rejected(self):
+        """A typo in an export expression fails instead of exporting refunds."""
+        with self.assertRaises(ValueError):
+            self.model369.get_export_pages("spain_good")
