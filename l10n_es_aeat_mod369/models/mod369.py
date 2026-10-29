@@ -14,6 +14,8 @@ PAGE_TOTAL_BY_TYPE = {
     True: {"services": "page_5_total", "goods": "page_6_total"},
 }
 
+EXPORT_PAGE_SIZE = 28
+
 
 class L10nEsAeatMod369Report(models.Model):
     _inherit = "l10n.es.aeat.report.tax.mapping"
@@ -136,6 +138,27 @@ class L10nEsAeatMod369Report(models.Model):
 
     def _compute_allow_posting(self):
         self.allow_posting = True
+
+    def _get_export_list(self, list_name):
+        self.ensure_one()
+        if list_name == "spain_goods":
+            return self.spain_goods_line_ids.filtered(lambda l: l.base > 0)
+        if list_name == "refund":
+            return self.refund_line_ids
+        raise ValueError("Unknown 369 export list: %s" % list_name)
+
+    def get_export_pages(self, list_name):
+        lines = self._get_export_list(list_name)
+        pages = max(1, -(-len(lines) // EXPORT_PAGE_SIZE))
+        return [self.with_context(mod369_export_page=page) for page in range(pages)]
+
+    def get_export_page_lines(self, list_name):
+        page = self.env.context.get("mod369_export_page", 0)
+        start = page * EXPORT_PAGE_SIZE
+        return self._get_export_list(list_name)[start : start + EXPORT_PAGE_SIZE]
+
+    def get_export_complementary(self):
+        return "C" if self.env.context.get("mod369_export_page") else ""
 
     @api.model
     def _get_period_from_date(self, date, monthly=False):
