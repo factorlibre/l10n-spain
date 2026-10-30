@@ -394,6 +394,10 @@ class AccountMove(models.Model):
             tax_dict = self._get_sii_tax_dict(tax_line, tax_lines)
             if tax in taxes_sfrisp + taxes_sfrs:
                 tax_amount += tax_line["deductible_amount"]
+                # Nothing to deduct when _clean_sii_tax_dict has sent the tax
+                # amount as 0.0, so CuotaDeducible matches the breakdown
+                if not tax_dict["CuotaSoportada"]:
+                    tax_amount -= tax_line["deductible_amount"]
             if tax in taxes_sfrbi:
                 tax_dict["BienInversion"] = "S"
             if tax in taxes_sfrns:
