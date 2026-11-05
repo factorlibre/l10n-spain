@@ -10,7 +10,7 @@ import logging
 from odoo import _, api, exceptions, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.modules.registry import Registry
-from odoo.tools.float_utils import float_compare, float_is_zero
+from odoo.tools.float_utils import float_compare
 
 from odoo.addons.l10n_es_aeat.models.aeat_mixin import round_by_keys
 
@@ -24,6 +24,8 @@ SII_STATES = [
 SII_VERSION = "1.1"
 SII_MACRODATA_LIMIT = 100000000.0
 SII_DATE_FORMAT = "%d-%m-%Y"
+# Max amount of base and tax with opposite signs sent as 0.0 (error 1231)
+SII_OPPOSITE_SIGN_TOLERANCE = 0.05
 
 
 class SiiMixin(models.AbstractModel):
@@ -751,30 +753,36 @@ class SiiMixin(models.AbstractModel):
         :param tax_dict: tax dict to clean
         :return: cleaned tax dict
 
-        Corner case 1:
-            - document with amount_total 0.0
-            - amount_untaxed -0.1 and amount_tax 0.1 or
-              0.1 amount_untaxed and -0.1 amount_tax due to rounding issues.
-            (example in test_get_invoice_data_tax_price_included_corner_case)
-            It should be sent with 0.0 values to avoid SII rejection with error:
-            1231:'El campo CuotaRepercutida y BaseImponible deben tener el mismo signo.'
+        Corner case: base and tax amounts of a few cents with opposite signs
+        due to rounding issues (e.g. base -0.01 and tax 0.01 or base 0.02 and
+        tax -0.02), with or without taxes included in price
+        (examples in test_get_invoice_data_tax_price_included_corner_case and
+        test_get_invoice_data_opposite_sign_cents_corner_case).
+        It should be sent with 0.0 values to avoid SII rejection with error:
+        1231:'El campo CuotaRepercutida y BaseImponible deben tener el mismo signo.'
         """
-        if tax.price_include:
-            base_amount = round(tax_dict.get("BaseImponible", 0.0), 2)
-            key = (
-                "CuotaRepercutida"
-                if move_type in ["out_invoice", "out_refund"]
-                else "CuotaSoportada"
+        key = (
+            "CuotaRepercutida"
+            if move_type in ["out_invoice", "out_refund"]
+            else "CuotaSoportada"
+        )
+        base_amount = round(tax_dict.get("BaseImponible", 0.0), 2)
+        tax_amount = round(tax_dict.get(key, 0.0), 2)
+        if (
+            base_amount * tax_amount < 0
+            and float_compare(
+                abs(base_amount), SII_OPPOSITE_SIGN_TOLERANCE, precision_digits=2
             )
-            tax_amount = round(tax_dict.get(key, 0.0), 2)
-
-            if (
-                float_compare(abs(base_amount), 0.01, precision_digits=2) == 0
-                and float_compare(abs(tax_amount), 0.01, precision_digits=2) == 0
-                and float_is_zero(base_amount + tax_amount, precision_digits=2)
-            ):
-                tax_dict[key] = 0.0
-                tax_dict["BaseImponible"] = 0.0
+            <= 0
+            and float_compare(
+                abs(tax_amount), SII_OPPOSITE_SIGN_TOLERANCE, precision_digits=2
+            )
+            <= 0
+        ):
+            tax_dict["BaseImponible"] = 0.0
+            tax_dict[key] = 0.0
+            if "CuotaRecargoEquivalencia" in tax_dict:
+                tax_dict["CuotaRecargoEquivalencia"] = 0.0
         return tax_dict
 
     def _get_account_registration_date(self):

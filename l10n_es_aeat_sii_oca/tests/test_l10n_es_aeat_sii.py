@@ -577,3 +577,111 @@ class TestL10nEsAeatSii(TestL10nEsAeatSiiBase):
         for inv_type, lines, extra_vals in mapping:
             self._create_and_test_invoice_sii_dict(inv_type, lines, extra_vals)
         return
+
+    def test_get_invoice_data_opposite_sign_cents_corner_case(self):
+        self.company.tax_calculation_rounding_method = "round_per_line"
+        # Rounding per line without taxes included in price:
+        # base -0.07 + 0.03 + 0.03 = -0.01, tax -0.01 + 0.01 + 0.01 = 0.01
+        tax = self.env.ref(
+            "l10n_es.{}_account_tax_template_s_iva21s".format(self.company.id)
+        )
+        self._compare_sii_dict(
+            "sii_out_invoice_opposite_sign_cents_dict.json",
+            "out_invoice",
+            [{"price_unit": price, "taxes": tax} for price in (-0.07, 0.03, 0.03)],
+        )
+        # Same case with recargo de equivalencia:
+        # base 5 * 0.03 - 0.16 = -0.01, tax 5 * 0.01 - 0.03 = 0.02
+        # and recargo 5 * 0.00 - 0.01 = -0.01
+        req_tax = self.env.ref(
+            "l10n_es.{}_account_tax_template_s_req52".format(self.company.id)
+        )
+        self._compare_sii_dict(
+            "sii_out_invoice_opposite_sign_cents_req_dict.json",
+            "out_invoice",
+            [
+                {"price_unit": price, "taxes": tax + req_tax}
+                for price in (0.03, 0.03, 0.03, 0.03, 0.03, -0.16)
+            ],
+        )
+
+    def test_get_invoice_data_opposite_sign_cents_corner_case_refund(self):
+        self.company.tax_calculation_rounding_method = "round_per_line"
+        # Rounding per line without taxes included in price:
+        # base -0.07 + 0.03 + 0.03 = -0.01, tax -0.01 + 0.01 + 0.01 = 0.01
+        # In the refund the SII signs are inverted (base 0.01, tax -0.01), so
+        # they are still opposite and must be sent as 0.0
+        tax = self.env.ref(
+            "l10n_es.{}_account_tax_template_s_iva21s".format(self.company.id)
+        )
+        self._compare_sii_dict(
+            "sii_out_refund_opposite_sign_cents_dict.json",
+            "out_refund",
+            [{"price_unit": price, "taxes": tax} for price in (-0.07, 0.03, 0.03)],
+        )
+
+    def test_get_invoice_data_opposite_sign_cents_corner_case_in_invoice(self):
+        self.company.tax_calculation_rounding_method = "round_per_line"
+        # Rounding per line without taxes included in price:
+        # base -0.07 + 0.03 + 0.03 = -0.01, tax -0.01 + 0.01 + 0.01 = 0.01
+        # (-0.07 * 0.21 = -0.0147 -> -0.01, 0.03 * 0.21 = 0.0063 -> 0.01)
+        # The deductible amount must be 0.0 as well as the tax amount
+        tax = self.env.ref(
+            "l10n_es.{}_account_tax_template_p_iva21_bc".format(self.company.id)
+        )
+        self._compare_sii_dict(
+            "sii_in_invoice_opposite_sign_cents_dict.json",
+            "in_invoice",
+            [{"price_unit": price, "taxes": tax} for price in (-0.07, 0.03, 0.03)],
+            extra_vals={
+                "ref": "sup0007",
+                "sii_account_registration_date": "2020-10-01",
+            },
+        )
+
+    def test_clean_sii_tax_dict(self):
+        invoice = self._create_invoice_for_sii("out_invoice")
+        tax = self.env.ref(
+            "l10n_es.{}_account_tax_template_s_iva21s".format(self.company.id)
+        )
+        cases = [
+            # (base, tax amount, expected base, expected tax amount,
+            #  expected recargo amount); input recargo amount is always 0.01
+            (-0.01, 0.02, 0.0, 0.0, 0.0),
+            (0.05, -0.05, 0.0, 0.0, 0.0),
+            # Out of tolerance: not changed
+            (0.06, -0.01, 0.06, -0.01, 0.01),
+            (-0.01, 0.06, -0.01, 0.06, 0.01),
+            # Same sign or zero: not changed
+            (0.01, 0.01, 0.01, 0.01, 0.01),
+            (-0.02, -0.01, -0.02, -0.01, 0.01),
+            (0.0, -0.01, 0.0, -0.01, 0.01),
+        ]
+        for base, amount, exp_base, exp_amount, exp_req in cases:
+            with self.subTest(base=base, amount=amount):
+                tax_dict = invoice._clean_sii_tax_dict(
+                    tax,
+                    "out_invoice",
+                    {
+                        "TipoImpositivo": "21.0",
+                        "BaseImponible": base,
+                        "CuotaRepercutida": amount,
+                        "TipoRecargoEquivalencia": 5.2,
+                        "CuotaRecargoEquivalencia": 0.01,
+                    },
+                )
+                self.assertEqual(tax_dict["BaseImponible"], exp_base)
+                self.assertEqual(tax_dict["CuotaRepercutida"], exp_amount)
+                self.assertEqual(tax_dict["CuotaRecargoEquivalencia"], exp_req)
+        with self.subTest(move_type="in_invoice"):
+            tax_dict = invoice._clean_sii_tax_dict(
+                tax,
+                "in_invoice",
+                {
+                    "TipoImpositivo": "21.0",
+                    "BaseImponible": 0.02,
+                    "CuotaSoportada": -0.02,
+                },
+            )
+            self.assertEqual(tax_dict["BaseImponible"], 0.0)
+            self.assertEqual(tax_dict["CuotaSoportada"], 0.0)

@@ -367,6 +367,73 @@ class TestSpainPosSii(TestPoSCommon, TestL10nEsAeatSiiBase):
             "The session is closed",
         )
 
+    def _create_order_with_prices(self, tax, prices):
+        """Create a POS order with a line per price, taxed with ``tax``"""
+        session = self.order.session_id
+        default_partner = session.config_id.default_partner_id
+        lines = [
+            (
+                0,
+                0,
+                {
+                    "name": "TPV/%04d" % index,
+                    "product_id": self.product21.id,
+                    "price_unit": price,
+                    "discount": 0.0,
+                    "qty": 1.0,
+                    "tax_ids": [(6, 0, tax.ids)],
+                    "price_subtotal": 0.0,
+                    "price_subtotal_incl": 0.0,
+                },
+            )
+            for index, price in enumerate(prices, start=1)
+        ]
+        return self.env["pos.order"].create(
+            {
+                "company_id": self.company.id,
+                "session_id": session.id,
+                "date_order": "2023-06-14",
+                "l10n_es_unique_id": "Shop0099",
+                "pricelist_id": default_partner.property_product_pricelist.id,
+                "partner_id": default_partner.id,
+                "lines": lines,
+                "amount_tax": 0.0,
+                "amount_total": 0.0,
+                "amount_paid": 0.0,
+                "amount_return": 0.0,
+            }
+        )
+
+    def _get_detail_iva(self, order):
+        sii_dict = order._get_aeat_invoice_dict()
+        return sii_dict["FacturaExpedida"]["TipoDesglose"]["DesgloseFactura"]["Sujeta"][
+            "NoExenta"
+        ]["DesgloseIVA"]["DetalleIVA"]
+
+    def test_09_opposite_sign_cents_price_included(self):
+        self.company.sudo().tax_calculation_rounding_method = "round_per_line"
+        self.tax_21b.sudo().price_include = True
+        # Lines are rounded one by one with tax included in price:
+        # 15 -> base 12.40, tax 2.60 (15 / 1.21 = 12.396)
+        # -45 -> base -37.19, tax -7.81 (45 / 1.21 = 37.190)
+        # base 3 * 12.40 - 37.19 = 0.01, tax 3 * 2.60 - 7.81 = -0.01
+        order = self._create_order_with_prices(self.tax_21b, (-45, 15, 15, 15))
+        self.assertEqual(
+            self._get_detail_iva(order),
+            [{"TipoImpositivo": "21.0", "BaseImponible": 0.0, "CuotaRepercutida": 0.0}],
+        )
+
+    def test_10_opposite_sign_cents_price_excluded(self):
+        self.company.sudo().tax_calculation_rounding_method = "round_per_line"
+        # Lines are rounded one by one without tax included in price:
+        # base -0.07 + 0.03 + 0.03 = -0.01
+        # tax -0.01 (-0.0147) + 0.01 (0.0063) + 0.01 (0.0063) = 0.01
+        order = self._create_order_with_prices(self.tax_21b, (-0.07, 0.03, 0.03))
+        self.assertEqual(
+            self._get_detail_iva(order),
+            [{"TipoImpositivo": "21.0", "BaseImponible": 0.0, "CuotaRepercutida": 0.0}],
+        )
+
     def test_start_date(self):
         session = self.order.session_id
         default_partner = session.config_id.default_partner_id
