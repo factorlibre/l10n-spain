@@ -759,3 +759,57 @@ msgstr "¿Obligación del 347?"
 
 #~ msgid "Year"
 #~ msgstr "Año"
+
+#. module: l10n_es_aeat_mod390
+#: model:ir.model.fields,field_description:l10n_es_aeat_mod390.field_account_invoice_is_bankrupcy_uncollectible_debt
+#: model:ir.model.fields,field_description:l10n_es_aeat_mod390.field_account_move_is_bankrupcy_uncollectible_debt
+msgid "Bankrupcy/uncollectible debt"
+msgstr ""
+"Concurso / deuda incobrable"
+
+#. module: l10n_es_aeat_mod390
+#: model:ir.model.fields,help:l10n_es_aeat_mod390.field_l10n_es_aeat_mod390_report_use_303
+msgid "If it's checked, this report uses 303 reports for calculate fields 85, 95, 97, 98 and 662. When it's unchecked, you should fill them in. If you calculated first and then checked this option, you must calculate it again."
+msgstr ""
+"Si está marcado, este informe usará los informes del 303 para calcular las casillas, 85, 95, 97, 98 y 662. Cuando está desmarcado, debería rellenarlas. Si primero calculaste y después marcaste la opción, deberás calcularlo de nuevo."
+
+#. module: l10n_es_aeat_mod390
+#: model:ir.ui.view,arch_db:l10n_es_aeat_mod390.view_l10n_es_aeat_mod390_report_form
+msgid "If you do not want to use the 303 reports for the automatic calculation, uncheck \"<b>Use 303 reports</b>\" option."
+msgstr ""
+"Si no desea utilizar los informes del 303 para el cálculo automático, desmarque la opción \"<b>Usar informes del 303</b>\"."
+
+#. module: l10n_es_aeat_mod390
+#: model:ir.model.fields,help:l10n_es_aeat_mod390.field_l10n_es_aeat_mod390_report_casilla_85
+msgid "Se consignará el importe de las cuotas pendientes de compensación generadas en ejercicios anteriores y aplicadas en el ejercicio (es decir, que se hubiesen consignado en la casilla 78 de alguna de las autoliquidaciones del periodo)."
+msgstr ""
+"Se consignará el importe de las cuotas pendientes de compensación generadas en ejercicios anteriores y aplicadas en el ejercicio (es decir, que se hubiesen consignado en la casilla 78 de alguna de las autoliquidaciones del periodo)."
+
+#. module: l10n_es_aeat_mod390
+#: model:ir.ui.view,arch_db:l10n_es_aeat_mod390.view_l10n_es_aeat_mod390_report_form
+msgid "This is using the 303 reports for automatic calculations in the <b>fields 85, 95, 97, 98 and 662</b>. The calculations may not be correct if there are duplicated or out-of-date 303 reports."
+msgstr ""
+"Está utilizando los informes del 303 para cálculos automáticos en las <b>casillas 85, 95, 97, 98 y 662</b>. Los cálculos pueden no ser correctos si hay modelos 303 duplicados o desactualizados."
+
+#. module: l10n_es_aeat_mod390
+#: model:ir.model.fields,field_description:l10n_es_aeat_mod390.field_l10n_es_aeat_mod390_report_use_303
+msgid "Use 303 reports"
+msgstr "Usar informes del 303"
+
+#. module: l10n_es_aeat_mod390
+#: model:ir.model.fields,help:l10n_es_aeat_mod390.field_account_invoice_is_bankrupcy_uncollectible_debt
+#: model:ir.model.fields,help:l10n_es_aeat_mod390.field_account_move_is_bankrupcy_uncollectible_debt
+msgid "When this is set, the tax base and rate will be reflected in fields 31, 32, 45 and 46 of the AEAT 390 model"
+msgstr ""
+"Si se marca, la base imponible y la cuota se reflejarán en las casillas 31, 32, 45 y 46 del modelo 390 de la AEAT"
+
+#. module: l10n_es_aeat_mod390
+#: model:ir.model.fields,field_description:l10n_es_aeat_mod390.field_l10n_es_aeat_mod390_report_casilla_662
+msgid "[662] Cuotas pendientes de compensación al término del ejercicio"
+msgstr "[662] Cuotas pendientes de compensación al término del ejercicio"
+
+#. module: l10n_es_aeat_mod390
+#: model:ir.model.fields,help:l10n_es_aeat_mod390.field_l10n_es_aeat_mod390_report_casilla_662
+msgid "[662] Cuotas pendientes de compensación generadas en el ejercicio y distintas de las incluidas en la casilla 97"
+msgstr ""
+"[662] Cuotas pendientes de compensación generadas en el ejercicio y distintas de las incluidas en la casilla 97"
