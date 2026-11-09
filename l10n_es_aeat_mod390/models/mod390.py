@@ -375,30 +375,53 @@ class L10nEsAeatMod390Report(models.Model):
                 report.tax_line_ids.filtered(
                     lambda x: x.field_number
                     in (
+                        700,
+                        667,
                         1,
-                        3,
                         702,
+                        669,
+                        3,
                         5,  # Régimen ordinario
+                        704,
+                        671,
                         500,
+                        706,
+                        673,
                         502,
                         504,  # Intragrupo - no incluido aún
+                        708,
+                        675,
                         643,
+                        710,
+                        677,
                         645,
                         647,  # Criterio de caja - no incluido aún
+                        712,
+                        679,
                         7,
+                        714,
+                        681,
                         9,
                         11,  # Bienes usados, etc - no incluido aún
                         13,  # Agencias de viajes - no incluido aún
+                        716,
+                        683,
                         21,
+                        718,
+                        685,
                         23,
                         25,  # Adquis. intracomunitaria bienes
+                        720,
+                        687,
                         545,
+                        722,
+                        689,
                         547,
                         551,  # Adquis. intracomunitaria servicios
                         27,  # IVA otras operaciones sujeto pasivo
                         29,  # Modificación bases y cuotas
                         649,  # Modif. bases y cuotas intragrupo - no incluido aún
-                        31,  # Modif. bases y cuotas concurso ac. - no incluido aún
+                        31,  # Modif. bases y cuotas concurso ac.
                     )
                 ).mapped("amount")
             )
@@ -411,30 +434,53 @@ class L10nEsAeatMod390Report(models.Model):
                 report.tax_line_ids.filtered(
                     lambda x: x.field_number
                     in (
+                        701,
+                        668,
                         2,
-                        4,
                         703,
+                        670,
+                        4,
                         6,  # Régimen ordinario
+                        705,
+                        672,
                         501,
+                        707,
+                        674,
                         503,
                         505,  # Intragrupo - no incluido aún
+                        709,
+                        676,
                         644,
-                        646,
+                        711,
+                        678,
+                        46,
                         648,  # Criterio de caja - no incluido aún
+                        713,
+                        680,
                         8,
+                        715,
+                        682,
                         10,
                         12,  # Bienes usados, etc - no incluido aún
                         14,  # Agencias de viajes - no incluido aún
+                        717,
+                        684,
                         22,
+                        719,
+                        686,
                         24,
                         26,  # Adquis. intracomunitaria bienes
+                        721,
+                        688,
                         546,
+                        723,
+                        690,
                         548,
                         552,  # Adquis. intracomunitaria servicios
                         28,  # IVA otras operaciones sujeto pasivo
                         30,  # Modificación bases y cuotas
                         650,  # Modif. bases y cuotas intragrupo - no incluido aún
-                        32,  # Modif. bases y cuotas concurso ac. - no incluido aún
+                        32,  # Modif. bases y cuotas concurso ac.
                     )
                 ).mapped("amount")
             )
@@ -447,9 +493,16 @@ class L10nEsAeatMod390Report(models.Model):
                 report.casilla_34 +
                 sum(report.tax_line_ids.filtered(
                     lambda x: x.field_number in (
-                        36, 600, 602,  # Recargo de equivalencia
+                        664,
+                        692,
+                        36,
+                        666,
+                        694,
+                        600,
+                        602,
+                        42,  # Recargo de equivalencia
                         44,  # Modificación recargo de equivalencia
-                        46,  # Mod. recargo equiv. concurso - no incluido aún
+                        46,  # Mod. recargo equiv. concurso ac.
                     )
                 ).mapped('amount'))
             )
@@ -479,9 +532,7 @@ class L10nEsAeatMod390Report(models.Model):
     def _compute_casilla_48(self):
         for report in self:
             report.casilla_48 = sum(report.tax_line_ids.filtered(
-                lambda x: x.field_number in (
-                    190, 192, 555, 603, 194, 557, 605, 724,
-                )
+                lambda x: x.field_number in (695, 190, 724, 697, 603, 605)
             ).mapped('amount'))
 
     @api.multi
@@ -489,9 +540,7 @@ class L10nEsAeatMod390Report(models.Model):
     def _compute_casilla_49(self):
         for report in self:
             report.casilla_49 = sum(report.tax_line_ids.filtered(
-                lambda x: x.field_number in (
-                    191, 193, 556, 604, 195, 558, 606, 725,
-                )
+                lambda x: x.field_number in (696, 191, 725, 698, 604, 606)
             ).mapped('amount'))
 
     @api.multi
@@ -499,7 +548,7 @@ class L10nEsAeatMod390Report(models.Model):
     def _compute_casilla_50(self):
         for report in self:
             report.casilla_50 = sum(report.tax_line_ids.filtered(
-                lambda x: x.field_number in (196, 611, 613)
+                lambda x: x.field_number in (749, 196, 728, 751, 611, 613)
             ).mapped('amount'))
 
     @api.multi
@@ -507,7 +556,7 @@ class L10nEsAeatMod390Report(models.Model):
     def _compute_casilla_51(self):
         for report in self:
             report.casilla_51 = sum(report.tax_line_ids.filtered(
-                lambda x: x.field_number in (197, 612, 614)
+                lambda x: x.field_number in (750, 197, 729, 752, 612, 614)
             ).mapped('amount'))
 
     @api.multi
@@ -515,9 +564,7 @@ class L10nEsAeatMod390Report(models.Model):
     def _compute_casilla_52(self):
         for report in self:
             report.casilla_52 = sum(report.tax_line_ids.filtered(
-                lambda x: x.field_number in (
-                    202, 204, 571, 619, 206, 573, 621,
-                )
+                lambda x: x.field_number in (757, 202, 732, 759, 619, 621)
             ).mapped('amount'))
 
     @api.multi
@@ -525,9 +572,7 @@ class L10nEsAeatMod390Report(models.Model):
     def _compute_casilla_53(self):
         for report in self:
             report.casilla_53 = sum(report.tax_line_ids.filtered(
-                lambda x: x.field_number in (
-                    203, 205, 572, 620, 207, 574, 622,
-                )
+                lambda x: x.field_number in (758, 203, 733, 760, 620, 622)
             ).mapped('amount'))
 
     @api.multi
@@ -535,7 +580,7 @@ class L10nEsAeatMod390Report(models.Model):
     def _compute_casilla_54(self):
         for report in self:
             report.casilla_54 = sum(report.tax_line_ids.filtered(
-                lambda x: x.field_number in (208, 623, 625)
+                lambda x: x.field_number in (761, 208, 734, 763, 623, 625)
             ).mapped('amount'))
 
     @api.multi
@@ -543,7 +588,7 @@ class L10nEsAeatMod390Report(models.Model):
     def _compute_casilla_55(self):
         for report in self:
             report.casilla_55 = sum(report.tax_line_ids.filtered(
-                lambda x: x.field_number in (209, 624, 626)
+                lambda x: x.field_number in (762, 209, 735, 764, 624, 626)
             ).mapped('amount'))
 
     @api.multi
@@ -551,9 +596,7 @@ class L10nEsAeatMod390Report(models.Model):
     def _compute_casilla_56(self):
         for report in self:
             report.casilla_56 = sum(report.tax_line_ids.filtered(
-                lambda x: x.field_number in (
-                    214, 216, 579, 627, 218, 581, 629,
-                )
+                lambda x: x.field_number in (765, 214, 736, 767, 627, 629)
             ).mapped('amount'))
 
     @api.multi
@@ -561,9 +604,7 @@ class L10nEsAeatMod390Report(models.Model):
     def _compute_casilla_57(self):
         for report in self:
             report.casilla_57 = sum(report.tax_line_ids.filtered(
-                lambda x: x.field_number in (
-                    215, 217, 580, 628, 219, 582, 630,
-                )
+                lambda x: x.field_number in (766, 215, 737, 768, 628, 630)
             ).mapped('amount'))
 
     @api.multi
@@ -571,7 +612,7 @@ class L10nEsAeatMod390Report(models.Model):
     def _compute_casilla_58(self):
         for report in self:
             report.casilla_58 = sum(report.tax_line_ids.filtered(
-                lambda x: x.field_number in (220, 631, 633)
+                lambda x: x.field_number in (769, 220, 738, 771, 631, 633)
             ).mapped('amount'))
 
     @api.multi
@@ -579,7 +620,7 @@ class L10nEsAeatMod390Report(models.Model):
     def _compute_casilla_59(self):
         for report in self:
             report.casilla_59 = sum(report.tax_line_ids.filtered(
-                lambda x: x.field_number in (221, 632, 634)
+                lambda x: x.field_number in (770, 221, 739, 772, 632, 634)
             ).mapped('amount'))
 
     @api.multi
@@ -587,9 +628,7 @@ class L10nEsAeatMod390Report(models.Model):
     def _compute_casilla_597(self):
         for report in self:
             report.casilla_597 = sum(report.tax_line_ids.filtered(
-                lambda x: x.field_number in (
-                    587, 589, 591, 635, 593, 595, 637,
-                )
+                lambda x: x.field_number in (773, 587, 740, 775, 635, 637)
             ).mapped('amount'))
 
     @api.multi
@@ -597,9 +636,7 @@ class L10nEsAeatMod390Report(models.Model):
     def _compute_casilla_598(self):
         for report in self:
             report.casilla_598 = sum(report.tax_line_ids.filtered(
-                lambda x: x.field_number in (
-                    588, 590, 592, 636, 594, 596, 638,
-                )
+                lambda x: x.field_number in (774, 588, 741, 776, 636, 638)
             ).mapped('amount'))
 
     @api.multi
@@ -622,7 +659,7 @@ class L10nEsAeatMod390Report(models.Model):
                 report.casilla_59 +
                 report.casilla_598 +
                 sum(report.tax_line_ids.filtered(
-                    lambda x: x.field_number == 62
+                    lambda x: x.field_number in (61, 62)
                 ).mapped('amount'))
             )
 
@@ -646,8 +683,8 @@ class L10nEsAeatMod390Report(models.Model):
             report.casilla_108 = sum(
                 report.tax_line_ids.filtered(
                     lambda x: x.field_number in (
-                        99, 653, 103, 104, 105, 110, 112, 100, 101, 102, 227,
-                        228,
+                        99, 653, 103, 104, 105, 110, 100, 101, 102, 125, 128,
+                        227, 228,
                     )
                 ).mapped('amount')
             ) - sum(
@@ -665,3 +702,46 @@ class L10nEsAeatMod390Report(models.Model):
             raise exceptions.UserError(
                 _("You cannot make complementary reports for this model.")
             )
+
+    @api.multi
+    def _get_move_line_domain(self, codes, date_start, date_end, map_line):
+        """Consider bankruptcy proceedings or uncollectible debt."""
+        res = super()._get_move_line_domain(
+            codes, date_start, date_end, map_line)
+        if map_line.field_number in {31, 32, 45, 46}:
+            res += [("move_id.is_bankrupcy_uncollectible_debt", "=", True)]
+        elif map_line.field_number in {29, 30, 43, 44, 99}:
+            res += [("move_id.is_bankrupcy_uncollectible_debt", "=", False)]
+        return res
+
+    @api.model
+    def _get_redirect_map_lines(self):
+        """Get map lines that are redirected to others.
+        Return redirect map lines for bankruptcy and uncollectible debt."""
+        return {
+            "aeat_mod390_2024_map_line_031_sale":
+                "aeat_mod390_2024_map_line_029_sale",
+            "aeat_mod390_2024_map_line_031_purchase":
+                "aeat_mod390_2024_map_line_029_purchase",
+            "aeat_mod390_2024_map_line_032_sale":
+                "aeat_mod390_2024_map_line_030_sale",
+            "aeat_mod390_2024_map_line_032_purchase":
+                "aeat_mod390_2024_map_line_030_purchase",
+            "aeat_mod390_2024_map_line_045": "aeat_mod390_2024_map_line_043",
+            "aeat_mod390_2024_map_line_046": "aeat_mod390_2024_map_line_044",
+        }
+
+    def get_taxes_from_map(self, map_line):
+        """Get taxes from map line, considering redirected map lines (since
+        they use exactly the same taxes)."""
+        xml_id = map_line.get_external_id().get(map_line.id)
+        record_name = xml_id.split(".")[-1] if xml_id else None
+        redirect_name = self._get_redirect_map_lines().get(record_name)
+        if redirect_name:
+            redirect_map_line = self.env.ref(
+                "l10n_es_aeat_mod390.%s" % redirect_name,
+                raise_if_not_found=False,
+            )
+            if redirect_map_line:
+                return super().get_taxes_from_map(redirect_map_line)
+        return super().get_taxes_from_map(map_line)

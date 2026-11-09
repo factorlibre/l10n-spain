@@ -331,3 +331,72 @@ class TestL10nEsAeatMod390(TestL10nEsAeatMod390Base):
         self.assertTrue(base_4)
         self.assertEqual(content[1515:1526], b"<T39002000>")
         self.assertEqual(int(content[1595:1612]), round(base_4 * 100))
+
+class TestL10nEsAeatMod390Map2024(TestL10nEsAeatMod390Base):
+    def setUp(self):
+        super().setUp()
+        self.model390.write({
+            'year': 2024,
+            'date_start': '2024-01-01',
+            'date_end': '2024-12-31',
+        })
+        # Some mapped templates (temporary reduced rates) are archived
+        self.map_2024 = self.env.ref(
+            'l10n_es_aeat_mod390.aeat_mod390_2024_map'
+        ).with_context(active_test=False)
+
+    def _refund(self, invoice, dt, bankruptcy=False):
+        refund = invoice.sudo(self.billing_user).refund(
+            date_invoice=dt, journal_id=self.journal_misc.id)
+        refund.is_bankrupcy_uncollectible_debt = bankruptcy
+        refund.action_invoice_open()
+        return refund
+
+    def _field_amount(self, number):
+        return sum(self.model390.tax_line_ids.filtered(
+            lambda x: x.field_number == number).mapped('amount'))
+
+    def _field_moves(self, number):
+        return self.model390.tax_line_ids.filtered(
+            lambda x: x.field_number == number).mapped('move_line_ids.move_id')
+
+    def test_03_map_2024_resolves_taxes(self):
+        redirected = self.model390._get_redirect_map_lines()
+        for map_line in self.map_2024.map_line_ids:
+            module, xml_id = map_line.get_external_id()[map_line.id].split('.')
+            if module != 'l10n_es_aeat_mod390':
+                # Lines added by other modules (e.g. OSS) get their own taxes
+                continue
+            self.assertFalse(
+                map_line.tax_ids.filtered(lambda t: t.amount_type == 'group'),
+                "Map line %s uses a group tax instead of its children" % xml_id,
+            )
+            if xml_id in redirected:
+                self.assertFalse(map_line.tax_ids)
+                self.assertTrue(self.env.ref(
+                    'l10n_es_aeat_mod390.%s' % redirected[xml_id]
+                ).with_context(active_test=False).tax_ids)
+            else:
+                self.assertTrue(
+                    map_line.tax_ids, "Map line %s has no taxes" % xml_id)
+
+    def test_04_bankruptcy_boxes(self):
+        regular_refunds = self.env['account.invoice']
+        bankrupt_refunds = self.env['account.invoice']
+        for create in (self._invoice_sale_create,
+                       self._invoice_purchase_create):
+            regular_refunds |= self._refund(create('2024-02-11'), '2024-05-01')
+            bankrupt_refunds |= self._refund(
+                create('2024-02-12'), '2024-06-01', bankruptcy=True)
+        self.assertTrue(all(bankrupt_refunds.mapped(
+            'move_id.is_bankrupcy_uncollectible_debt')))
+        self.model390.button_calculate()
+        for regular_field, bankrupt_field in ((29, 31), (30, 32)):
+            self.assertEqual(
+                self._field_moves(regular_field), regular_refunds.mapped('move_id'))
+            self.assertEqual(
+                self._field_moves(bankrupt_field),
+                bankrupt_refunds.mapped('move_id'))
+            self.assertAlmostEqual(
+                self._field_amount(bankrupt_field),
+                self._field_amount(regular_field), 2)

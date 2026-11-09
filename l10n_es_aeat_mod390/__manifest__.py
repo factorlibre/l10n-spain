@@ -64,9 +64,14 @@
         "data/2025/aeat.model.export.config.line.csv",
         # rest of stuff
         "views/mod390_view.xml",
+        "views/account_invoice_view.xml",
+        "views/account_move_view.xml",
         "security/ir.model.access.csv",
         "security/l10n_es_aeat_mod390_security.xml",
         'data/tax_code_map_mod390_data.xml',
+        # 2024 tax mapping (after the previous map is closed)
+        "data/2024/l10n.es.aeat.map.tax.csv",
+        "data/2024/l10n.es.aeat.map.tax.line.csv",
     ],
     'installable': True,
     'maintainers': [
