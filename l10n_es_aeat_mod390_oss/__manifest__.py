@@ -3,13 +3,16 @@
 
 {
     "name": "AEAT modelo 390 - OSS",
-    "version": "11.0.1.0.0",
+    "version": "11.0.1.1.0",
     "category": "Accounting",
     "author": "Sygel, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/l10n-spain",
     "license": "AGPL-3",
     "depends": ["l10n_es_aeat_mod390", "l10n_eu_oss"],
-    "data": ["data/tax_code_map_mod390_data.xml"],
+    "data": [
+        "data/tax_code_map_mod390_data.xml",
+        "data/2024/tax_code_map_mod390_data.xml",
+    ],
     "installable": True,
     "autoinstall": True,
 }

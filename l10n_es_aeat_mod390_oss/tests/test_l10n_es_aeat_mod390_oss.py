@@ -58,3 +58,23 @@ class TestL10nEsAeatMod390OSS(TestL10nEsAeatMod390Base):
     def test_l10n_es_aeat_mod390_oss(self):
         self.model390_oss.button_calculate()
         self._check_field_amount(self.model390_oss, 126, 200)
+
+    def test_01_oss_2024_map_line_126(self):
+        extra_vals = {"invoice_line_ids": [(0, 0, {
+            "name": "Test for OSS tax",
+            "account_id": self.accounts["700000"].id,
+            "price_unit": 100,
+            "quantity": 1,
+            "invoice_line_tax_ids": [(4, self.oss_tax.id)],
+        })]}
+        self._invoice_sale_create("2024-03-01", extra_vals)
+        report = self.model390.copy({
+            "year": 2024,
+            "name": "OSS4000002024",
+            "date_start": "2024-01-01",
+            "date_end": "2024-12-31",
+        })
+        report.button_calculate()
+        self._check_field_amount(report, 126, 100)
+        # The only 2024 operation is the OSS one: counted once in field 108
+        self.assertAlmostEqual(report.casilla_108, 100)
