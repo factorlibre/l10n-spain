@@ -58,3 +58,34 @@ class TestL10nEsAeatMod390OSS(TestL10nEsAeatMod390Base):
     def test_l10n_es_aeat_mod390_oss(self):
         self.model390_oss.button_calculate()
         self._check_field_amount(self.model390_oss, 126, 200)
+
+    def test_01_oss_2024_map_line_126(self):
+        extra_vals = {"invoice_line_ids": [(0, 0, {
+            "name": "Test for OSS tax",
+            "account_id": self.accounts["700000"].id,
+            "price_unit": 100,
+            "quantity": 1,
+            "invoice_line_tax_ids": [(4, self.oss_tax.id)],
+        })]}
+        self._invoice_sale_create("2024-03-01", extra_vals)
+        report = self.model390.copy({
+            "year": 2024,
+            "name": "OSS4000002024",
+            "date_start": "2024-01-01",
+            "date_end": "2024-12-31",
+        })
+        report.button_calculate()
+        self._check_field_amount(report, 126, 100)
+        # The only 2024 operation is the OSS one: counted once in field 108
+        self.assertAlmostEqual(report.casilla_108, 100)
+
+    def test_02_oss_field_126_in_boe_export(self):
+        self.model390_oss.button_calculate()
+        line = self.env.ref(
+            "l10n_es_aeat_mod390.aeat_mod390_2021_sub06_export_line_37")
+        export_to_boe = self.env["l10n.es.aeat.report.export_to_boe"].create({
+            "name": "test_export_to_boe.txt",
+        })
+        content = export_to_boe._export_line_process(self.model390_oss, line)
+        # Field 126 is part of field 108: both must reach the BOE file
+        self.assertEqual(int(content), 20000)
