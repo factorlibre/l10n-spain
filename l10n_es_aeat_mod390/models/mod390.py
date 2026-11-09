@@ -326,14 +326,21 @@ class L10nEsAeatMod390Report(models.Model):
         compute="_compute_casilla_65", store=True,
         string="[65] Result. rég. gral.",
     )
+    casilla_662 = fields.Float(
+        string="[662] Cuotas pendientes de compensación al término del "
+               "ejercicio",
+        help="[662] Cuotas pendientes de compensación generadas en el "
+             "ejercicio y distintas de las incluidas en la casilla 97",
+        states=REQUIRED_ON_CALCULATED,
+        readonly=True,
+    )
     casilla_85 = fields.Float(
         string="[85] Compens. ejercicio anterior", readonly=True,
         states=EDITABLE_ON_CALCULATED,
-        help="Si en la autoliquidación del último período del ejercicio "
-             "anterior resultó un saldo a su favor y usted optó por la "
-             "compensación, consigne en esta casilla la cantidad a "
-             "compensar, salvo que la misma haya sido modificada por la "
-             "Administración, en cuyo caso se consignará esta última.",
+        help="Se consignará el importe de las cuotas pendientes de "
+             "compensación generadas en ejercicios anteriores y aplicadas en "
+             "el ejercicio (es decir, que se hubiesen consignado en la "
+             "casilla 78 de alguna de las autoliquidaciones del periodo).",
     )
     casilla_86 = fields.Float(
         compute="_compute_casilla_86", store=True,
@@ -365,6 +372,14 @@ class L10nEsAeatMod390Report(models.Model):
     casilla_108 = fields.Float(
         string="[108] Total vol. oper.",
         compute="_compute_casilla_108", store=True,
+    )
+    use_303 = fields.Boolean(
+        "Use 303 reports",
+        help="If it's checked, this report uses 303 reports for calculate "
+             "fields 85, 95, 97, 98 and 662. When it's unchecked, you should "
+             "fill them in. If you calculated first and then checked this "
+             "option, you must calculate it again.",
+        default=False,
     )
 
     @api.multi
@@ -702,6 +717,131 @@ class L10nEsAeatMod390Report(models.Model):
             raise exceptions.UserError(
                 _("You cannot make complementary reports for this model.")
             )
+
+    @api.multi
+    def _calculate_casilla_85(self, reports_303_this_year):
+        self.ensure_one()
+        report_303_first_period = reports_303_this_year.filtered(
+            lambda r: r.period_type in {"1T", "01"}
+        )[:1]
+        # Si no hay autoliquidaciones del primer periodo del ejercicio,
+        # asumimos que el total viene de ejercicios anteriores
+        if not report_303_first_period:
+            return sum(reports_303_this_year.mapped("cuota_compensar"))
+        # Cuotas pendientes de compensación generadas en ejercicios
+        # anteriores: casilla [110] de la primera autoliquidación del ejercicio
+        remaining_cuota_compensar = (
+            report_303_first_period.potential_cuota_compensar
+        )
+        # Total a compensar aplicado en el ejercicio: suma de las casillas
+        # [78] de todas las autoliquidaciones del ejercicio
+        total_cuota_compensar = sum(
+            reports_303_this_year.mapped("cuota_compensar"))
+        # Si se ha aplicado más de remaining_cuota_compensar, se ha aplicado
+        # el total; si no, solo una parte y se usa la suma de las [78]
+        return min(total_cuota_compensar, remaining_cuota_compensar)
+
+    @api.model
+    def _calculate_casilla_662(self, reports_303):
+        """Box 662 will be the difference between this year's compensation
+        and what was applied this year that does not come from previous years.
+        - Amount to compensate this year is the sum of the result in 303
+          reports to compensate this year except the last period
+        - Amount applied this year is the sum of the 78 in 303 reports except
+          the first period.
+        - Compensation previous year is the box 78 of the first period of the
+          year.
+        """
+        # Cuotas aplicadas este año
+        applied_this_year = sum(
+            reports_303.filtered(
+                lambda r: r.period_type not in ("1T", "01")
+            ).mapped("cuota_compensar")
+        )
+        # Compensaciones de este año
+        compensation_this_year = abs(
+            sum(
+                reports_303.filtered(
+                    lambda r: r.period_type not in ("4T", "12")
+                    and r.result_type == "C"
+                ).mapped("resultado_liquidacion")
+            )
+        )
+        # Compensaciones de años anteriores
+        compensation_previous_years = reports_303.filtered(
+            lambda r: r.period_type in ("1T", "01")
+        )[:1].potential_cuota_compensar
+        # Si lo aplicado este año es menor que compensaciones de años
+        # anteriores significa que no se ha aplicado todo de años anteriores,
+        # por lo que no hay que tenerlo en cuenta para la 662.
+        if applied_this_year < compensation_previous_years:
+            compensation_previous_years = 0
+            # Si la diferencia entre compensaciones del año anterior y lo
+            # aplicado este año es mayor a las compensaciones del año,
+            # significa que el total de lo compensado este año no se ha
+            # aplicado porque todavía queda por aplicar de años anteriores.
+            if (compensation_previous_years - applied_this_year
+                    > compensation_this_year):
+                applied_this_year = 0
+        # La casilla 662 será la diferencia entre las compensaciones de este
+        # año y lo aplicado este año que no provenga de años anteriores
+        return max(
+            compensation_this_year - applied_this_year
+            - compensation_previous_years,
+            0,
+        )
+
+    @api.multi
+    def calculate(self):
+        res = super().calculate()
+        for mod390 in self:
+            if not mod390.use_303:
+                continue
+            casilla_85 = casilla_95 = casilla_97 = casilla_98 = 0
+            casilla_662 = 0
+            reports_303_this_year = self.env[
+                "l10n.es.aeat.mod303.report"
+            ].search([
+                ("year", "=", mod390.year),
+                ("state", "not in", ("draft", "cancelled")),
+                ("type", "=", "N"),
+                ("company_id", "=", mod390.company_id.id),
+            ])
+            if not reports_303_this_year:
+                continue
+            # casilla 85 = cuotas pendientes de compensación generadas en
+            # ejercicios anteriores y aplicadas en el ejercicio
+            casilla_85 = mod390._calculate_casilla_85(reports_303_this_year)
+            # casilla 95 = sumatorio de las casilla 71 de los periodos del año
+            # que sean a ingresar
+            casilla_95 = sum(
+                reports_303_this_year.filtered(
+                    lambda r: r.result_type in {"I", "G", "U"}
+                ).mapped("resultado_liquidacion")
+            )
+            casilla_662 = mod390._calculate_casilla_662(reports_303_this_year)
+            report_303_last_period = reports_303_this_year.filtered(
+                lambda r: r.period_type in {"4T", "12"}
+            )[:1]
+            if report_303_last_period:
+                if report_303_last_period.result_type == "C":
+                    # Si salió a compensar, casilla 97 = casilla 71 del último
+                    # periodo del año
+                    casilla_97 = abs(
+                        report_303_last_period.resultado_liquidacion)
+                elif report_303_last_period.result_type in {"D", "V", "X"}:
+                    # Si salió a devolver, casilla 98 = casilla 71 del último
+                    # periodo del año
+                    casilla_98 = abs(
+                        report_303_last_period.resultado_liquidacion)
+            mod390.update({
+                "casilla_85": casilla_85,
+                "casilla_95": casilla_95,
+                "casilla_97": casilla_97,
+                "casilla_98": casilla_98,
+                "casilla_662": casilla_662,
+            })
+        return res
 
     @api.multi
     def _get_move_line_domain(self, codes, date_start, date_end, map_line):
