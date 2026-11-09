@@ -284,9 +284,50 @@ class TestL10nEsAeatMod390(TestL10nEsAeatMod390Base):
             "l10n_es_aeat_mod390.aeat_mod390_2019_main_export_config",
             "l10n_es_aeat_mod390.aeat_mod390_2021_main_export_config",
             "l10n_es_aeat_mod390.aeat_mod390_2022_main_export_config",
+            "l10n_es_aeat_mod390.aeat_mod390_2024_main_export_config",
+            "l10n_es_aeat_mod390.aeat_mod390_2025_main_export_config",
         ]
         for xml_id in export_config_xml_ids:
             export_config = self.env.ref(xml_id)
             self.assertTrue(
                 export_to_boe._export_config(self.model390, export_config)
             )
+
+    def test_02_export_config_by_period(self):
+        expected = {
+            "2023-06-30": "aeat_mod390_2023_main_export_config",
+            "2024-06-30": "aeat_mod390_2024_main_export_config",
+            "2025-06-30": "aeat_mod390_2025_main_export_config",
+            "2026-06-30": "aeat_mod390_2025_main_export_config",
+        }
+        for date, xml_id in expected.items():
+            self.assertEqual(
+                self.model390._get_export_config(date),
+                self.env.ref("l10n_es_aeat_mod390.%s" % xml_id),
+                "Wrong export config for %s" % date,
+            )
+
+    def test_05_export_2025_layout(self):
+        self.model390.write({
+            "year": 2025,
+            "date_start": "2025-01-01",
+            "date_end": "2025-12-31",
+        })
+        self._invoice_sale_create("2025-03-10")
+        self.model390.button_calculate()
+        config = self.env.ref(
+            "l10n_es_aeat_mod390.aeat_mod390_2025_main_export_config")
+        export_to_boe = self.env["l10n.es.aeat.report.export_to_boe"].create({
+            "name": "test_export_to_boe.txt",
+        })
+        content = export_to_boe._export_config(self.model390, config)
+        # AEAT record design dr390e2025: header (328) + pages 1 (1187),
+        # 2 (1806), 2 bis (531), 3 (1840), 4 (854), 6 (828), 7 (776) +
+        # trailer (18); pages 5 and 8 are not exported
+        self.assertEqual(len(content), 8168)
+        # [01] Base imponible 4%: page 2, position 81, length 17
+        base_4 = sum(self.model390.tax_line_ids.filtered(
+            lambda x: x.field_number == 1).mapped("amount"))
+        self.assertTrue(base_4)
+        self.assertEqual(content[1515:1526], b"<T39002000>")
+        self.assertEqual(int(content[1595:1612]), round(base_4 * 100))
