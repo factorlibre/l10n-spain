@@ -284,9 +284,374 @@ class TestL10nEsAeatMod390(TestL10nEsAeatMod390Base):
             "l10n_es_aeat_mod390.aeat_mod390_2019_main_export_config",
             "l10n_es_aeat_mod390.aeat_mod390_2021_main_export_config",
             "l10n_es_aeat_mod390.aeat_mod390_2022_main_export_config",
+            "l10n_es_aeat_mod390.aeat_mod390_2024_main_export_config",
+            "l10n_es_aeat_mod390.aeat_mod390_2025_main_export_config",
         ]
         for xml_id in export_config_xml_ids:
             export_config = self.env.ref(xml_id)
             self.assertTrue(
                 export_to_boe._export_config(self.model390, export_config)
             )
+
+    def test_02_export_config_by_period(self):
+        expected = {
+            "2023-06-30": "aeat_mod390_2023_main_export_config",
+            "2024-06-30": "aeat_mod390_2024_main_export_config",
+            "2025-06-30": "aeat_mod390_2025_main_export_config",
+            "2026-06-30": "aeat_mod390_2025_main_export_config",
+        }
+        for date, xml_id in expected.items():
+            self.assertEqual(
+                self.model390._get_export_config(date),
+                self.env.ref("l10n_es_aeat_mod390.%s" % xml_id),
+                "Wrong export config for %s" % date,
+            )
+
+    def test_05_export_2025_layout(self):
+        self.model390.write({
+            "year": 2025,
+            "date_start": "2025-01-01",
+            "date_end": "2025-12-31",
+        })
+        self._invoice_sale_create("2025-03-10")
+        self.model390.button_calculate()
+        config = self.env.ref(
+            "l10n_es_aeat_mod390.aeat_mod390_2025_main_export_config")
+        export_to_boe = self.env["l10n.es.aeat.report.export_to_boe"].create({
+            "name": "test_export_to_boe.txt",
+        })
+        content = export_to_boe._export_config(self.model390, config)
+        # AEAT record design dr390e2025: header (328) + pages 1 (1187),
+        # 2 (1806), 2 bis (531), 3 (1840), 4 (854), 6 (828), 7 (776) +
+        # trailer (18); pages 5 and 8 are not exported
+        self.assertEqual(len(content), 8168)
+        # [01] Base imponible 4%: page 2, position 81, length 17
+        base_4 = sum(self.model390.tax_line_ids.filtered(
+            lambda x: x.field_number == 1).mapped("amount"))
+        self.assertTrue(base_4)
+        self.assertEqual(content[1515:1526], b"<T39002000>")
+        self.assertEqual(int(content[1595:1612]), round(base_4 * 100))
+
+
+class TestL10nEsAeatMod390Map2024(TestL10nEsAeatMod390Base):
+    def setUp(self):
+        super().setUp()
+        self.model390.write({
+            'year': 2024,
+            'date_start': '2024-01-01',
+            'date_end': '2024-12-31',
+        })
+        # Some mapped templates (temporary reduced rates) are archived
+        self.map_2024 = self.env.ref(
+            'l10n_es_aeat_mod390.aeat_mod390_2024_map'
+        ).with_context(active_test=False)
+
+    def _refund(self, invoice, dt, bankruptcy=False):
+        refund = invoice.sudo(self.billing_user).refund(
+            date_invoice=dt, journal_id=self.journal_misc.id)
+        refund.is_bankrupcy_uncollectible_debt = bankruptcy
+        refund.action_invoice_open()
+        return refund
+
+    def _field_amount(self, number):
+        return sum(self.model390.tax_line_ids.filtered(
+            lambda x: x.field_number == number).mapped('amount'))
+
+    def _field_moves(self, number):
+        return self.model390.tax_line_ids.filtered(
+            lambda x: x.field_number == number).mapped('move_line_ids.move_id')
+
+    def test_03_map_2024_resolves_taxes(self):
+        redirected = self.model390._get_redirect_map_lines()
+        for map_line in self.map_2024.map_line_ids:
+            module, xml_id = map_line.get_external_id()[map_line.id].split('.')
+            if module != 'l10n_es_aeat_mod390':
+                # Lines added by other modules (e.g. OSS) get their own taxes
+                continue
+            self.assertFalse(
+                map_line.tax_ids.filtered(lambda t: t.amount_type == 'group'),
+                "Map line %s uses a group tax instead of its children" % xml_id,
+            )
+            if xml_id in redirected:
+                self.assertFalse(map_line.tax_ids)
+                self.assertTrue(self.env.ref(
+                    'l10n_es_aeat_mod390.%s' % redirected[xml_id]
+                ).with_context(active_test=False).tax_ids)
+            else:
+                self.assertTrue(
+                    map_line.tax_ids, "Map line %s has no taxes" % xml_id)
+
+    def test_04_bankruptcy_boxes(self):
+        regular_refunds = self.env['account.invoice']
+        bankrupt_refunds = self.env['account.invoice']
+        for create in (self._invoice_sale_create,
+                       self._invoice_purchase_create):
+            regular_refunds |= self._refund(create('2024-02-11'), '2024-05-01')
+            bankrupt_refunds |= self._refund(
+                create('2024-02-12'), '2024-06-01', bankruptcy=True)
+        self.assertTrue(all(bankrupt_refunds.mapped(
+            'move_id.is_bankrupcy_uncollectible_debt')))
+        self.model390.button_calculate()
+        for regular_field, bankrupt_field in ((29, 31), (30, 32)):
+            self.assertEqual(
+                self._field_moves(regular_field), regular_refunds.mapped('move_id'))
+            self.assertEqual(
+                self._field_moves(bankrupt_field),
+                bankrupt_refunds.mapped('move_id'))
+            self.assertAlmostEqual(
+                self._field_amount(bankrupt_field),
+                self._field_amount(regular_field), 2)
+
+
+class TestL10nEsAeatMod390Using303(TestL10nEsAeatMod390Base):
+    def setUp(self):
+        super().setUp()
+        self.model390_2018 = self.env["l10n.es.aeat.mod390.report"].create(
+            {
+                "name": "999000001390",
+                "company_id": self.company.id,
+                "company_vat": "1234567890",
+                "contact_name": "Test owner",
+                "type": "N",
+                "support_type": "T",
+                "contact_phone": "911234455",
+                "year": 2018,
+                "period_type": "0A",
+                "date_start": "2018-01-01",
+                "date_end": "2018-12-31",
+                "journal_id": self.journal_misc.id,
+                "use_303": True,
+            }
+        )
+
+    def test_model_390_using_303_01(self):
+        # Check use 303 activated but no 303 reports exist
+        # Purchase invoices
+        self._invoice_purchase_create("2018-01-01")
+        self._invoice_purchase_create("2018-04-01")
+        self._invoice_purchase_create("2018-07-01")
+        self._invoice_purchase_create("2018-10-01")
+        # Sale invoices
+        self._invoice_sale_create("2018-01-01")
+        self._invoice_sale_create("2018-07-01")
+        self._invoice_sale_create("2018-10-01")
+        # Calculate 390
+        self.model390_2018.button_calculate()
+        self.assertAlmostEqual(self.model390_2018.casilla_85, 0.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_95, 0.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_97, 0.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_98, 0.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_662, 0.0, 2)
+
+    def test_model_390_using_303_02(self):
+        # Check use 303 activated and 303 reports exist but none are to be enter
+        # and last period is to return with remaining compensation
+        # Purchase invoices
+        self._invoice_purchase_create("2018-01-01")
+        self._invoice_purchase_create("2018-10-01")
+        # Reports 303
+        model303_1T = self.env["l10n.es.aeat.mod303.report"].create(
+            {
+                "name": "9991000000303",
+                "company_id": self.company.id,
+                "company_vat": "1234567890",
+                "contact_name": "Test owner",
+                "type": "N",
+                "support_type": "T",
+                "contact_phone": "911234455",
+                "year": 2018,
+                "period_type": "1T",
+                "date_start": "2018-01-01",
+                "date_end": "2018-03-31",
+                "journal_id": self.journal_misc.id,
+            }
+        )
+        model303_2T = model303_1T.copy(
+            {
+                "name": "9992000000303",
+                "period_type": "2T",
+                "date_start": "2018-04-01",
+                "date_end": "2018-06-30",
+            }
+        )
+        model303_3T = model303_1T.copy(
+            {
+                "name": "9993000000303",
+                "period_type": "3T",
+                "date_start": "2018-07-01",
+                "date_end": "2018-09-30",
+            }
+        )
+        model303_4T = model303_1T.copy(
+            {
+                "name": "9994000000303",
+                "period_type": "4T",
+                "date_start": "2018-10-01",
+                "date_end": "2018-12-31",
+            }
+        )
+        # Calculate reports
+        model303_1T.button_calculate()
+        model303_2T.button_calculate()
+        model303_3T.button_calculate()
+        model303_4T.button_calculate()
+        self.model390_2018.button_calculate()
+        # Check casilla_85, casilla_95, casilla_97, casilla_98, casilla_662
+        self.assertAlmostEqual(self.model390_2018.casilla_85, 0.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_95, 0.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_97, 560.85, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_98, 0.0, 2)
+        # To compensate this year = 560.85 (OCA 16.0: 674.48; the v11 303
+        # chains the pending fees to compensate differently from 1T to 3T)
+        # Total compensation applied this year = 0
+        # Compensation from previous years = 0
+        # Then C662 = 560.85
+        self.assertAlmostEqual(self.model390_2018.casilla_662, 560.85, 2)
+
+        model303_4T.return_last_period = True
+        model303_4T.button_calculate()
+        model303_4T.potential_cuota_compensar = 874.48
+        self.model390_2018.button_calculate()
+        # Check casilla_85, casilla_95, casilla_97, casilla_98, casilla_662
+        self.assertAlmostEqual(self.model390_2018.casilla_85, 0.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_95, 0.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_97, 0.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_98, 1121.70, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_662, 0.0, 2)
+
+        model303_1T.potential_cuota_compensar = 500.0
+        model303_1T.button_calculate()
+        self.model390_2018.button_calculate()
+        # Check casilla_85, casilla_95, casilla_97, casilla_98, casilla_662
+        self.assertAlmostEqual(self.model390_2018.casilla_85, 500.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_95, 0.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_97, 0.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_98, 1121.70, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_662, 0.0, 2)
+
+        model303_1T.potential_cuota_compensar = 1000.0
+        model303_1T.button_calculate()
+        self.model390_2018.button_calculate()
+        # Check casilla_85, casilla_95, casilla_97, casilla_98, casilla_662
+        self.assertAlmostEqual(self.model390_2018.casilla_85, 560.85, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_95, 0.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_97, 0.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_98, 1121.70, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_662, 0.0, 2)
+
+    def test_model_390_using_303_03(self):
+        # Check use 303 activated, 303 reports exist and last period is to compensate
+        # Purchase invoices
+        self._invoice_purchase_create("2018-01-01")
+        self._invoice_purchase_create("2018-04-01")
+        self._invoice_purchase_create("2018-07-01")
+        self._invoice_purchase_create("2018-10-01")
+        # # Sale invoices
+        self._invoice_sale_create("2018-01-01")
+        self._invoice_sale_create("2018-04-01")
+        self._invoice_sale_create("2018-07-01")
+        # Reports 303
+        model303_1T = self.env["l10n.es.aeat.mod303.report"].create(
+            {
+                "name": "9991000000303",
+                "company_id": self.company.id,
+                "company_vat": "1234567890",
+                "contact_name": "Test owner",
+                "type": "N",
+                "support_type": "T",
+                "contact_phone": "911234455",
+                "year": 2018,
+                "period_type": "1T",
+                "date_start": "2018-01-01",
+                "date_end": "2018-03-31",
+                "journal_id": self.journal_misc.id,
+            }
+        )
+        model303_2T = model303_1T.copy(
+            {
+                "name": "9992000000303",
+                "period_type": "2T",
+                "date_start": "2018-04-01",
+                "date_end": "2018-06-30",
+            }
+        )
+        model303_3T = model303_1T.copy(
+            {
+                "name": "9993000000303",
+                "period_type": "3T",
+                "date_start": "2018-07-01",
+                "date_end": "2018-09-30",
+            }
+        )
+
+        model303_4T = model303_1T.copy(
+            {
+                "name": "9994000000303",
+                "period_type": "4T",
+                "date_start": "2018-10-01",
+                "date_end": "2018-12-31",
+            }
+        )
+        # Calculate reports
+        model303_1T.button_calculate()
+        model303_2T.button_calculate()
+        model303_3T.button_calculate()
+        model303_4T.button_calculate()
+        self.model390_2018.button_calculate()
+        # Check casilla_85, casilla_95, casilla_97, casilla_98, casilla_662
+        self.assertAlmostEqual(self.model390_2018.casilla_85, 0.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_95, 2415.75, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_97, 560.85, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_98, 0.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_662, 0.0, 2)
+
+        model303_1T.potential_cuota_compensar = 2000.0
+        model303_1T.button_calculate()
+        self.model390_2018.button_calculate()
+        # Check casilla_85, casilla_95, casilla_97, casilla_98, casilla_662
+        self.assertAlmostEqual(self.model390_2018.casilla_85, 805.25, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_95, 1610.50, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_97, 560.85, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_98, 0.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_662, 0.0, 2)
+
+        model303_4T.return_last_period = True
+        model303_4T.button_calculate()
+        self.model390_2018.button_calculate()
+        # Check casilla_85, casilla_95, casilla_97, casilla_98, casilla_662
+        self.assertAlmostEqual(self.model390_2018.casilla_85, 805.25, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_95, 1610.50, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_97, 0.0, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_98, 560.85, 2)
+        self.assertAlmostEqual(self.model390_2018.casilla_662, 0.0, 2)
+
+    def test_06_casilla_85_monthly_303(self):
+        january = self.env["l10n.es.aeat.mod303.report"].create({
+            "name": "9990100000303",
+            "company_id": self.company.id,
+            "company_vat": "1234567890",
+            "contact_name": "Test owner",
+            "type": "N",
+            "support_type": "T",
+            "contact_phone": "911234455",
+            "year": 2018,
+            "period_type": "01",
+            "date_start": "2018-01-01",
+            "date_end": "2018-01-31",
+            "journal_id": self.journal_misc.id,
+            "potential_cuota_compensar": 100.0,
+            "cuota_compensar": 100.0,
+        })
+        # March applies fees generated earlier this year
+        march = january.copy({
+            "name": "9990300000303",
+            "period_type": "03",
+            "date_start": "2018-03-01",
+            "date_end": "2018-03-31",
+            "potential_cuota_compensar": 300.0,
+            "cuota_compensar": 300.0,
+        })
+        # Only what came from previous years (January's pending fees) counts
+        self.assertAlmostEqual(
+            self.model390_2018._calculate_casilla_85(january | march),
+            100.0, 2)
