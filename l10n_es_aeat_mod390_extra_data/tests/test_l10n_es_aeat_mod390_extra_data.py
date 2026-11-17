@@ -11,46 +11,20 @@ class TestL10nEsAeatMod390Extra(common.SavepointCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        # Get Map Tax Lines where taxes are being added
-        cls.MapTaxLine = cls.env["l10n.es.aeat.map.tax.line"]
-        cls.map_tax_line_702 = cls.MapTaxLine.search(
-            [
-                ("name", "=", "Régimen ordinario - Base imponible 5%"),
-                ("field_number", "=", "702"),
-            ]
-        )
-        cls.map_tax_line_703 = cls.MapTaxLine.search(
-            [
-                ("name", "=", "Régimen ordinario - Cuota 5%"),
-                ("field_number", "=", "703"),
-            ]
-        )
-        map_tax_line_724_name = (
-            "IVA deducible en operaciones corrientes de bienes y servicios - Base 5%"
-        )
-        cls.map_tax_line_724 = cls.MapTaxLine.search(
-            [
-                (
-                    "name",
-                    "=",
-                    map_tax_line_724_name,
-                ),
-                ("field_number", "=", "724"),
-            ]
-        )
-        map_tax_line_725_name = (
-            "IVA deducible en operaciones corrientes de bienes y servicios - Cuota 5%"
-        )
-        cls.map_tax_line_725 = cls.MapTaxLine.search(
-            [
-                (
-                    "name",
-                    "=",
-                    map_tax_line_725_name,
-                ),
-                ("field_number", "=", "725"),
-            ]
-        )
+        # Map lines of the pre-2024 mapping where taxes are being added. Some
+        # of the added templates are archived, so read them without filtering
+        cls.map_tax_line_702, cls.map_tax_line_703 = [
+            cls.env.ref(
+                "l10n_es_aeat_mod390.aeat_mod390_map_line_%s" % number
+            ).with_context(active_test=False)
+            for number in ("702", "703")
+        ]
+        cls.map_tax_line_724, cls.map_tax_line_725 = [
+            cls.env.ref(
+                "l10n_es_aeat_mod390.aeat_mod390_map_line_%s" % number
+            ).with_context(active_test=False)
+            for number in ("724", "725")
+        ]
 
         # Get tax templates
         cls.tax_template_s_iva5_a = cls.env.ref(
